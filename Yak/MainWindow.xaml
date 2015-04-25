@@ -49,7 +49,7 @@
             <controls:Flyout x:Name="MoviePage" Header="{Binding Movie.Title}"
                              Position="Right"
                              AnimateOpacity="True"
-                             FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB"
+                             FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light"
                              CloseButtonVisibility="{Binding IsDownloadingMovie, Converter={StaticResource BoolToVisibilityConverter}}"
                              Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=controls:MetroWindow}, Path=ActualWidth, Mode=OneWay}">
                 <Grid>
@@ -87,7 +87,7 @@
                     </StackPanel>
                     <MediaElement Name="TrailerPlayer" LoadedBehavior="Manual" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <Grid x:Name="MovieContainer">
-                        <Image x:Name="BackgroundImage" Source="{Binding Path=Movie.BackgroundImage, Converter={StaticResource NullImageConverter}}" Stretch="UniformToFill" Opacity="0.4"/>
+                        <Image x:Name="BackgroundImage" Source="{Binding Path=Movie.BackgroundImage, Converter={StaticResource NullImageConverter}}" Stretch="UniformToFill" Opacity="0.3"/>
                         <Grid x:Name="Content" Panel.ZIndex="2">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="1*"></RowDefinition>
@@ -165,9 +165,9 @@
                             <StackPanel Grid.Row="3" Grid.RowSpan="21" Grid.Column="10" Grid.ColumnSpan="13" Orientation="Vertical">
                                 <DockPanel>
                                     <DockPanel DockPanel.Dock="Top">
-                                    <TextBlock Text="{Binding Movie.Title}" DockPanel.Dock="Top" VerticalAlignment="Top" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB"  FontSize="48" HorizontalAlignment="Left"/>
+                                    <TextBlock Text="{Binding Movie.Title}" DockPanel.Dock="Top" VerticalAlignment="Top" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light"  FontSize="36" HorizontalAlignment="Left"/>
                                     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Movie.Year}" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB" FontSize="18"/>
+                                        <TextBlock Text="{Binding Movie.Year}" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="16"/>
                                         <Canvas Background="LightGray" VerticalAlignment="Center" Margin="10,0,0,5">
                                             <Ellipse
                                           Fill="#FFFFFF"
@@ -176,7 +176,7 @@
                                           StrokeThickness="5"
                                           Stroke="#FFFFFF"/>
                                         </Canvas>
-                                        <TextBlock Text="{Binding Movie.Runtime, Converter={StaticResource RuntimeConverter}}" Margin="15,0,0,0" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB" FontSize="18"/>
+                                        <TextBlock Text="{Binding Movie.Runtime, Converter={StaticResource RuntimeConverter}}" Margin="15,0,0,0" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="16"/>
                                         <Canvas Background="LightGray" VerticalAlignment="Center" Margin="10,0,0,5">
                                             <Ellipse
                                           Fill="#FFFFFF"
@@ -185,7 +185,7 @@
                                           StrokeThickness="5"
                                           Stroke="#FFFFFF"/>
                                         </Canvas>
-                                        <TextBlock Text="{Binding Movie.Genres, Converter={StaticResource GenresConverter}}" Margin="15,0,0,0" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB" FontSize="18"/>
+                                        <TextBlock Text="{Binding Movie.Genres, Converter={StaticResource GenresConverter}}" Margin="15,0,0,0" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="16"/>
                                         <Canvas Background="LightGray" VerticalAlignment="Center" Margin="10,0,0,5">
                                             <Ellipse
                                           Fill="#FFFFFF"
@@ -203,7 +203,7 @@
                                           StrokeThickness="5"
                                           Stroke="#FFFFFF"/>
                                         </Canvas>
-                                        <TextBlock Text="{Binding Movie.MpaRating}" Margin="15,0,0,0" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB" FontSize="18"/>
+                                        <TextBlock Text="{Binding Movie.MpaRating}" Margin="15,0,0,0" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="16"/>
                                     </StackPanel>
                                     
                                 </DockPanel>
@@ -225,12 +225,11 @@
                                 <Grid Height="{Binding ElementName=MovieContainer, Path=ActualHeight, Converter={StaticResource RatioConverter}, ConverterParameter=0.5}">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <StackPanel>
-                                            <TextBlock VerticalAlignment="Center" Padding="0,20,0,0" TextAlignment="Justify" Text="{Binding Movie.DescriptionFull}" TextWrapping="Wrap" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB" FontSize="24"></TextBlock>
+                                            <TextBlock VerticalAlignment="Center" Padding="0,20,0,0" TextAlignment="Justify" Text="{Binding Movie.DescriptionFull}" TextWrapping="Wrap" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light Light" FontSize="18"></TextBlock>
                                             <StackPanel Margin="0,20,0,0">
-                                                <TextBlock VerticalAlignment="Center" Text="Cast" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB" FontSize="36"></TextBlock>
                                                 <StackPanel Orientation="Horizontal">
                                                     <StackPanel>
-                                                        <TextBlock Text="Directors" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB" FontSize="24"></TextBlock>
+                                                        <TextBlock Text="Directors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" Foreground="WhiteSmoke" FontSize="18"></TextBlock>
                                                         <ItemsControl ItemsSource="{Binding Movie.Directors}" Padding="0,15,0,0">
                                                             <ItemsControl.ItemsPanel>
                                                                 <ItemsPanelTemplate>
@@ -239,13 +238,13 @@
                                                             </ItemsControl.ItemsPanel>
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
-                                                                    <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+                                                                    <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
                                                                         <StackPanel Orientation="Vertical">
-                                                                            <TextBlock Text="{Binding Name}" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB" FontSize="20"></TextBlock>
+                                                                            <TextBlock Text="{Binding Name}" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="14"></TextBlock>
                                                                             <Border BorderThickness="1" 
-                                                            CornerRadius="40" 
-                                                            HorizontalAlignment="Center" 
-                                                            VerticalAlignment="Top">
+                                                                                CornerRadius="40" 
+                                                                                HorizontalAlignment="Center" 
+                                                                                VerticalAlignment="Top">
                                                                                 <Grid>
                                                                                     <Border Name="mask" Background="Black" CornerRadius="40"/>
                                                                                     <StackPanel>
@@ -266,7 +265,7 @@
                                                         <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="White" />
                                                     </StackPanel>
                                                     <StackPanel>
-                                                        <TextBlock Text="Actors" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB" FontSize="24"></TextBlock>
+                                                        <TextBlock Text="Actors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" Foreground="WhiteSmoke" FontSize="18"></TextBlock>
                                                         <ItemsControl ItemsSource="{Binding Movie.Actors}" Padding="0,15,0,0">
                                                             <ItemsControl.ItemsPanel>
                                                                 <ItemsPanelTemplate>
@@ -275,9 +274,9 @@
                                                             </ItemsControl.ItemsPanel>
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
-                                                                    <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+                                                                    <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
                                                                         <StackPanel Orientation="Vertical">
-                                                                            <TextBlock Text="{Binding Name}" FontFamily="pack://application:,,,/Resources/Fonts/#Agency FB" FontSize="20"></TextBlock>
+                                                                            <TextBlock Text="{Binding Name}" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="14"></TextBlock>
                                                                             <Border BorderThickness="1" 
                                                             CornerRadius="40" 
                                                             HorizontalAlignment="Center" 
@@ -376,6 +375,10 @@
     </controls:MetroWindow.Flyouts>
 
     <Grid x:Name="LayoutRoot">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"></ColumnDefinition>
+            <ColumnDefinition Width="8*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
         <!--<Border BorderThickness="0,0,0,5" BorderBrush="#FF7E7E7E"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
             <StackPanel Width="150" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBox 
@@ -386,15 +389,16 @@
             </StackPanel>
         </Border>-->
 
-        <controls:MetroAnimatedSingleRowTabControl controls:TabControlHelper.IsUnderlined="True" x:Name="MainTabControl">
+        <StackPanel Grid.Column="0"></StackPanel>
+        <controls:MetroAnimatedSingleRowTabControl Grid.Column="1" controls:TabControlHelper.IsUnderlined="True" x:Name="MainTabControl">
             <TabItem Header="movies" controls:ControlsHelper.HeaderFontSize="28">
                 <usercontrols:Movies x:Name="MoviesUc" Margin="0,20,0,0"></usercontrols:Movies>
             </TabItem>
             <TabItem Header="series" controls:ControlsHelper.HeaderFontSize="28">
             </TabItem>
         </controls:MetroAnimatedSingleRowTabControl>
-        
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
             <StackPanel.Resources>
                 <ResourceDictionary>
                     <ResourceDictionary.MergedDictionaries>
