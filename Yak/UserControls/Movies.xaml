@@ -31,38 +31,73 @@
                    FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
                    FontSize="36"
                    Foreground="#FF7D7D7D"></TextBlock>
+        <StackPanel x:Name="Infos" Width="300" Background="#11171c" HorizontalAlignment="Right" Visibility="Collapsed"></StackPanel>
+
         <ScrollViewer x:Name="ScrollView"  VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
             <ItemsControl x:Name="ItemsList" ItemsSource="{Binding Movies}" VerticalAlignment="Top">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Margin="0,0,0,30" Width="230">
+                        <StackPanel Margin="0,0,0,30" >
                             <controls:Tile Style="{StaticResource LargeTileStyle}" 
                                            Command="{Binding Main.LoadMovieCommand, Source={StaticResource Locator}}" 
                                            CommandParameter="{Binding }" 
                                            Background="#FF2F2F2F">
                                     <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="8*"></RowDefinition>
+                                            <RowDefinition Height="1*"></RowDefinition>
+                                        </Grid.RowDefinitions>
                                         <Image  
+                                            Grid.Row="0"
+                                            Grid.RowSpan="2"
                                             x:Name="BackgroundImage"
                                             Source="{Binding MediumCoverImageUri, Converter={StaticResource NullImageConverter}}" 
                                             Stretch="UniformToFill" 
-                                             VerticalAlignment="Center"
+                                            VerticalAlignment="Center"
                                             HorizontalAlignment="Center"/>
-                                    <styles:Rating 
-                                        x:Name="Rating"
-                                        Margin="10" 
-                                        Width="60" 
-                                        HorizontalAlignment="Right" 
-                                        VerticalContentAlignment="Bottom" 
-                                        RatingValue="{Binding Rating, Converter={StaticResource StringRatingToIntRatingConverter}}" 
-                                        Opacity="0.0"/>
-                                    <Grid 
-                                        x:Name="PlayCanvas"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Center"
-                                        Opacity="0.0">
-                                        <Path Width="20.5832" Height="31.6667" Canvas.Left="30.0833" Canvas.Top="22.1667" Stretch="Fill" Fill="White" Data="F1 M 30.0833,22.1667L 50.6665,37.6043L 50.6665,38.7918L 30.0833,53.8333L 30.0833,22.1667 Z "/>
-                                        <Ellipse x:Name="ellipse" Width="60" Height="60" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" StrokeThickness="4" StrokeLineJoin="Round" Opacity=".6" Stroke="#FFFFFF" Fill="#00000000" />
-                                    </Grid>
+                                        <styles:Rating 
+                                            Grid.Row="1"
+                                            x:Name="Rating"
+                                            Width="60" 
+                                            Margin="10,0,0,0"
+                                            HorizontalAlignment="Left" 
+                                            VerticalContentAlignment="Center" 
+                                            RatingValue="{Binding Rating, Converter={StaticResource StringRatingToIntRatingConverter}}" 
+                                            Opacity="0.0"/>
+                                        <Grid 
+                                            Grid.Row="0"
+                                            Grid.RowSpan="2"
+                                            x:Name="PlayCanvas"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            Opacity="0.0">
+                                            <Path Width="20.5832" Height="31.6667" Canvas.Left="30.0833" Canvas.Top="22.1667" Stretch="Fill" Fill="White" Data="F1 M 30.0833,22.1667L 50.6665,37.6043L 50.6665,38.7918L 30.0833,53.8333L 30.0833,22.1667 Z "/>
+                                            <Ellipse x:Name="PlayEllipse" Width="60" Height="60" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" StrokeThickness="4" StrokeLineJoin="Round" Opacity=".6" Stroke="#FFFFFF" Fill="#00000000" />
+                                        </Grid>
+                                    <ToggleButton Grid.Row="1"
+                                            x:Name="InfosCanvas"
+                                                  Click="InfosCanvas_OnClick"
+                                                  CommandParameter="{Binding }"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Right"
+                                            Width="40"
+                                            Height="40"
+                                            Opacity="0.0"
+                                      Style="{DynamicResource MetroCircleToggleButtonStyle}">
+                                        <Rectangle Width="20"
+                                           Height="20"
+                                           Fill="White">
+                                            <Rectangle.OpacityMask>
+                                                <VisualBrush Stretch="Fill">
+                                                    <VisualBrush.Visual>
+                                                        <Canvas Width="48" Height="48" Clip="F1 M 0,0L 48,0L 48,48L 0,48L 0,0" UseLayoutRounding="False">
+                                                            <Path Width="24" Height="24" Canvas.Left="12" Canvas.Top="12" Stretch="Fill" Fill="White" Data="F1 M 24,12C 30.6274,12 36,17.3726 36,24C 36,30.6274 30.6274,36 24,36C 17.3726,36 12,30.6274 12,24C 12,17.3726 17.3726,12 24,12 Z M 21,21L 21,23L 23,23L 23,30L 21,30L 21,32L 28,32L 28,30L 26,30L 26,23L 26,21L 21,21 Z M 24.5,16C 23.6716,16 23,16.6716 23,17.5C 23,18.3284 23.6716,19 24.5,19C 25.3284,19 26,18.3284 26,17.5C 26,16.6716 25.3284,16 24.5,16 Z " />
+                                                        </Canvas>
+                                                    </VisualBrush.Visual>
+                                                </VisualBrush>
+                                            </Rectangle.OpacityMask>
+                                        </Rectangle>
+                                    </ToggleButton>
                                     <Grid.Triggers>
                                         <EventTrigger RoutedEvent="Grid.MouseEnter">
                                             <EventTrigger.Actions>
@@ -92,6 +127,14 @@
                                                             Storyboard.TargetProperty="Opacity"
                                                             FillBehavior="HoldEnd">
                                                         </DoubleAnimation>
+                                                        <DoubleAnimation 
+                                                            AutoReverse="False" 
+                                                            Duration="0:0:01" 
+                                                            From="0.0" To="1.0"
+                                                            Storyboard.TargetName="InfosCanvas"
+                                                            Storyboard.TargetProperty="Opacity"
+                                                            FillBehavior="HoldEnd">
+                                                        </DoubleAnimation>
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </EventTrigger.Actions>
@@ -118,6 +161,12 @@
                                                             Storyboard.TargetName="Rating"
                                                             Storyboard.TargetProperty="Opacity">
                                                         </DoubleAnimation>
+                                                        <DoubleAnimation 
+                                                            AutoReverse="False" 
+                                                            From="0.0" To="0.0"
+                                                            Storyboard.TargetName="InfosCanvas"
+                                                            Storyboard.TargetProperty="Opacity">
+                                                        </DoubleAnimation>
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </EventTrigger.Actions>
@@ -125,7 +174,7 @@
                                     </Grid.Triggers>
                                 </Grid>
                             </controls:Tile>
-                            <StackPanel Margin="2.5,5,0,0" Orientation="Vertical">
+                            <StackPanel Margin="18,5,0,0" Orientation="Vertical">
                                 <TextBlock Name="Title" 
                                             ToolTip="{Binding Title}"
                                             Text="{Binding Title}" 
