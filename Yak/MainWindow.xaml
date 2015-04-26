@@ -18,7 +18,7 @@
         DataContext="{Binding Main, Source={StaticResource Locator}}"
         Icon="/Resources/Images/Logo.ico"
         ShowIconOnTitleBar="True"
-        ShowTitleBar="True"
+        ShowTitleBar="False"
         WindowStartupLocation="CenterScreen"
         IgnoreTaskbarOnMaximize="True">
 
@@ -225,11 +225,11 @@
                                 <Grid Height="{Binding ElementName=MovieContainer, Path=ActualHeight, Converter={StaticResource RatioConverter}, ConverterParameter=0.5}">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <StackPanel>
-                                            <TextBlock VerticalAlignment="Center" Padding="0,20,0,0" TextAlignment="Justify" Text="{Binding Movie.DescriptionFull}" TextWrapping="Wrap" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light Light" FontSize="18"></TextBlock>
+                                            <TextBlock VerticalAlignment="Center" Padding="0,20,0,0" TextAlignment="Justify" Text="{Binding Movie.DescriptionFull}" TextWrapping="Wrap" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light Light" FontSize="16"></TextBlock>
                                             <StackPanel Margin="0,20,0,0">
                                                 <StackPanel Orientation="Horizontal">
                                                     <StackPanel>
-                                                        <TextBlock Text="Directors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" Foreground="WhiteSmoke" FontSize="18"></TextBlock>
+                                                        <TextBlock Text="Directors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" FontSize="18"></TextBlock>
                                                         <ItemsControl ItemsSource="{Binding Movie.Directors}" Padding="0,15,0,0">
                                                             <ItemsControl.ItemsPanel>
                                                                 <ItemsPanelTemplate>
@@ -265,7 +265,7 @@
                                                         <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="White" />
                                                     </StackPanel>
                                                     <StackPanel>
-                                                        <TextBlock Text="Actors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" Foreground="WhiteSmoke" FontSize="18"></TextBlock>
+                                                        <TextBlock Text="Actors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" FontSize="18"></TextBlock>
                                                         <ItemsControl ItemsSource="{Binding Movie.Actors}" Padding="0,15,0,0">
                                                             <ItemsControl.ItemsPanel>
                                                                 <ItemsPanelTemplate>
@@ -379,26 +379,48 @@
             <ColumnDefinition Width="2*"></ColumnDefinition>
             <ColumnDefinition Width="8*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <!--<Border BorderThickness="0,0,0,5" BorderBrush="#FF7E7E7E"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-            <StackPanel Width="150" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBox 
-                        Text="{Binding Movies.SearchMoviesFilter, Source={StaticResource Locator}, UpdateSourceTrigger=PropertyChanged}"
-                        controls:TextBoxHelper.Watermark="Search..."
-                        controls:TextBoxHelper.ClearTextButton="True">
-                </TextBox>
-            </StackPanel>
-        </Border>-->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="77"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Column="0" Grid.Row="0" Background="#cc4d4d">
+            <Border BorderThickness="0,0,0,1" BorderBrush="White" Width="200" Height="25">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox
+                         controls:TextBoxHelper.Watermark="Search movies..."
+                        controls:TextBoxHelper.ClearTextButton="True"
+                        Foreground="White"
+                        MaxLength="30"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Text="{Binding Movies.SearchMoviesFilter, Source={StaticResource Locator}, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style TargetType="{x:Type TextBox}"
+                               BasedOn="{StaticResource SearchMetroTextBox}">
+                            <Style.Triggers>
+                                <Trigger Property="controls:TextBoxHelper.HasText"
+                                         Value="True">
+                                    <Setter Property="controls:TextBoxHelper.ButtonTemplate"
+                                            Value="{DynamicResource ChromelessButtonTemplate}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
+            </Border>
+        </Grid>
+        <StackPanel Grid.Column="0" Grid.Row="1" Background="#11171c"></StackPanel>
 
-        <StackPanel Grid.Column="0"></StackPanel>
-        <controls:MetroAnimatedSingleRowTabControl Grid.Column="1" controls:TabControlHelper.IsUnderlined="True" x:Name="MainTabControl">
-            <TabItem Header="movies" controls:ControlsHelper.HeaderFontSize="28">
-                <usercontrols:Movies x:Name="MoviesUc" Margin="0,20,0,0"></usercontrols:Movies>
+        <controls:MetroAnimatedSingleRowTabControl Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" x:Name="MainTabControl" TabStripMargin="18">
+            <TabItem Header="Popular" controls:ControlsHelper.HeaderFontSize="28">
+                <usercontrols:Movies x:Name="MoviesUc"></usercontrols:Movies>
             </TabItem>
-            <TabItem Header="series" controls:ControlsHelper.HeaderFontSize="28">
+            <TabItem Header="Trending" controls:ControlsHelper.HeaderFontSize="28">
             </TabItem>
         </controls:MetroAnimatedSingleRowTabControl>
 
-        <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center">
             <StackPanel.Resources>
                 <ResourceDictionary>
                     <ResourceDictionary.MergedDictionaries>
