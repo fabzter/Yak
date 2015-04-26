@@ -1,7 +1,7 @@
 # Yak
 Watch movies easier
 
-![screenshot](https://cloud.githubusercontent.com/assets/8962802/7101211/1a3746ae-e04d-11e4-8ed7-b2d0bd5bc221.jpg)
+![screenshot](https://cloud.githubusercontent.com/assets/8962802/7339382/d1d9eb1a-ec6c-11e4-885f-c36fd2f749ec.jpg)
 
 ## What is Yak?
 Yak is a project which aims to provide a simple interface to watch any movie.
