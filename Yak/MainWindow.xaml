@@ -165,7 +165,7 @@
                             <StackPanel Grid.Row="3" Grid.RowSpan="21" Grid.Column="10" Grid.ColumnSpan="13" Orientation="Vertical">
                                 <DockPanel>
                                     <DockPanel DockPanel.Dock="Top">
-                                    <TextBlock Text="{Binding Movie.Title}" DockPanel.Dock="Top" VerticalAlignment="Top" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light"  FontSize="36" HorizontalAlignment="Left"/>
+                                    <TextBlock Text="{Binding Movie.Title}" DockPanel.Dock="Top" VerticalAlignment="Top" TextTrimming="CharacterEllipsis" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="36" HorizontalAlignment="Left"/>
                                     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
                                         <TextBlock Text="{Binding Movie.Year}" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="16"/>
                                         <Canvas Background="LightGray" VerticalAlignment="Center" Margin="10,0,0,5">
@@ -227,77 +227,79 @@
                                         <StackPanel>
                                             <TextBlock VerticalAlignment="Center" Padding="0,20,0,0" TextAlignment="Justify" Text="{Binding Movie.DescriptionFull}" TextWrapping="Wrap" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light Light" FontSize="16"></TextBlock>
                                             <StackPanel Margin="0,20,0,0">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <StackPanel>
-                                                        <TextBlock Text="Directors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" FontSize="18"></TextBlock>
-                                                        <ItemsControl ItemsSource="{Binding Movie.Directors}" Padding="0,15,0,0">
-                                                            <ItemsControl.ItemsPanel>
-                                                                <ItemsPanelTemplate>
-                                                                    <StackPanel Orientation="Horizontal"/>
-                                                                </ItemsPanelTemplate>
-                                                            </ItemsControl.ItemsPanel>
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
-                                                                        <StackPanel Orientation="Vertical">
-                                                                            <TextBlock Text="{Binding Name}" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="14"></TextBlock>
-                                                                            <Border BorderThickness="1" 
+                                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <StackPanel>
+                                                            <TextBlock Text="Directors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" FontSize="18"></TextBlock>
+                                                            <ItemsControl ItemsSource="{Binding Movie.Directors}" Padding="0,15,0,0">
+                                                                <ItemsControl.ItemsPanel>
+                                                                    <ItemsPanelTemplate>
+                                                                        <StackPanel Orientation="Horizontal"/>
+                                                                    </ItemsPanelTemplate>
+                                                                </ItemsControl.ItemsPanel>
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
+                                                                            <StackPanel Orientation="Vertical">
+                                                                                <TextBlock Text="{Binding Name}" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="14"></TextBlock>
+                                                                                <Border BorderThickness="1" 
                                                                                 CornerRadius="40" 
                                                                                 HorizontalAlignment="Center" 
                                                                                 VerticalAlignment="Top">
-                                                                                <Grid>
-                                                                                    <Border Name="mask" Background="Black" CornerRadius="40"/>
-                                                                                    <StackPanel>
-                                                                                        <StackPanel.OpacityMask>
-                                                                                            <VisualBrush Visual="{Binding ElementName=mask}"/>
-                                                                                        </StackPanel.OpacityMask>
-                                                                                        <Image Source="{Binding SmallImagePath, Converter={StaticResource NullImageConverter}}" Width="60" Height="60" HorizontalAlignment="Left"></Image>
-                                                                                    </StackPanel>
-                                                                                </Grid>
-                                                                            </Border>
+                                                                                    <Grid>
+                                                                                        <Border Name="mask" Background="Black" CornerRadius="40"/>
+                                                                                        <StackPanel>
+                                                                                            <StackPanel.OpacityMask>
+                                                                                                <VisualBrush Visual="{Binding ElementName=mask}"/>
+                                                                                            </StackPanel.OpacityMask>
+                                                                                            <Image Source="{Binding SmallImagePath, Converter={StaticResource NullImageConverter}}" Width="60" Height="60" HorizontalAlignment="Left"></Image>
+                                                                                        </StackPanel>
+                                                                                    </Grid>
+                                                                                </Border>
+                                                                            </StackPanel>
                                                                         </StackPanel>
-                                                                    </StackPanel>
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
-                                                    </StackPanel>
-                                                    <StackPanel Orientation="Horizontal" Margin="20,0,20,0">
-                                                        <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="White" />
-                                                    </StackPanel>
-                                                    <StackPanel>
-                                                        <TextBlock Text="Actors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" FontSize="18"></TextBlock>
-                                                        <ItemsControl ItemsSource="{Binding Movie.Actors}" Padding="0,15,0,0">
-                                                            <ItemsControl.ItemsPanel>
-                                                                <ItemsPanelTemplate>
-                                                                    <StackPanel Orientation="Horizontal"/>
-                                                                </ItemsPanelTemplate>
-                                                            </ItemsControl.ItemsPanel>
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
-                                                                        <StackPanel Orientation="Vertical">
-                                                                            <TextBlock Text="{Binding Name}" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="14"></TextBlock>
-                                                                            <Border BorderThickness="1" 
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Margin="20,0,20,0">
+                                                            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="White" />
+                                                        </StackPanel>
+                                                        <StackPanel>
+                                                            <TextBlock Text="Actors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" FontSize="18"></TextBlock>
+                                                            <ItemsControl ItemsSource="{Binding Movie.Actors}" Padding="0,15,0,0">
+                                                                <ItemsControl.ItemsPanel>
+                                                                    <ItemsPanelTemplate>
+                                                                        <StackPanel Orientation="Horizontal"/>
+                                                                    </ItemsPanelTemplate>
+                                                                </ItemsControl.ItemsPanel>
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
+                                                                            <StackPanel Orientation="Vertical">
+                                                                                <TextBlock Text="{Binding Name}" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="14"></TextBlock>
+                                                                                <Border BorderThickness="1" 
                                                             CornerRadius="40" 
                                                             HorizontalAlignment="Center" 
                                                             VerticalAlignment="Top">
-                                                                                <Grid>
-                                                                                    <Border Name="mask" Background="Black" CornerRadius="40"/>
-                                                                                    <StackPanel>
-                                                                                        <StackPanel.OpacityMask>
-                                                                                            <VisualBrush Visual="{Binding ElementName=mask}"/>
-                                                                                        </StackPanel.OpacityMask>
-                                                                                        <Image Source="{Binding SmallImagePath, Converter={StaticResource NullImageConverter}}" Width="60" Height="60" HorizontalAlignment="Left"></Image>
-                                                                                    </StackPanel>
-                                                                                </Grid>
-                                                                            </Border>
+                                                                                    <Grid>
+                                                                                        <Border Name="mask" Background="Black" CornerRadius="40"/>
+                                                                                        <StackPanel>
+                                                                                            <StackPanel.OpacityMask>
+                                                                                                <VisualBrush Visual="{Binding ElementName=mask}"/>
+                                                                                            </StackPanel.OpacityMask>
+                                                                                            <Image Source="{Binding SmallImagePath, Converter={StaticResource NullImageConverter}}" Width="60" Height="60" HorizontalAlignment="Left"></Image>
+                                                                                        </StackPanel>
+                                                                                    </Grid>
+                                                                                </Border>
+                                                                            </StackPanel>
                                                                         </StackPanel>
-                                                                    </StackPanel>
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </StackPanel>
                                                     </StackPanel>
-                                                </StackPanel>
+                                                </ScrollViewer>
                                             </StackPanel>
                                         </StackPanel>
                                     </ScrollViewer>
