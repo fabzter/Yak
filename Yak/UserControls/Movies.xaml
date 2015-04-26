@@ -19,9 +19,10 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.Buttons.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.Scrollbars.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatSlider.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatButton.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Styles/Icons.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Red.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/baselight.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
             </ResourceDictionary.MergedDictionaries>
             
             <Style x:Key="LargeTileStyle" TargetType="controls:Tile">
@@ -126,20 +127,37 @@
             <converters:NullImageConverter x:Key="NullImageConverter" />
             <converters:GenresConverter x:Key="GenresConverter"/>
             <converters:RuntimeConverter x:Key="RuntimeConverter"/>
+            <converters:BoolToInverseVisibilityConverter x:Key="BoolToInverseVisibilityConverter"/>
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Name="Container">
-        <controls:ProgressRing Name="ProgressRing" Panel.ZIndex="1"/>
+        <controls:ProgressRing 
+            Name="ProgressRing" 
+            Panel.ZIndex="1" 
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToVisibilityConverter}}"/>
         <TextBlock x:Name="NoMouvieFound" 
                    Text="No movie found" 
                    Visibility="Collapsed" 
-                   VerticalAlignment="Center" 
-                   HorizontalAlignment="Center" 
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
                    FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
                    FontSize="36"
                    Foreground="#FF7D7D7D"></TextBlock>
-        <ScrollViewer x:Name="ScrollView" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
+        <Button x:Name="ReloadButton"
+                    Width="140"
+                    Height="40"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Margin="0, 10, 0, 0"
+                    Content="Reload"
+                    FontSize="18"
+                    Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToInverseVisibilityConverter}}"
+                    Command="{Binding ReloadMovies}"/>
+        <ScrollViewer x:Name="ScrollView" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged" Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToVisibilityConverter}}">
             <ItemsControl x:Name="ItemsList" ItemsSource="{Binding Movies}" VerticalAlignment="Top">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

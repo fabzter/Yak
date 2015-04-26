@@ -10,6 +10,7 @@ using Yak.CustomPanels;
 using Yak.Events;
 using System.Windows.Controls.Primitives;
 using MahApps.Metro.Controls;
+using Microsoft.Practices.ServiceLocation;
 
 namespace Yak.UserControls
 {
@@ -18,6 +19,14 @@ namespace Yak.UserControls
     /// </summary>
     public partial class Movies : UserControl
     {
+        #region Properties
+
+        #region Property -> TabName
+        private string TabName { get; set; }
+        #endregion
+
+        #endregion
+
         #region Constructor
         public Movies()
         {
@@ -25,6 +34,22 @@ namespace Yak.UserControls
             Loaded += async (s, e) =>
             {
                 await OnMoviesUcLoaded(s, e);
+            };
+
+            Unloaded += (s, e) =>
+            {
+                MainViewModel mainViewModel = ServiceLocator.Current.GetInstance<MainViewModel>();
+                if (mainViewModel != null)
+                {
+                    foreach (MoviesViewModel moviesViewModel in mainViewModel.MoviesViewModelTabs)
+                    {
+                        if (moviesViewModel.TabName.Equals(TabName))
+                        {
+                            moviesViewModel.MoviesLoaded -= OnMoviesLoaded;
+                            moviesViewModel.MoviesLoading -= OnMoviesLoading;
+                        }
+                    }
+                }
             };
         }
         #endregion
@@ -40,18 +65,23 @@ namespace Yak.UserControls
         private async Task OnMoviesUcLoaded(object sender, RoutedEventArgs e)
         {
             var vm = DataContext as MoviesViewModel;
-            if (vm != null && !vm.Movies.Any())
+            if (vm != null)
             {
                 vm.MoviesLoaded += OnMoviesLoaded;
                 vm.MoviesLoading += OnMoviesLoading;
+                TabName = vm.TabName;
 
-                // At first load, we load the first page of movies
-                await vm.LoadNextPage();
+                if (!vm.Movies.Any())
+                {
+                    // At first load, we load the first page of movies
+                    await vm.LoadNextPage();
+                }
             }
         }
         #endregion
 
         #region Method -> OnMoviesLoading
+
         /// <summary>
         /// Fade in opacity of the window, let the progress ring appear and collapse the NoMouvieFound label when loading movies
         /// </summary>
@@ -59,33 +89,33 @@ namespace Yak.UserControls
         /// <param name="e">EventArgs</param>
         private void OnMoviesLoading(object sender, EventArgs e)
         {
-            // We have to deal with the DispatcherHelper, otherwise we're having the classic cross-thread access exception
-            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+            ProgressRing.IsActive = true;
+
+            #region Fade in opacity
+
+            DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+            opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
+            PowerEase opacityEasingFunction = new PowerEase();
+            opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
+            EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(1, KeyTime.FromPercent(0));
+            EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(0.2, KeyTime.FromPercent(1.0),
+                opacityEasingFunction);
+            opacityAnimation.KeyFrames.Add(startOpacityEasing);
+            opacityAnimation.KeyFrames.Add(endOpacityEasing);
+            ItemsList.BeginAnimation(OpacityProperty, opacityAnimation);
+
+            #endregion
+
+            if (NoMouvieFound.Visibility == Visibility.Visible)
             {
-                ProgressRing.IsActive = true;
-
-                #region Fade in opacity
-                DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
-                opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-                PowerEase opacityEasingFunction = new PowerEase();
-                opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(1, KeyTime.FromPercent(0));
-                EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(0.2, KeyTime.FromPercent(1.0),
-                    opacityEasingFunction);
-                opacityAnimation.KeyFrames.Add(startOpacityEasing);
-                opacityAnimation.KeyFrames.Add(endOpacityEasing);
-                ItemsList.BeginAnimation(OpacityProperty, opacityAnimation);
-                #endregion
-
-                if (NoMouvieFound.Visibility == Visibility.Visible)
-                {
-                    NoMouvieFound.Visibility = Visibility.Collapsed;
-                }
-            });
+                NoMouvieFound.Visibility = Visibility.Collapsed;
+            }
         }
+
         #endregion
 
         #region Method -> OnMoviesLoaded
+
         /// <summary>
         /// Fade out opacity of the window, let the progress ring disappear and set to visible the NoMouvieFound label when movies are loaded
         /// </summary>
@@ -93,39 +123,38 @@ namespace Yak.UserControls
         /// <param name="e">EventArgs</param>
         private void OnMoviesLoaded(object sender, NumberOfLoadedMoviesEventArgs e)
         {
-            // We have to deal with the DispatcherHelper, otherwise we're having the classic cross-thread access exception
-            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+            // We exclude exceptions like TaskCancelled when getting back results
+            if ((e.NumberOfMovies == 0 && !e.IsExceptionThrown) || (e.NumberOfMovies != 0 && !e.IsExceptionThrown))
             {
-                // We exclude exceptions like TaskCancelled when getting back results
-                if ((e.NumberOfMovies == 0 && !e.IsExceptionThrown) || (e.NumberOfMovies != 0 && !e.IsExceptionThrown))
-                {
-                    ProgressRing.IsActive = false;
+                ProgressRing.IsActive = false;
 
-                    #region Fade out opacity
-                    DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
-                    opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-                    PowerEase opacityEasingFunction = new PowerEase();
-                    opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                    EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(0.2, KeyTime.FromPercent(0));
-                    EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(1, KeyTime.FromPercent(1.0),
-                        opacityEasingFunction);
-                    opacityAnimation.KeyFrames.Add(startOpacityEasing);
-                    opacityAnimation.KeyFrames.Add(endOpacityEasing);
-                    ItemsList.BeginAnimation(OpacityProperty, opacityAnimation);
-                    #endregion
-                }
+                #region Fade out opacity
 
-                var vm = DataContext as MoviesViewModel;
-                if (vm != null)
+                DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+                opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
+                PowerEase opacityEasingFunction = new PowerEase();
+                opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
+                EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(0.2, KeyTime.FromPercent(0));
+                EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(1, KeyTime.FromPercent(1.0),
+                    opacityEasingFunction);
+                opacityAnimation.KeyFrames.Add(startOpacityEasing);
+                opacityAnimation.KeyFrames.Add(endOpacityEasing);
+                ItemsList.BeginAnimation(OpacityProperty, opacityAnimation);
+
+                #endregion
+            }
+
+            var vm = DataContext as MoviesViewModel;
+            if (vm != null)
+            {
+                // If we searched movies and there's no result, display the NoMovieFound label (we exclude exceptions like TaskCancelled when getting back results)
+                if (!vm.Movies.Any() && e.NumberOfMovies == 0 && !e.IsExceptionThrown)
                 {
-                    // If we searched movies and there's no result, display the NoMovieFound label (we exclude exceptions like TaskCancelled when getting back results)
-                    if (!vm.Movies.Any() && e.NumberOfMovies == 0 && !e.IsExceptionThrown)
-                    {
-                        NoMouvieFound.Visibility = Visibility.Visible;
-                    }
+                    NoMouvieFound.Visibility = Visibility.Visible;
                 }
-            });
+            }
         }
+
         #endregion
 
         #region Method -> ScrollViewer_ScrollChanged

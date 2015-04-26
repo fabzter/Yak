@@ -389,14 +389,14 @@
         <Grid Grid.Column="0" Grid.Row="0" Background="#cc4d4d">
             <Border BorderThickness="0,0,0,1" BorderBrush="White" Width="150" Height="25">
                 <StackPanel Orientation="Horizontal">
-                    <!--<TextBox
-                         controls:TextBoxHelper.Watermark="Search movies..."
+                    <TextBox
+                        controls:TextBoxHelper.Watermark="Search movies..."
                         controls:TextBoxHelper.ClearTextButton="True"
                         Foreground="White"
                         MaxLength="15"
                         Background="Transparent"
                         BorderThickness="0"
-                        Text="{Binding Movies.SearchMoviesFilter, Source={StaticResource Locator}, UpdateSourceTrigger=PropertyChanged}">
+                        Text="{Binding ElementName=MainTabControl, Path=SelectedItem.SearchMoviesFilter, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Style>
                         <Style TargetType="{x:Type TextBox}"
                                BasedOn="{StaticResource SearchMetroTextBox}">
@@ -409,7 +409,7 @@
                             </Style.Triggers>
                         </Style>
                     </TextBox.Style>
-                    </TextBox>-->
+                    </TextBox>
                 </StackPanel>
             </Border>
         </Grid>
@@ -433,31 +433,11 @@
 
             <controls:MetroAnimatedSingleRowTabControl.ItemContainerStyle>
                 <Style TargetType="TabItem">
-                    <Setter Property="Header" Value="{Binding SortByFilter}" />
+                    <Setter Property="Header" Value="{Binding TabName}" />
                     <Setter Property="controls:ControlsHelper.HeaderFontSize" Value="28"></Setter>
                     <Setter Property="ContentTemplate" Value="{StaticResource contentTemplate}"/>
-
                 </Style>
             </controls:MetroAnimatedSingleRowTabControl.ItemContainerStyle>
-
         </controls:MetroAnimatedSingleRowTabControl>
-
-        <StackPanel x:Name="Background" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <StackPanel.Resources>
-                <ResourceDictionary>
-                    <ResourceDictionary.MergedDictionaries>
-                        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatButton.xaml" />
-                    </ResourceDictionary.MergedDictionaries>
-                </ResourceDictionary>
-            </StackPanel.Resources>
-            <!--<Button x:Name="ReloadButton"
-                    Width="140"
-                    Height="40"
-                    Margin="0, 10, 0, 0"
-                    Content="Reload"
-                    FontSize="18"
-                    Visibility="{Binding Main.IsConnectionInError, Source={StaticResource Locator}, Converter={StaticResource BoolToInverseVisibilityConverter}}"
-                    Command="{Binding Movies.ReloadMovies, Source={StaticResource Locator}}"/>-->
-        </StackPanel>
     </Grid>
 </controls:MetroWindow>

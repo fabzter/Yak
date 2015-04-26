@@ -202,8 +202,8 @@ namespace Yak.ViewModel
             });
 
             MoviesViewModelTabs = new ObservableCollection<MoviesViewModel>();
-            MoviesViewModelTabs.Add(new MoviesViewModel { SortByFilter = "Popular" });
-            MoviesViewModelTabs.Add(new MoviesViewModel { SortByFilter = "Recent" });
+            MoviesViewModelTabs.Add(new MoviesViewModel { TabName = "Popular" });
+            MoviesViewModelTabs.Add(new MoviesViewModel { TabName = "Recent" });
 
             SelectedTabViewModel = MoviesViewModelTabs[0];
         }

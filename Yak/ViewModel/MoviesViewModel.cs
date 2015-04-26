@@ -12,6 +12,7 @@ using Yak.Model.Movie;
 using GalaSoft.MvvmLight.Command;
 using Yak.Events;
 using Yak.Comparers;
+using Yak.Helpers;
 
 namespace Yak.ViewModel
 {
@@ -89,11 +90,24 @@ namespace Yak.ViewModel
         }
         #endregion
 
-        #region Property -> SortByFilter
+        #region Property -> TabName
         /// <summary>
         /// The filter used for retrieving movies by tabs
         /// </summary>
-        public string SortByFilter { private get; set; }
+        public string TabName { get; set; }
+        #endregion
+
+        #region Property -> IsConnectionInError
+        private bool _isConnectionInError;
+        /// <summary>
+        /// Specify if a connection error has occured
+        /// </summary>
+        public bool IsConnectionInError
+        {
+            get { return _isConnectionInError; }
+            set { Set(() => IsConnectionInError, ref _isConnectionInError, value, true); }
+        }
+
         #endregion
 
         #endregion
@@ -137,17 +151,19 @@ namespace Yak.ViewModel
             // Set the CancellationToken for having the possibility to stop a task
             CancellationLoadingToken = new CancellationTokenSource();
 
-            MaxMoviesPerPage = Helpers.Constants.MaxMoviesPerPage;
+            MaxMoviesPerPage = Constants.MaxMoviesPerPage;
 
             ReloadMovies = new RelayCommand(async () =>
             {
-                Messenger.Default.Send<bool>(false, Helpers.Constants.ConnectionErrorPropertyName);
+                Messenger.Default.Send<bool>(false, Constants.ConnectionErrorPropertyName);
                 await LoadNextPage();
             });
 
             Messenger.Default.Register<PropertyChangedMessage<string>>(
                 this, SearchMessageToken, async e => await SearchMovies(e.NewValue)
             );
+
+            Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, e => IsConnectionInError = e);
         }
         #endregion
 
@@ -203,7 +219,7 @@ namespace Yak.ViewModel
 
             // The page to load is new, never met it before, so we load the new page via the service
             Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>> results =
-                await ApiService.GetMoviesAsync(SortByFilter,
+                await ApiService.GetMoviesAsync(TabName,
                     searchFilter,
                     MaxMoviesPerPage,
                     Pagination,
