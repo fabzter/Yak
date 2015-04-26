@@ -16,6 +16,7 @@ using Yak.Events;
 using GalaSoft.MvvmLight.Command;
 using TMDbLib.Objects.Movies;
 using YoutubeExtractor;
+using System.Collections.ObjectModel;
 
 namespace Yak.ViewModel
 {
@@ -42,6 +43,30 @@ namespace Yak.ViewModel
         {
             get { return _movie; }
             set { Set(() => Movie, ref _movie, value, true); }
+        }
+        #endregion
+
+        #region Property -> MoviesViewModelTabs
+        /// <summary>
+        /// Movies loaded from the service and shown in the interface
+        /// </summary>
+        private ObservableCollection<MoviesViewModel> _moviesViewModelTabs;
+        public ObservableCollection<MoviesViewModel> MoviesViewModelTabs
+        {
+            get { return _moviesViewModelTabs; }
+            set { Set(() => MoviesViewModelTabs, ref _moviesViewModelTabs, value, true); }
+        }
+        #endregion
+
+        #region Property -> SelectedTabViewModel
+        /// <summary>
+        /// The movie to play, retrieved from YTS API
+        /// </summary>
+        private MoviesViewModel _selectedTabViewModel = new MoviesViewModel();
+        public MoviesViewModel SelectedTabViewModel
+        {
+            get { return _selectedTabViewModel; }
+            set { Set(() => SelectedTabViewModel, ref _selectedTabViewModel, value, true); }
         }
         #endregion
 
@@ -175,6 +200,12 @@ namespace Yak.ViewModel
             {
                 GetTrailer(Movie.ImdbCode);
             });
+
+            MoviesViewModelTabs = new ObservableCollection<MoviesViewModel>();
+            MoviesViewModelTabs.Add(new MoviesViewModel { SortByFilter = "Popular" });
+            MoviesViewModelTabs.Add(new MoviesViewModel { SortByFilter = "Recent" });
+
+            SelectedTabViewModel = MoviesViewModelTabs[0];
         }
         #endregion
 
@@ -641,5 +672,7 @@ namespace Yak.ViewModel
             Messenger.Default.Unregister<string>(this);
             base.Cleanup();
         }
+
+
     }
 }

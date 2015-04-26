@@ -9,7 +9,8 @@ namespace Yak.Model.Api
 {
     public interface IService
     {
-        Task<Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>>> GetMoviesAsync(string searchParameter,
+        Task<Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>>> GetMoviesAsync(string sortByFilter,
+            string searchParameter,
             int maxMoviesPerPage,
             int pageNumberToLoad, 
             CancellationTokenSource cancellationToken);

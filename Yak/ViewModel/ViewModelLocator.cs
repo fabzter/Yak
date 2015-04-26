@@ -17,7 +17,7 @@ namespace Yak.ViewModel
             SimpleIoc.Default.Register<IService, Service>();
 
             SimpleIoc.Default.Register(() => new MainViewModel());
-            SimpleIoc.Default.Register(() => new MoviesViewModel());
+            //SimpleIoc.Default.Register(() => new MoviesViewModel());
         }
 
         /// <summary>
@@ -34,29 +34,29 @@ namespace Yak.ViewModel
             }
         }
 
-        /// <summary>
-        /// Gets the Movies property.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
-            "CA1822:MarkMembersAsStatic",
-            Justification = "This non-static member is needed for data binding purposes.")]
-        public MoviesViewModel Movies
-        {
-            get
-            {
-                return ServiceLocator.Current.GetInstance<MoviesViewModel>();
-            }
-        }
+        ///// <summary>
+        ///// Gets the Movies property.
+        ///// </summary>
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+        //    "CA1822:MarkMembersAsStatic",
+        //    Justification = "This non-static member is needed for data binding purposes.")]
+        //public MoviesViewModel Movies
+        //{
+        //    get
+        //    {
+        //        return ServiceLocator.Current.GetInstance<MoviesViewModel>();
+        //    }
+        //}
 
         /// <summary>
         /// Cleans up all the resources.
         /// </summary>
         public static void Cleanup()
         {
-            if (SimpleIoc.Default.IsRegistered<MoviesViewModel>())
-            {
-                SimpleIoc.Default.Unregister<MoviesViewModel>();
-            }
+            //if (SimpleIoc.Default.IsRegistered<MoviesViewModel>())
+            //{
+            //    SimpleIoc.Default.Unregister<MoviesViewModel>();
+            //}
 
             if (SimpleIoc.Default.IsRegistered<MainViewModel>())
             {

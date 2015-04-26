@@ -29,7 +29,7 @@ namespace Yak.Model.Api
         /// <param name="maxMoviesPerPage">MaxMoviesPerPage</param>
         /// <param name="pageNumberToLoad">Page number to load</param>
         /// <param name="cancellationToken">cancellationToken</param>
-        public async Task<Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>>> GetMoviesAsync(
+        public async Task<Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>>> GetMoviesAsync(string sortByFilter,
             string searchParameter,
             int maxMoviesPerPage,
             int pageNumberToLoad,
@@ -44,7 +44,14 @@ namespace Yak.Model.Api
 
             if (String.IsNullOrEmpty(searchParameter))
             {
-                request.AddParameter("sort_by", "like_count");
+                if(sortByFilter.Equals("Popular"))
+                {
+                    request.AddParameter("sort_by", "like_count");
+                }
+                else if(sortByFilter.Equals("Recent"))
+                {
+                    request.AddParameter("sort_by", "date_added");
+                }
             }
             else
             {

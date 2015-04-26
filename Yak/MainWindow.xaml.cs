@@ -328,22 +328,29 @@ namespace Yak
                     "You seem to have an internet connection error. Please retry.",
                     MessageDialogStyle.Affirmative, settings);
 
-            if (MoviesUc.ProgressRing.IsActive)
-            {
-                MoviesUc.ProgressRing.IsActive = false;
-            }
+            
+            //if (MainTabControl.SelectedItem.ProgressRing.IsActive)
+            //{
+            //    PopularMovies.ProgressRing.IsActive = false;
+            //}
 
-            // Catch the response's user (when clicked OK)
-            if (result == MessageDialogResult.Affirmative)
-            {
-                // Close the movie page
-                if (MoviePage.IsOpen)
-                {
-                    MoviePage.IsOpen = false;
-                    // Hide the movies list (the connection is in error, so no movie manipulation is available)
-                    MoviesUc.Opacity = 0;
-                }
-            }
+            //if (RecentMovies.ProgressRing.IsActive)
+            //{
+            //    RecentMovies.ProgressRing.IsActive = false;
+            //}
+
+            //// Catch the response's user (when clicked OK)
+            //if (result == MessageDialogResult.Affirmative)
+            //{
+            //    // Close the movie page
+            //    if (MoviePage.IsOpen)
+            //    {
+            //        MoviePage.IsOpen = false;
+            //        // Hide the movies list (the connection is in error, so no movie manipulation is available)
+            //        RecentMovies.Opacity = 0;
+            //        PopularMovies.Opacity = 0;
+            //    }
+            //}
         }
         #endregion
 

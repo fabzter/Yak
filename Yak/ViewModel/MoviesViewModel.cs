@@ -89,6 +89,13 @@ namespace Yak.ViewModel
         }
         #endregion
 
+        #region Property -> SortByFilter
+        /// <summary>
+        /// The filter used for retrieving movies by tabs
+        /// </summary>
+        public string SortByFilter { private get; set; }
+        #endregion
+
         #endregion
 
         #region Commands
@@ -196,7 +203,8 @@ namespace Yak.ViewModel
 
             // The page to load is new, never met it before, so we load the new page via the service
             Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>> results =
-                await ApiService.GetMoviesAsync(searchFilter,
+                await ApiService.GetMoviesAsync(SortByFilter,
+                    searchFilter,
                     MaxMoviesPerPage,
                     Pagination,
                     CancellationLoadingToken);

@@ -8,6 +8,7 @@
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:converters="clr-namespace:Yak.Converters"
         xmlns:styles="clr-namespace:Yak.Resources.Styles"
+        xmlns:viewModels="clr-namespace:Yak.ViewModel"
         mc:Ignorable="d ignore"
         Height="{Binding Source={x:Static SystemParameters.PrimaryScreenHeight}, Converter={converters:RatioConverter}, ConverterParameter='0.7' }" 
         Width="{Binding Source={x:Static SystemParameters.PrimaryScreenWidth}, Converter={converters:RatioConverter}, ConverterParameter='0.7' }" 
@@ -388,7 +389,7 @@
         <Grid Grid.Column="0" Grid.Row="0" Background="#cc4d4d">
             <Border BorderThickness="0,0,0,1" BorderBrush="White" Width="150" Height="25">
                 <StackPanel Orientation="Horizontal">
-                    <TextBox
+                    <!--<TextBox
                          controls:TextBoxHelper.Watermark="Search movies..."
                         controls:TextBoxHelper.ClearTextButton="True"
                         Foreground="White"
@@ -408,21 +409,36 @@
                             </Style.Triggers>
                         </Style>
                     </TextBox.Style>
-                    </TextBox>
+                    </TextBox>-->
                 </StackPanel>
             </Border>
         </Grid>
         <StackPanel Grid.Column="0" Grid.Row="1" Background="#11171c"></StackPanel>
 
-        <controls:MetroAnimatedSingleRowTabControl Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" x:Name="MainTabControl" TabStripMargin="18">
-            <TabItem Header="Popular" controls:ControlsHelper.HeaderFontSize="28">
-                <usercontrols:Movies x:Name="MoviesUc"></usercontrols:Movies>
-            </TabItem>
-            <TabItem Header="Trending" controls:ControlsHelper.HeaderFontSize="28">
-            </TabItem>
+        <controls:MetroAnimatedSingleRowTabControl 
+            Grid.Column="1" 
+            Grid.Row="0" 
+            Grid.RowSpan="2" 
+            x:Name="MainTabControl" 
+            TabStripMargin="19"
+            ItemsSource="{Binding MoviesViewModelTabs}"
+            SelectedItem="{Binding SelectedTabViewModel}">
+            <controls:MetroAnimatedSingleRowTabControl.Resources>
+                <DataTemplate DataType="{x:Type viewModels:MoviesViewModel}">
+                    <usercontrols:Movies x:Name="MoviesUC"></usercontrols:Movies>
+                </DataTemplate>
+            </controls:MetroAnimatedSingleRowTabControl.Resources>
+
+            <controls:MetroAnimatedSingleRowTabControl.ItemContainerStyle>
+                <Style TargetType="TabItem">
+                    <Setter Property="Header" Value="{Binding SortByFilter}" />
+                    <Setter Property="controls:ControlsHelper.HeaderFontSize" Value="28"></Setter>
+                </Style>
+            </controls:MetroAnimatedSingleRowTabControl.ItemContainerStyle>
+
         </controls:MetroAnimatedSingleRowTabControl>
 
-        <StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel x:Name="Background" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center">
             <StackPanel.Resources>
                 <ResourceDictionary>
                     <ResourceDictionary.MergedDictionaries>
@@ -430,14 +446,14 @@
                     </ResourceDictionary.MergedDictionaries>
                 </ResourceDictionary>
             </StackPanel.Resources>
-            <Button x:Name="ReloadButton"
+            <!--<Button x:Name="ReloadButton"
                     Width="140"
                     Height="40"
                     Margin="0, 10, 0, 0"
                     Content="Reload"
                     FontSize="18"
                     Visibility="{Binding Main.IsConnectionInError, Source={StaticResource Locator}, Converter={StaticResource BoolToInverseVisibilityConverter}}"
-                    Command="{Binding Movies.ReloadMovies, Source={StaticResource Locator}}"/>
+                    Command="{Binding Movies.ReloadMovies, Source={StaticResource Locator}}"/>-->
         </StackPanel>
     </Grid>
 </controls:MetroWindow>
