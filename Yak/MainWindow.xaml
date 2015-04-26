@@ -384,13 +384,13 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid Grid.Column="0" Grid.Row="0" Background="#cc4d4d">
-            <Border BorderThickness="0,0,0,1" BorderBrush="White" Width="200" Height="25">
+            <Border BorderThickness="0,0,0,1" BorderBrush="White" Width="150" Height="25">
                 <StackPanel Orientation="Horizontal">
                     <TextBox
                          controls:TextBoxHelper.Watermark="Search movies..."
                         controls:TextBoxHelper.ClearTextButton="True"
                         Foreground="White"
-                        MaxLength="30"
+                        MaxLength="15"
                         Background="Transparent"
                         BorderThickness="0"
                         Text="{Binding Movies.SearchMoviesFilter, Source={StaticResource Locator}, UpdateSourceTrigger=PropertyChanged}">

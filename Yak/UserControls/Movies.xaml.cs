@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using GalaSoft.MvvmLight.Threading;
 using Yak.CustomPanels;
 using Yak.Events;
+using System.Windows.Controls.Primitives;
+using MahApps.Metro.Controls;
 
 namespace Yak.UserControls
 {
@@ -189,11 +191,6 @@ namespace Yak.UserControls
             }
         }
         #endregion
-
-        private void InfosCanvas_OnClick(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
 
         #endregion
     }
