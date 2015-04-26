@@ -420,11 +420,13 @@
             Grid.Row="0" 
             Grid.RowSpan="2" 
             x:Name="MainTabControl" 
+            IsSynchronizedWithCurrentItem="True" 
             TabStripMargin="19"
             ItemsSource="{Binding MoviesViewModelTabs}"
             SelectedItem="{Binding SelectedTabViewModel}">
+
             <controls:MetroAnimatedSingleRowTabControl.Resources>
-                <DataTemplate DataType="{x:Type viewModels:MoviesViewModel}">
+                <DataTemplate x:Shared="False" x:Key="contentTemplate">
                     <usercontrols:Movies x:Name="MoviesUC"></usercontrols:Movies>
                 </DataTemplate>
             </controls:MetroAnimatedSingleRowTabControl.Resources>
@@ -433,6 +435,8 @@
                 <Style TargetType="TabItem">
                     <Setter Property="Header" Value="{Binding SortByFilter}" />
                     <Setter Property="controls:ControlsHelper.HeaderFontSize" Value="28"></Setter>
+                    <Setter Property="ContentTemplate" Value="{StaticResource contentTemplate}"/>
+
                 </Style>
             </controls:MetroAnimatedSingleRowTabControl.ItemContainerStyle>
 
