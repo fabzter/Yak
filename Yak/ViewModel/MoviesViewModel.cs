@@ -111,7 +111,7 @@ namespace Yak.ViewModel
         #endregion
 
         #region Property -> MovieLoadingState
-        private MovieLoadingState _movieLoadingState;
+        private MovieLoadingState _movieLoadingState = new MovieLoadingState(false, 0, false);
         /// <summary>
         /// Specify he state of loading
         /// </summary>
