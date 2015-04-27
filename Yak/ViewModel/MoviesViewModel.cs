@@ -327,7 +327,7 @@ namespace Yak.ViewModel
         {
             if (CancellationLoadingToken != null)
             {
-                CancellationLoadingToken.Cancel(true);
+                CancellationLoadingToken.Cancel(false);
             }
         }
         #endregion
