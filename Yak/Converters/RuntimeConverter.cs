@@ -43,7 +43,7 @@ namespace Yak.Converters
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return runtime;
             }

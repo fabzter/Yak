@@ -62,7 +62,7 @@ namespace Yak.ViewModel
         /// <summary>
         /// The movie to play, retrieved from YTS API
         /// </summary>
-        private MoviesViewModel _selectedTabViewModel = new MoviesViewModel();
+        private MoviesViewModel _selectedTabViewModel;
         public MoviesViewModel SelectedTabViewModel
         {
             get { return _selectedTabViewModel; }
@@ -196,14 +196,19 @@ namespace Yak.ViewModel
                 await LoadMovie(movie.Id, movie.ImdbCode);
             });
 
-            GetTrailerCommand = new RelayCommand(() =>
+            GetTrailerCommand = new RelayCommand(async () =>
             {
-                GetTrailer(Movie.ImdbCode);
+                await GetTrailer(Movie.ImdbCode);
             });
 
             MoviesViewModelTabs = new ObservableCollection<MoviesViewModel>();
-            MoviesViewModelTabs.Add(new MoviesViewModel { TabName = "Popular" });
-            MoviesViewModelTabs.Add(new MoviesViewModel { TabName = "Recent" });
+            MoviesViewModelTabs.Add(new MoviesViewModel { 
+                TabName = "Popular"
+            });
+            MoviesViewModelTabs.Add(new MoviesViewModel
+            {
+                TabName = "Recent"
+            });
 
             SelectedTabViewModel = MoviesViewModelTabs[0];
         }

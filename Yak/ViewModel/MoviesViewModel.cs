@@ -67,7 +67,7 @@ namespace Yak.ViewModel
         /// <summary>
         /// Token for message subscription when searching movies
         /// </summary>
-        private static readonly Guid SearchMessageToken = new Guid();
+        private Guid SearchMessageToken = Guid.NewGuid();
         #endregion
 
         #region Property -> SearchMoviesFilter
