@@ -108,6 +108,11 @@ namespace Yak.Helpers
         public const string ConnectionErrorPropertyName = "ConnectionError";
 
         /// <summary>
+        /// SearchMoviesFilterPropertyName
+        /// </summary>
+        public const string SearchMoviesFilterPropertyName = "SearchMoviesFilter";
+
+        /// <summary>
         /// IsDownloadingMoviePropertyName
         /// </summary>
         public const string IsDownloadingMoviePropertyName = "IsDownloadingMovie";
