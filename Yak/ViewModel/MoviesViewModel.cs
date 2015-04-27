@@ -84,7 +84,7 @@ namespace Yak.ViewModel
                 {
                     string oldValue = _searchMoviesFilter;
                     _searchMoviesFilter = value;
-                    Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, value, Helpers.Constants.SearchMoviesFilterPropertyName), SearchMessageToken);
+                    Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, value, "SearchMoviesFilter"), SearchMessageToken);
                 }
             }
         }
@@ -92,7 +92,7 @@ namespace Yak.ViewModel
 
         #region Property -> TabName
         /// <summary>
-        /// The filter used for retrieving movies by tabs
+        /// Name of the tab
         /// </summary>
         public string TabName { get; set; }
         #endregion
@@ -106,6 +106,32 @@ namespace Yak.ViewModel
         {
             get { return _isConnectionInError; }
             set { Set(() => IsConnectionInError, ref _isConnectionInError, value, true); }
+        }
+
+        #endregion
+
+        #region Property -> MovieLoadingState
+        private MovieLoadingState _movieLoadingState;
+        /// <summary>
+        /// Specify he state of loading
+        /// </summary>
+        public MovieLoadingState MovieLoadingState
+        {
+            get { return _movieLoadingState; }
+            set { Set(() => MovieLoadingState, ref _movieLoadingState, value, true); }
+        }
+
+        #endregion
+
+        #region Property -> IsNoMovieFound
+        private bool _isNoMovieFound;
+        /// <summary>
+        /// Specify if no movie was found
+        /// </summary>
+        public bool IsNoMovieFound
+        {
+            get { return _isNoMovieFound; }
+            set { Set(() => IsNoMovieFound, ref _isNoMovieFound, value, true); }
         }
 
         #endregion
@@ -211,9 +237,7 @@ namespace Yak.ViewModel
 
             // We update the current pagination
             Pagination++;
-
-            // Inform the subscribers we're actually loading movies
-            OnMoviesLoading(new EventArgs());
+            MovieLoadingState = new MovieLoadingState(true, 0, false);
 
             int moviesCount = 0;
 
@@ -241,7 +265,7 @@ namespace Yak.ViewModel
             if (HandleExceptions(results.Item2))
             {
                 // Inform the subscribers we loaded movies
-                OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, true));
+                MovieLoadingState = new MovieLoadingState(false, moviesCount, true);
                 return;
             }
 
@@ -265,7 +289,7 @@ namespace Yak.ViewModel
                         if (HandleExceptions(movieCover.Item2))
                         {
                             // Inform the subscribers we loaded movies
-                            OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, true));
+                            MovieLoadingState = new MovieLoadingState(false, moviesCount, true);
                             return;
                         }
 
@@ -277,7 +301,7 @@ namespace Yak.ViewModel
             }
 
             // Inform the subscribers we loaded movies
-            OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, false));
+            MovieLoadingState = new MovieLoadingState(false, moviesCount, false);
         }
 
         #endregion
@@ -328,48 +352,6 @@ namespace Yak.ViewModel
             if (CancellationLoadingToken != null)
             {
                 CancellationLoadingToken.Cancel(false);
-            }
-        }
-        #endregion
-
-        #endregion
-
-        #region Events
-
-        #region Event -> MoviesLoading
-        /// <summary>
-        /// MoviesLoading event
-        /// </summary>
-        public event EventHandler<EventArgs> MoviesLoading;
-        /// <summary>
-        /// On loading movies
-        /// </summary>
-        ///<param name="e">EventArgs parameter</param>
-        protected virtual void OnMoviesLoading(EventArgs e)
-        {
-            EventHandler<EventArgs> handler = MoviesLoading;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-        #endregion
-
-        #region Event -> MoviesLoaded
-        /// <summary>
-        /// MoviesLoaded event
-        /// </summary>
-        public event EventHandler<NumberOfLoadedMoviesEventArgs> MoviesLoaded;
-        /// <summary>
-        /// On finished loading movies
-        /// </summary>
-        ///<param name="e">Number of loaded movies</param>
-        protected virtual void OnMoviesLoaded(NumberOfLoadedMoviesEventArgs e)
-        {
-            EventHandler<NumberOfLoadedMoviesEventArgs> handler = MoviesLoaded;
-            if (handler != null)
-            {
-                handler(this, e);
             }
         }
         #endregion

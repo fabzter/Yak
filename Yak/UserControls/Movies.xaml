@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:custompanels="clr-namespace:Yak.CustomPanels"
              xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
              mc:Ignorable="d" 
              xmlns:converters="clr-namespace:Yak.Converters"
              xmlns:styles="clr-namespace:Yak.Resources.Styles">
@@ -122,6 +124,45 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+
+            <Style x:Key="AnimatedFadeList">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding DataContext.MovieLoadingState.IsLoading, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" Value="True">
+                        <DataTrigger.EnterActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimationUsingKeyFrames 
+                                        AutoReverse="False" 
+                                        Storyboard.TargetProperty="Opacity">
+                                        <EasingDoubleKeyFrame Value="0.2" KeyTime="0:0:01">
+                                            <EasingDoubleKeyFrame.EasingFunction>
+                                                <ElasticEase EasingMode="EaseInOut" />
+                                            </EasingDoubleKeyFrame.EasingFunction>
+                                        </EasingDoubleKeyFrame>
+                                    </DoubleAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </DataTrigger.EnterActions>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding DataContext.MovieLoadingState.IsLoading, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" Value="False">
+                        <DataTrigger.EnterActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimationUsingKeyFrames 
+                                        AutoReverse="False" 
+                                        Storyboard.TargetProperty="Opacity">
+                                        <EasingDoubleKeyFrame Value="1.0" KeyTime="0:0:01">
+                                            <EasingDoubleKeyFrame.EasingFunction>
+                                                <ElasticEase EasingMode="EaseInOut" />
+                                            </EasingDoubleKeyFrame.EasingFunction>
+                                        </EasingDoubleKeyFrame>
+                                    </DoubleAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </DataTrigger.EnterActions>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
             
             <converters:StringRatingToIntRatingConverter x:Key="StringRatingToIntRatingConverter" />
             <converters:NullImageConverter x:Key="NullImageConverter" />
@@ -129,6 +170,8 @@
             <converters:RuntimeConverter x:Key="RuntimeConverter"/>
             <converters:BoolToInverseVisibilityConverter x:Key="BoolToInverseVisibilityConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <converters:MultiBooleanToVisibilityConverter x:Key="MultiBooleanToVisibilityConverter"/>
+            <converters:BoolToInverseBoolConverter x:Key="BoolToInverseBoolConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -137,16 +180,28 @@
             Name="ProgressRing" 
             Panel.ZIndex="1" 
             HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            VerticalAlignment="Center">
+            <controls:ProgressRing.Visibility>
+                <MultiBinding Converter="{StaticResource MultiBooleanToVisibilityConverter}">
+                    <Binding Path="MovieLoadingState.IsLoading"></Binding>
+                    <Binding Path="IsConnectionInError" Converter="{StaticResource BoolToInverseBoolConverter}"></Binding>
+                </MultiBinding>
+            </controls:ProgressRing.Visibility>
+        </controls:ProgressRing>
         <TextBlock x:Name="NoMouvieFound" 
                    Text="No movie found" 
-                   Visibility="Collapsed" 
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
                    FontSize="36"
-                   Foreground="#FF7D7D7D"></TextBlock>
+                   Foreground="#FF7D7D7D">
+            <TextBlock.Visibility>
+                <MultiBinding Converter="{StaticResource MultiBooleanToVisibilityConverter}">
+                    <Binding Path="MovieLoadingState.IsNoMovieFound"></Binding>
+                    <Binding Path="IsConnectionInError" Converter="{StaticResource BoolToInverseBoolConverter}"></Binding>
+                </MultiBinding>
+            </TextBlock.Visibility>
+        </TextBlock>
         <Button x:Name="ReloadButton"
                     Width="140"
                     Height="40"
@@ -157,7 +212,7 @@
                     FontSize="18"
                     Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToInverseVisibilityConverter}}"
                     Command="{Binding ReloadMovies}"/>
-        <ScrollViewer x:Name="ScrollView" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged" Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToVisibilityConverter}}">
+        <ScrollViewer x:Name="ScrollView" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged" Style="{StaticResource AnimatedFadeList}" Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToVisibilityConverter}}">
             <ItemsControl x:Name="ItemsList" ItemsSource="{Binding Movies}" VerticalAlignment="Top">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
