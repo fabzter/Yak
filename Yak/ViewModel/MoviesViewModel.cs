@@ -84,7 +84,7 @@ namespace Yak.ViewModel
                 {
                     string oldValue = _searchMoviesFilter;
                     _searchMoviesFilter = value;
-                    Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, value, Helpers.Constants.SearchMoviesFilterPropertyName), SearchMessageToken);
+                    Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, value, "SearchMoviesFilter"), SearchMessageToken);
                 }
             }
         }
@@ -92,7 +92,7 @@ namespace Yak.ViewModel
 
         #region Property -> TabName
         /// <summary>
-        /// The filter used for retrieving movies by tabs
+        /// Name of the tab
         /// </summary>
         public string TabName { get; set; }
         #endregion
@@ -155,7 +155,6 @@ namespace Yak.ViewModel
 
             ReloadMovies = new RelayCommand(async () =>
             {
-                Messenger.Default.Send<bool>(false, Constants.ConnectionErrorPropertyName);
                 await LoadNextPage();
             });
 
@@ -305,7 +304,7 @@ namespace Yak.ViewModel
                     if (webException.Status == WebExceptionStatus.NameResolutionFailure)
                     {
                         // There's a connection error.
-                        Messenger.Default.Send<bool>(true, Helpers.Constants.ConnectionErrorPropertyName);
+                        Messenger.Default.Send<bool>(true, Constants.ConnectionErrorPropertyName);
                         Pagination--;
                         return true;
                     }

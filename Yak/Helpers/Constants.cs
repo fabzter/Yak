@@ -106,16 +106,6 @@ namespace Yak.Helpers
         /// ConnectionErrorPropertyName
         /// </summary>
         public const string ConnectionErrorPropertyName = "ConnectionError";
-
-        /// <summary>
-        /// SearchMoviesFilterPropertyName
-        /// </summary>
-        public const string SearchMoviesFilterPropertyName = "SearchMoviesFilter";
-
-        /// <summary>
-        /// IsDownloadingMoviePropertyName
-        /// </summary>
-        public const string IsDownloadingMoviePropertyName = "IsDownloadingMovie";
         
         public enum FileType
         {

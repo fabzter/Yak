@@ -44,13 +44,17 @@ namespace Yak.Model.Api
 
             if (String.IsNullOrEmpty(searchParameter))
             {
-                if(sortByFilter.Equals("Popular"))
+                if(sortByFilter.Equals("popular"))
                 {
                     request.AddParameter("sort_by", "like_count");
                 }
-                else if(sortByFilter.Equals("Recent"))
+                else if (sortByFilter.Equals("best rated"))
                 {
-                    request.AddParameter("sort_by", "date_added");
+                    request.AddParameter("sort_by", "rating");
+                }
+                else if(sortByFilter.Equals("recent"))
+                {
+                    request.AddParameter("sort_by", "year");
                 }
             }
             else

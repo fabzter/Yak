@@ -52,3 +52,7 @@ Yak/Obj
 
 # User files
 *.suo
+
+# Squirrel folder releases
+Releases
+*.nupkg

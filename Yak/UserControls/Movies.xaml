@@ -132,7 +132,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Name="Container">
+    <Grid>
         <controls:ProgressRing 
             Name="ProgressRing" 
             Panel.ZIndex="1" 
@@ -147,8 +147,7 @@
                    FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
                    FontSize="36"
                    Foreground="#FF7D7D7D"></TextBlock>
-        <Button x:Name="ReloadButton"
-                    Width="140"
+        <Button Width="140"
                     Height="40"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
@@ -157,7 +156,7 @@
                     FontSize="18"
                     Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToInverseVisibilityConverter}}"
                     Command="{Binding ReloadMovies}"/>
-        <ScrollViewer x:Name="ScrollView" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged" Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToVisibilityConverter}}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged" Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToVisibilityConverter}}">
             <ItemsControl x:Name="ItemsList" ItemsSource="{Binding Movies}" VerticalAlignment="Top">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -355,7 +354,7 @@
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <custompanels:ElasticWrapPanel x:Name="CustomPanel" DesiredColumnWidth="230" Loaded="ElasticWrapPanel_Loaded"/>
+                        <custompanels:ElasticWrapPanel DesiredColumnWidth="230" Loaded="ElasticWrapPanel_Loaded"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>

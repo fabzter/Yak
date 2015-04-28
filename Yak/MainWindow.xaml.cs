@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
 using System.Windows.Media.Animation;
-using System.Windows.Threading;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Yak.Events;
 using Yak.ViewModel;
 using GalaSoft.MvvmLight.Threading;
-using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -20,22 +16,6 @@ namespace Yak
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        #region Properties
-
-        #region Property -> MoviePlayerIsPlaying
-        private bool MoviePlayerIsPlaying;
-        #endregion
-
-        #region Property -> UserIsDraggingMoviePlayerSlider
-        private bool UserIsDraggingMoviePlayerSlider;
-        #endregion
-
-        #region Property -> MoviePlayerTimer
-        private DispatcherTimer MoviePlayerTimer;
-        #endregion
-
-        #endregion
-
         #region Constructor
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -58,9 +38,6 @@ namespace Yak
                 {
                     if (vm.IsDownloadingMovie)
                     {
-                        MoviePlayer.Stop();
-                        MoviePlayer.Close();
-                        MoviePlayer.Source = null;
                         vm.StopDownloadingMovie();
                     }
 
@@ -100,23 +77,6 @@ namespace Yak
                 vm.LoadingMovieProgress += OnLoadingMovieProgress;
                 vm.LoadedTrailer += OnLoadedTrailer;
             }
-
-            MoviePlayerTimer = new DispatcherTimer()
-            {
-                Interval = TimeSpan.FromSeconds(1)
-            };
-
-            MouseDoubleClick += (a, b) =>
-            {
-                if (WindowState == WindowState.Maximized && MoviePlayer != null && MoviePlayer.Source != null)
-                {
-                    MoviePlayer.Stretch = Stretch.Fill;
-                }
-                else if (WindowState != WindowState.Maximized && MoviePlayer != null && MoviePlayer.Source != null)
-                {
-                    MoviePlayer.Stretch = Stretch.Uniform;
-                }
-            };
         }
 
         #endregion
@@ -281,6 +241,7 @@ namespace Yak
         #endregion
 
         #region Method -> OnBufferedMovie
+
         /// <summary>
         /// Play the movie when buffered
         /// </summary>
@@ -290,26 +251,14 @@ namespace Yak
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
-                #region Dispatcher Timer
-
-                MoviePlayerTimer.Tick += MoviePlayerTimer_Tick;
-                MoviePlayerTimer.Start();
-
-                #endregion
-
-                // Open the player and play the movie
-                MoviePlayerFlyout.IsOpen = true;
-                MoviePlayer.Source = new Uri(e.PathToFile);
-                MoviePlayer.Play();
-                MoviePlayer.StretchDirection = StretchDirection.Both;
-
-                MoviePlayerIsPlaying = true;
+                MoviePage.IsOpen = false;
 
                 ProgressBar.Visibility = Visibility.Collapsed;
                 StopLoadingMovieButton.Visibility = Visibility.Collapsed;
                 LoadingText.Visibility = Visibility.Collapsed;
             });
         }
+
         #endregion
 
         #region Method -> OnConnectionInError
@@ -350,23 +299,12 @@ namespace Yak
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
-                if (MoviePlayer != null && MoviePlayer.Source != null)
-                {
-                    MoviePlayer.Stop();
-                    MoviePlayer.Close();
-                    MoviePlayer.Source = null;
-                    MoviePlayerIsPlaying = false;
-                }
-
-                #region Dispatcher Timer
-                MoviePlayerTimer.Tick -= MoviePlayerTimer_Tick;
-                MoviePlayerTimer.Stop();
-                #endregion
-
                 ProgressBar.Visibility = Visibility.Collapsed;
                 StopLoadingMovieButton.Visibility = Visibility.Collapsed;
                 LoadingText.Visibility = Visibility.Collapsed;
                 ProgressBar.Value = 0.0;
+
+                MoviePage.IsOpen = true;
 
                 #region Fade out opacity
 
@@ -384,152 +322,6 @@ namespace Yak
 
                 #endregion
             });
-        }
-        #endregion
-
-        #region Method -> MoviePlayerTimer_Tick
-        /// <summary>
-        /// Report the playing progress on the timeline
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">EventArgs</param>
-        private void MoviePlayerTimer_Tick(object sender, EventArgs e)
-        {
-            if ((MoviePlayer.Source != null) && (MoviePlayer.NaturalDuration.HasTimeSpan) && (!UserIsDraggingMoviePlayerSlider))
-            {
-                MoviePlayerSliderProgress.Minimum = 0;
-                MoviePlayerSliderProgress.Maximum = MoviePlayer.NaturalDuration.TimeSpan.TotalSeconds;
-                MoviePlayerSliderProgress.Value = MoviePlayer.Position.TotalSeconds;
-            }
-        }
-        #endregion
-
-        #region Method -> MoviePlayerPlay_CanExecute
-        /// <summary>
-        /// Each time the CanExecute play command change, update the visibility of Play/Pause buttons in the player
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">CanExecuteRoutedEventArgs</param>
-        private void MoviePlayerPlay_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = (MoviePlayer != null) && (MoviePlayer.Source != null);
-            if (MoviePlayerIsPlaying)
-            {
-                MoviePlayerStatusBarItemPlay.Visibility = Visibility.Collapsed;
-                MoviePlayerStatusBarItemPause.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                MoviePlayerStatusBarItemPlay.Visibility = Visibility.Visible;
-                MoviePlayerStatusBarItemPause.Visibility = Visibility.Collapsed;
-            }
-        }
-        #endregion
-
-        #region Method -> MoviePlayerPlay_Executed
-        /// <summary>
-        /// Play the current movie
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">ExecutedRoutedEventArgs</param>
-        private void MoviePlayerPlay_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            MoviePlayer.Play();
-            MoviePlayerIsPlaying = true;
-
-            MoviePlayerStatusBarItemPlay.Visibility = Visibility.Collapsed;
-            MoviePlayerStatusBarItemPause.Visibility = Visibility.Visible;
-        }
-        #endregion
-
-        #region Method -> MoviePlayerPause_CanExecute
-        /// <summary>
-        /// Each time the CanExecute play command change, update the visibility of Play/Pause buttons in the movie player
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">CanExecuteRoutedEventArgs</param>
-        private void MoviePlayerPause_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = MoviePlayerIsPlaying;
-            if (MoviePlayerIsPlaying)
-            {
-                MoviePlayerStatusBarItemPlay.Visibility = Visibility.Collapsed;
-                MoviePlayerStatusBarItemPause.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                MoviePlayerStatusBarItemPlay.Visibility = Visibility.Visible;
-                MoviePlayerStatusBarItemPause.Visibility = Visibility.Collapsed;
-            }
-        }
-        #endregion
-
-        #region Method -> MoviePlayerPause_Executed
-        /// <summary>
-        /// Pause the movie
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">CanExecuteRoutedEventArgs</param>
-        private void MoviePlayerPause_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            MoviePlayer.Pause();
-            MoviePlayerIsPlaying = false;
-
-            MoviePlayerStatusBarItemPlay.Visibility = Visibility.Visible;
-            MoviePlayerStatusBarItemPause.Visibility = Visibility.Collapsed;
-        }
-        #endregion        
-
-        #region Method -> MovieSliderProgress_DragStarted
-        /// <summary>
-        /// Report when dragging is used on movie player
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">DragStartedEventArgs</param>
-        private void MovieSliderProgress_DragStarted(object sender, DragStartedEventArgs e)
-        {
-            UserIsDraggingMoviePlayerSlider = true;
-        }
-        #endregion
-
-        #region Method -> MovieSliderProgress_DragCompleted
-        /// <summary>
-        /// Report when user has finished dragging the movie player progress
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">DragCompletedEventArgs</param>
-        private void MovieSliderProgress_DragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            UserIsDraggingMoviePlayerSlider = false;
-            MoviePlayer.Position = TimeSpan.FromSeconds(MoviePlayerSliderProgress.Value);
-        }
-        #endregion
-
-        #region Method -> MovieSliderProgress_ValueChanged
-        /// <summary>
-        /// Report runtime when movie player progress changed
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">RoutedPropertyChangedEventArgs</param>
-        private void MovieSliderProgress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            var vm = DataContext as MainViewModel;
-            if (vm != null)
-            {
-                MoviePlayerTextProgressStatus.Text = TimeSpan.FromSeconds(MoviePlayerSliderProgress.Value).ToString(@"hh\:mm\:ss", CultureInfo.CurrentCulture) + " / " + TimeSpan.FromSeconds(vm.Movie.Runtime * 60).ToString(@"hh\:mm\:ss", CultureInfo.CurrentCulture);
-            }
-        }
-        #endregion
-
-        #region Method -> MouseWheelMoviePlayer
-        /// <summary>
-        /// When user uses the mousewheel, update the volume
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">MouseWheelEventArgs</param>
-        private void MouseWheelMoviePlayer(object sender, MouseWheelEventArgs e)
-        {
-            MoviePlayer.Volume += (e.Delta > 0) ? 0.1 : -0.1;
         }
         #endregion
 

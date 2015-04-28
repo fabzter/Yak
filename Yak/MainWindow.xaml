@@ -7,8 +7,10 @@
         xmlns:usercontrols="clr-namespace:Yak.UserControls"
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:converters="clr-namespace:Yak.Converters"
-        xmlns:styles="clr-namespace:Yak.Resources.Styles"
         xmlns:viewModels="clr-namespace:Yak.ViewModel"
+        xmlns:styles="clr-namespace:Yak.Resources.Styles"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
+        xmlns:command="http://www.galasoft.ch/mvvmlight"
         mc:Ignorable="d ignore"
         Height="{Binding Source={x:Static SystemParameters.PrimaryScreenHeight}, Converter={converters:RatioConverter}, ConverterParameter='0.7' }" 
         Width="{Binding Source={x:Static SystemParameters.PrimaryScreenWidth}, Converter={converters:RatioConverter}, ConverterParameter='0.7' }" 
@@ -36,14 +38,19 @@
             <converters:GenresConverter x:Key="GenresConverter" />
             <converters:StringRatingToIntRatingConverter x:Key="StringRatingToIntRatingConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-            <converters:BoolToInverseVisibilityConverter x:Key="BoolToInverseVisibilityConverter" />
         </ResourceDictionary>
     </Window.Resources>
-    
-    <Window.CommandBindings>
-        <CommandBinding Command="MediaCommands.Play" CanExecute="MoviePlayerPlay_CanExecute" Executed="MoviePlayerPlay_Executed" />
-        <CommandBinding Command="MediaCommands.Pause" CanExecute="MoviePlayerPause_CanExecute" Executed="MoviePlayerPause_Executed" />
-    </Window.CommandBindings>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="SizeChanged">
+            <command:EventToCommand Command="{Binding Mode=OneWay, Path=MainWindowSizeChangedCommand}" CommandParameter="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}}"
+                            PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closing">
+            <command:EventToCommand Command="{Binding Mode=OneWay, Path=MainWindowClosingCommand}"
+                            PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 
     <controls:MetroWindow.Flyouts>
         <controls:FlyoutsControl x:Name="FlyoutsControl">
@@ -311,81 +318,19 @@
                 </Grid>
                 
             </controls:Flyout>
-            <controls:Flyout x:Name="MoviePlayerFlyout"
-                             Position="Right"
-                             AnimateOpacity="True"
-                             Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=controls:MetroWindow}, Path=ActualWidth, Mode=OneWay}"
-                             CloseCommand="{Binding StopDownloadingMovieCommand}">
-                <Grid MouseWheel="MouseWheelMoviePlayer" Background="Black">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <MediaElement Name="MoviePlayer" Grid.Row="0" LoadedBehavior="Manual" Stretch="Uniform"/>
-
-                    <StatusBar Grid.Row="1">
-                        <StatusBar.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                </Grid>
-                            </ItemsPanelTemplate>
-                        </StatusBar.ItemsPanel>
-                        <StatusBarItem x:Name="MoviePlayerStatusBarItemPause" Grid.Column="0" Background="#FF2F2F2F" Visibility="Collapsed">
-                            <Button Command="MediaCommands.Pause" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
-                                <Image Width="20" Height="20" Source="Resources/Images/Pause.png"></Image>
-                            </Button>
-                        </StatusBarItem>
-                        <StatusBarItem x:Name="MoviePlayerStatusBarItemPlay" Grid.Column="0" Background="#FF2F2F2F" Visibility="Collapsed">
-                            <Button Command="MediaCommands.Play" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
-                                <Image Width="20" Height="20" Source="Resources/Images/Play.png"></Image>
-                            </Button>
-                        </StatusBarItem>
-                        <StatusBarItem Grid.Column="1" Background="#FF2F2F2F">
-                            <TextBlock Name="MoviePlayerTextProgressStatus">00:00:00</TextBlock>
-                        </StatusBarItem>
-                        <StatusBarItem Grid.Column="2" HorizontalContentAlignment="Stretch" Background="#FF2F2F2F">
-                            <Slider Name="MoviePlayerSliderProgress"
-                                    Style="{DynamicResource FlatSlider}"
-                                    Thumb.DragStarted="MovieSliderProgress_DragStarted"  
-                                    Thumb.DragCompleted="MovieSliderProgress_DragCompleted" 
-                                    ValueChanged="MovieSliderProgress_ValueChanged"
-                                    Width="{Binding ElementName=MoviePlayer, Path=ActualWidth, Mode=OneWay}"/>
-                        </StatusBarItem>
-                        <StatusBarItem Grid.Column="3" Background="#FF2F2F2F">
-                            <Slider x:Name="MoviePlayerVolume"
-                                Minimum="0"
-                                Maximum="1"
-                                Style="{DynamicResource FlatSlider}"
-                                Value="{Binding ElementName=MoviePlayer, Path=Volume}"
-                                LargeChange="0.2"
-                                SmallChange="0.1"
-                                Width="100"
-                                Height="10"
-                                Margin="0,0,0,2.5">
-                            </Slider>
-                        </StatusBarItem>
-                    </StatusBar>
-                </Grid>
-            </controls:Flyout>
         </controls:FlyoutsControl>
     </controls:MetroWindow.Flyouts>
 
     <Grid x:Name="LayoutRoot">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"></ColumnDefinition>
-            <ColumnDefinition Width="8*"></ColumnDefinition>
+            <ColumnDefinition Width="12*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="77"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
+
         <Grid Grid.Column="0" Grid.Row="0" Background="#cc4d4d">
             <Border BorderThickness="0,0,0,1" BorderBrush="White" Width="150" Height="25">
                 <StackPanel Orientation="Horizontal">
@@ -420,22 +365,25 @@
             Grid.Row="0" 
             Grid.RowSpan="2" 
             x:Name="MainTabControl" 
-            IsSynchronizedWithCurrentItem="True" 
-            TabStripMargin="19"
+            IsSynchronizedWithCurrentItem="True"
+            TabStripMargin="17.2"
             ItemsSource="{Binding MoviesViewModelTabs}"
-            SelectedItem="{Binding SelectedTabViewModel}">
+            SelectedItem="{Binding SelectedTabViewModel}"
+            controls:TabControlHelper.IsUnderlined="True">
 
             <controls:MetroAnimatedSingleRowTabControl.Resources>
-                <DataTemplate x:Shared="False" x:Key="contentTemplate">
-                    <usercontrols:Movies x:Name="MoviesUC"></usercontrols:Movies>
+                <DataTemplate x:Shared="False" DataType="{x:Type viewModels:MoviesViewModel}">
+                    <usercontrols:Movies></usercontrols:Movies>
+                </DataTemplate>
+                <DataTemplate x:Shared="False" DataType="{x:Type viewModels:MoviePlayerViewModel}">
+                    <usercontrols:MoviePlayer></usercontrols:MoviePlayer>
                 </DataTemplate>
             </controls:MetroAnimatedSingleRowTabControl.Resources>
-
+            
             <controls:MetroAnimatedSingleRowTabControl.ItemContainerStyle>
-                <Style TargetType="TabItem">
+                <Style TargetType="{x:Type TabItem}">
                     <Setter Property="Header" Value="{Binding TabName}" />
                     <Setter Property="controls:ControlsHelper.HeaderFontSize" Value="28"></Setter>
-                    <Setter Property="ContentTemplate" Value="{StaticResource contentTemplate}"/>
                 </Style>
             </controls:MetroAnimatedSingleRowTabControl.ItemContainerStyle>
         </controls:MetroAnimatedSingleRowTabControl>

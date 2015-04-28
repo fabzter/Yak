@@ -17,6 +17,9 @@ using GalaSoft.MvvmLight.Command;
 using TMDbLib.Objects.Movies;
 using YoutubeExtractor;
 using System.Collections.ObjectModel;
+using System.Windows;
+using GalaSoft.MvvmLight.Threading;
+using Yak.Messaging;
 
 namespace Yak.ViewModel
 {
@@ -50,8 +53,8 @@ namespace Yak.ViewModel
         /// <summary>
         /// Movies loaded from the service and shown in the interface
         /// </summary>
-        private ObservableCollection<MoviesViewModel> _moviesViewModelTabs;
-        public ObservableCollection<MoviesViewModel> MoviesViewModelTabs
+        private ObservableCollection<object> _moviesViewModelTabs;
+        public ObservableCollection<object> MoviesViewModelTabs
         {
             get { return _moviesViewModelTabs; }
             set { Set(() => MoviesViewModelTabs, ref _moviesViewModelTabs, value, true); }
@@ -62,8 +65,8 @@ namespace Yak.ViewModel
         /// <summary>
         /// The movie to play, retrieved from YTS API
         /// </summary>
-        private MoviesViewModel _selectedTabViewModel;
-        public MoviesViewModel SelectedTabViewModel
+        private object _selectedTabViewModel;
+        public object SelectedTabViewModel
         {
             get { return _selectedTabViewModel; }
             set { Set(() => SelectedTabViewModel, ref _selectedTabViewModel, value, true); }
@@ -147,6 +150,22 @@ namespace Yak.ViewModel
         }
         #endregion
 
+        #region Command -> MainWindowSizeChangedCommand
+        public RelayCommand<WindowState> MainWindowSizeChangedCommand
+        {
+            get;
+            private set;
+        }
+        #endregion
+
+        #region Command -> MainWindowClosingCommand
+        public RelayCommand MainWindowClosingCommand
+        {
+            get;
+            private set;
+        }
+        #endregion
+
         #endregion
 
         #region Constructors
@@ -170,12 +189,38 @@ namespace Yak.ViewModel
         {
             ApiService = apiService;
 
-            // Set the CancellationToken for having the possibility to stop a task
+            // Set the CancellationToken for having the possibility to stop a loaidng movie infos
             CancellationLoadingToken = new CancellationTokenSource();
 
+            // Set the CancellationToken for having the possibility to stop downloading a movie
             CancellationDownloadingToken = new CancellationTokenSource();
 
             Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, arg => OnConnectionError(new ConnectionErrorEventArgs(arg)));
+
+            Messenger.Default.Register<MovieBufferedMessage>(this, e =>
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    MoviesViewModelTabs.Add(new MoviePlayerViewModel(e.PathToFile)
+                    {
+                        TabName = "playing"
+                    });
+
+                    SelectedTabViewModel = MoviesViewModelTabs.Last();
+
+                    OnBufferedMovie(new MovieBufferedEventArgs(e.PathToFile));
+                });
+            });
+
+            Messenger.Default.Register<StopDownloadingMovieMessage>(this, e => OnStoppedDownloadingMovie(new EventArgs()));
+
+            Messenger.Default.Register<MainWindowClosingMessage>(this, e =>
+            {
+                if (IsDownloadingMovie)
+                {
+                    StopDownloadingMovie();
+                }
+            });
 
             StopDownloadingMovieCommand = new RelayCommand(() =>
             {
@@ -191,6 +236,16 @@ namespace Yak.ViewModel
                 }
             });
 
+            MainWindowSizeChangedCommand = new RelayCommand<WindowState>(e =>
+            {
+                Messenger.Default.Send<WindowSizeChangedMessage>(new WindowSizeChangedMessage(e));
+            });
+
+            MainWindowClosingCommand = new RelayCommand(() =>
+            {
+                Messenger.Default.Send<MainWindowClosingMessage>(new MainWindowClosingMessage());
+            });
+
             LoadMovieCommand = new RelayCommand<MovieShortDetails>(async movie =>
             {
                 await LoadMovie(movie.Id, movie.ImdbCode);
@@ -201,16 +256,23 @@ namespace Yak.ViewModel
                 await GetTrailer(Movie.ImdbCode);
             });
 
-            MoviesViewModelTabs = new ObservableCollection<MoviesViewModel>();
-            MoviesViewModelTabs.Add(new MoviesViewModel { 
-                TabName = "Popular"
-            });
-            MoviesViewModelTabs.Add(new MoviesViewModel
+            MoviesViewModelTabs = new ObservableCollection<object>
             {
-                TabName = "Recent"
-            });
+                new MoviesViewModel
+                { 
+                    TabName = "popular"
+                },
+                new MoviesViewModel
+                { 
+                    TabName = "best rated"
+                },
+                new MoviesViewModel
+                { 
+                    TabName = "recent"
+                }
+            };
 
-            SelectedTabViewModel = MoviesViewModelTabs[0];
+            SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
         }
         #endregion
 
@@ -468,7 +530,7 @@ namespace Yak.ViewModel
                                 )
                             {
                                 // Inform subscribers we have finished buffering the movie
-                                OnBufferedMovie(new MovieBufferedEventArgs(filePath));
+                                Messenger.Default.Send<MovieBufferedMessage>(new MovieBufferedMessage(filePath));
                                 alreadyBuffered = true;
                             }
 
@@ -483,7 +545,7 @@ namespace Yak.ViewModel
                     {
                         if (CancellationDownloadingToken.IsCancellationRequested && session != null)
                         {
-                            OnStoppedDownloadingMovie(new EventArgs());
+                            Messenger.Default.Send<StopDownloadingMovieMessage>(new StopDownloadingMovieMessage());
                             IsDownloadingMovie = false;
                             session.RemoveTorrent(handle, true);
                         }
@@ -677,7 +739,5 @@ namespace Yak.ViewModel
             Messenger.Default.Unregister<string>(this);
             base.Cleanup();
         }
-
-
     }
 }

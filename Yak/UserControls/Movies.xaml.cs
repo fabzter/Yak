@@ -22,6 +22,9 @@ namespace Yak.UserControls
         #region Properties
 
         #region Property -> TabName
+        /// <summary>
+        /// Used to store the tab name
+        /// </summary>
         private string TabName { get; set; }
         #endregion
 
@@ -31,23 +34,37 @@ namespace Yak.UserControls
         public Movies()
         {
             InitializeComponent();
-            Loaded += async (s, e) =>
-            {
-                await OnMoviesUcLoaded(s, e);
-            };
 
-            Unloaded += (s, e) =>
+            DataContextChanged += async (s, e) =>
             {
                 MainViewModel mainViewModel = ServiceLocator.Current.GetInstance<MainViewModel>();
                 if (mainViewModel != null)
                 {
-                    foreach (MoviesViewModel moviesViewModel in mainViewModel.MoviesViewModelTabs)
+                    foreach (object iMoviesViewModel in mainViewModel.MoviesViewModelTabs)
                     {
-                        if (moviesViewModel.TabName.Equals(TabName))
+                        MoviesViewModel moviesViewModel = iMoviesViewModel as MoviesViewModel;
+                        if (moviesViewModel != null)
                         {
-                            moviesViewModel.MoviesLoaded -= OnMoviesLoaded;
-                            moviesViewModel.MoviesLoading -= OnMoviesLoading;
+                            if (moviesViewModel.TabName.Equals(TabName))
+                            {
+                                moviesViewModel.MoviesLoaded -= OnMoviesLoaded;
+                                moviesViewModel.MoviesLoading -= OnMoviesLoading;
+                            }
                         }
+                    }
+                }
+
+                var vm = DataContext as MoviesViewModel;
+                if (vm != null)
+                {
+                    vm.MoviesLoaded += OnMoviesLoaded;
+                    vm.MoviesLoading += OnMoviesLoading;
+                    TabName = vm.TabName;
+
+                    if (!vm.Movies.Any())
+                    {
+                        // At first load, we load the first page of movies
+                        await vm.LoadNextPage();
                     }
                 }
             };
