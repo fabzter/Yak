@@ -35,7 +35,24 @@ namespace Yak.UserControls
         {
             InitializeComponent();
 
-            DataContextChanged += async (s, e) =>
+            Loaded += async (s, e) =>
+            {
+                var vm = DataContext as MoviesViewModel;
+                if (vm != null)
+                {
+                    vm.MoviesLoaded += OnMoviesLoaded;
+                    vm.MoviesLoading += OnMoviesLoading;
+                    TabName = vm.TabName;
+
+                    if (!vm.Movies.Any())
+                    {
+                        // At first load, we load the first page of movies
+                        await vm.LoadNextPage();
+                    }
+                }
+            };
+
+            Unloaded += (s, e) =>
             {
                 MainViewModel mainViewModel = ServiceLocator.Current.GetInstance<MainViewModel>();
                 if (mainViewModel != null)
@@ -51,20 +68,6 @@ namespace Yak.UserControls
                                 moviesViewModel.MoviesLoading -= OnMoviesLoading;
                             }
                         }
-                    }
-                }
-
-                var vm = DataContext as MoviesViewModel;
-                if (vm != null)
-                {
-                    vm.MoviesLoaded += OnMoviesLoaded;
-                    vm.MoviesLoading += OnMoviesLoading;
-                    TabName = vm.TabName;
-
-                    if (!vm.Movies.Any())
-                    {
-                        // At first load, we load the first page of movies
-                        await vm.LoadNextPage();
                     }
                 }
             };

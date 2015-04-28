@@ -306,25 +306,17 @@ namespace Yak.ViewModel
                         var newCurrentTabItem = SelectedTabViewModel as MoviePlayerViewModel;
                         if (newCurrentTabItem != null)
                         {
-                            if (!currentTabItem.TabName.Equals("search"))
+                            MoviesViewModelTabs.Add(new MoviesViewModel()
                             {
-                                MoviesViewModelTabs.Add(new MoviesViewModel()
-                                {
-                                    TabName = "search",
-                                    SearchMoviesFilter = e.NewValue
-                                });
+                                TabName = "search",
+                                SearchMoviesFilter = e.NewValue
+                            });
 
-                                SelectedTabViewModel = MoviesViewModelTabs.Last();
-                                var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
-                                if (searchMovieTab != null)
-                                {
-                                    await searchMovieTab.SearchMovies(SearchMoviesFilter);
-                                }
-                            }
-                            else
+                            SelectedTabViewModel = MoviesViewModelTabs.Last();
+                            var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
+                            if (searchMovieTab != null)
                             {
-                                currentTabItem.SearchMoviesFilter = e.NewValue;
-                                await currentTabItem.SearchMovies(SearchMoviesFilter);
+                                await searchMovieTab.SearchMovies(SearchMoviesFilter);
                             }
                         }
                     }
@@ -610,7 +602,8 @@ namespace Yak.ViewModel
                     // Where do we save the video file
                     SavePath = Constants.MovieDownloads,
                     // At this time, no quality selection is available in the interface, so we take the lowest
-                    Url = movie.Torrents.Aggregate((i1, i2) => (i1.SizeBytes < i2.SizeBytes ? i1 : i2)).Url
+                    Url = movie.Torrents.Aggregate((i1, i2) => (i1.SizeBytes < i2.SizeBytes ? i1 : i2)).Url,
+                    SeedMode = false
                 };
 
                 TorrentHandle handle = session.AddTorrent(addParams);

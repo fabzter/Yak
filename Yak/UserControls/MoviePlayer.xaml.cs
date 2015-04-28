@@ -37,7 +37,7 @@ namespace Yak.UserControls
         {
             InitializeComponent();
 
-            DataContextChanged += (s, e) =>
+            Loaded += (s, e) =>
             {
                 var vm = DataContext as MoviePlayerViewModel;
                 if (vm != null)
@@ -47,9 +47,6 @@ namespace Yak.UserControls
                         Interval = TimeSpan.FromSeconds(1)
                     };
 
-                    vm.WindowSizeChanged -= OnWindowSizeChanged;
-                    vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
-
                     vm.WindowSizeChanged += OnWindowSizeChanged;
                     vm.StoppedDownloadingMovie += OnStoppedDownloadingMovie;
 
@@ -57,6 +54,16 @@ namespace Yak.UserControls
                     {
                         PlayMovie(vm.CurrentMovieProgressValue, vm.MovieFilePath);
                     }
+                }
+            };
+
+            Unloaded += (s, e) =>
+            {
+                var vm = DataContext as MoviePlayerViewModel;
+                if (vm != null)
+                {
+                    vm.WindowSizeChanged -= OnWindowSizeChanged;
+                    vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
                 }
             };
         }
