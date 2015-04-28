@@ -63,33 +63,6 @@ namespace Yak.ViewModel
         public int MaxMoviesPerPage { private get; set; }
         #endregion
 
-        #region Property -> SearchMessageToken
-        /// <summary>
-        /// Token for message subscription when searching movies
-        /// </summary>
-        private Guid SearchMessageToken = Guid.NewGuid();
-        #endregion
-
-        #region Property -> SearchMoviesFilter
-        /// <summary>
-        /// The filter for searching movies
-        /// </summary>
-        private string _searchMoviesFilter = String.Empty;
-        public string SearchMoviesFilter
-        {
-            get { return _searchMoviesFilter; }
-            set
-            {
-                if (value != _searchMoviesFilter)
-                {
-                    string oldValue = _searchMoviesFilter;
-                    _searchMoviesFilter = value;
-                    Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, value, "SearchMoviesFilter"), SearchMessageToken);
-                }
-            }
-        }
-        #endregion
-
         #region Property -> TabName
         /// <summary>
         /// Name of the tab
@@ -108,6 +81,13 @@ namespace Yak.ViewModel
             set { Set(() => IsConnectionInError, ref _isConnectionInError, value, true); }
         }
 
+        #endregion
+
+        #region Property -> SearchMoviesFilter
+        /// <summary>
+        /// The filter for searching movies
+        /// </summary>
+        public string SearchMoviesFilter { get; set; }
         #endregion
 
         #endregion
@@ -158,10 +138,6 @@ namespace Yak.ViewModel
                 await LoadNextPage();
             });
 
-            Messenger.Default.Register<PropertyChangedMessage<string>>(
-                this, SearchMessageToken, async e => await SearchMovies(e.NewValue)
-            );
-
             Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, e => IsConnectionInError = e);
         }
         #endregion
@@ -175,7 +151,7 @@ namespace Yak.ViewModel
         /// Search movies
         /// </summary>
         /// <param name="searchFilter">The parameter of the search</param>
-        private async Task SearchMovies(string searchFilter)
+        public async Task SearchMovies(string searchFilter)
         {
             // We stop any loading before searching 
             StopLoadingMovies();
@@ -322,7 +298,7 @@ namespace Yak.ViewModel
         /// <summary>
         /// Cancel the loading of movies 
         /// </summary>
-        private void StopLoadingMovies()
+        public void StopLoadingMovies()
         {
             if (CancellationLoadingToken != null)
             {

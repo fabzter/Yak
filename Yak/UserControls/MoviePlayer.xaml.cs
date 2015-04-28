@@ -55,7 +55,7 @@ namespace Yak.UserControls
 
                     if (!String.IsNullOrEmpty(vm.MovieFilePath))
                     {
-                        PlayMovie(vm.MovieFilePath);
+                        PlayMovie(vm.CurrentMovieProgressValue, vm.MovieFilePath);
                     }
                 }
             };
@@ -98,7 +98,7 @@ namespace Yak.UserControls
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">MovieBufferedEventArgs</param>
-        private void PlayMovie(string pathToFile)
+        private void PlayMovie(double currentMoviePlayingProgressValue,string pathToFile)
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
@@ -110,6 +110,7 @@ namespace Yak.UserControls
                 #endregion
 
                 Player.Source = new Uri(pathToFile);
+                Player.Position = TimeSpan.FromSeconds(currentMoviePlayingProgressValue);
                 Player.Play();
                 Player.StretchDirection = StretchDirection.Both;
 
@@ -273,9 +274,10 @@ namespace Yak.UserControls
         /// <param name="e">RoutedPropertyChangedEventArgs</param>
         private void MovieSliderProgress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            var vm = DataContext as MainViewModel;
+            var vm = DataContext as MoviePlayerViewModel;
             if (vm != null)
             {
+                vm.CurrentMovieProgressValue = MoviePlayerSliderProgress.Value;
                 MoviePlayerTextProgressStatus.Text = TimeSpan.FromSeconds(MoviePlayerSliderProgress.Value).ToString(@"hh\:mm\:ss", CultureInfo.CurrentCulture) + " / " + TimeSpan.FromSeconds(vm.Movie.Runtime * 60).ToString(@"hh\:mm\:ss", CultureInfo.CurrentCulture);
             }
         }

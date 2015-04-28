@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using Yak.Events;
 using Yak.Messaging;
+using Yak.Model.Movie;
 
 namespace Yak.ViewModel
 {
@@ -22,6 +23,13 @@ namespace Yak.ViewModel
         public string SearchMoviesFilter { get; set; }
         #endregion
 
+        #region Property -> Movie
+        /// <summary>
+        /// The movie to be played
+        /// </summary>
+        public MovieFullDetails Movie { get; set; }
+        #endregion
+
         #region Property -> MovieFilePath
         /// <summary>
         /// File path to the movie to be played
@@ -29,12 +37,19 @@ namespace Yak.ViewModel
         public string MovieFilePath { get; set; }
         #endregion
 
+        #region Property -> CurrentMovieProgressValue
+        /// <summary>
+        /// The current progress playing value
+        /// </summary>
+        public double CurrentMovieProgressValue { get; set; }
+        #endregion
+
         #region Constructor -> MoviePlayerViewModel
         /// <summary>
         /// Initializes a new instance of the MoviePlayerViewModel class.
         /// </summary>
         public MoviePlayerViewModel()   
-            : this(String.Empty)
+            : this(null, null)
         {
 
         }
@@ -44,8 +59,9 @@ namespace Yak.ViewModel
         /// <summary>
         /// Initializes a new instance of the MoviePlayerViewModel class.
         /// </summary>
-        public MoviePlayerViewModel(string movieFilePath)
+        public MoviePlayerViewModel(MovieFullDetails movie, string movieFilePath)
         {
+            Movie = movie;
             MovieFilePath = movieFilePath;
             Messenger.Default.Register<WindowSizeChangedMessage>(this, e => OnWindowSizeChanged(new WindowSizeChangedEventArgs(e.NewWindowState)));
             Messenger.Default.Register<StopDownloadingMovieMessage>(this, e => OnStoppedDownloadingMovie(new EventArgs()));

@@ -156,7 +156,7 @@
                     FontSize="18"
                     Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToInverseVisibilityConverter}}"
                     Command="{Binding ReloadMovies}"/>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged" Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToVisibilityConverter}}">
+        <ScrollViewer x:Name="Scroll" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged" Visibility="{Binding IsConnectionInError, Converter={StaticResource BoolToVisibilityConverter}}">
             <ItemsControl x:Name="ItemsList" ItemsSource="{Binding Movies}" VerticalAlignment="Top">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

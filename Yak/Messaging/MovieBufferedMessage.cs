@@ -1,5 +1,7 @@
 ﻿using System;
 using GalaSoft.MvvmLight.Messaging;
+using Yak.Model.Movie;
+using Yak.ViewModel;
 
 namespace Yak.Messaging
 {
@@ -8,23 +10,35 @@ namespace Yak.Messaging
     /// </summary>
     public class MovieBufferedMessage : MessageBase
     {
-        private readonly string _pathToFile;
+        private readonly string _movieFilePath;
+        private readonly MovieFullDetails _movie;
 
         #region Constructor
-        public MovieBufferedMessage(string pathToFile)
+        public MovieBufferedMessage(MovieFullDetails movie, string movieFilePath)
         {
-            _pathToFile = pathToFile;
+            _movieFilePath = movieFilePath;
+            _movie = movie;
         }
         #endregion
 
         #region Properties
 
-        #region Property -> PathToFile
-        public string PathToFile
+        #region Property -> movieFilePath
+        public string MovieFilePath
         {
             get
             {
-                return _pathToFile;
+                return _movieFilePath;
+            }
+        }
+        #endregion
+
+        #region Property -> Movie
+        public MovieFullDetails Movie
+        {
+            get
+            {
+                return _movie;
             }
         }
         #endregion

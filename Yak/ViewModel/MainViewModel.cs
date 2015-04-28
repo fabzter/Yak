@@ -112,6 +112,33 @@ namespace Yak.ViewModel
 
         #endregion
 
+        #region Property -> SearchMessageToken
+        /// <summary>
+        /// Token for message subscription when searching movies
+        /// </summary>
+        private Guid SearchMessageToken = Guid.NewGuid();
+        #endregion
+
+        #region Property -> SearchMoviesFilter
+        /// <summary>
+        /// The filter for searching movies
+        /// </summary>
+        private string _searchMoviesFilter;
+        public string SearchMoviesFilter
+        {
+            get { return _searchMoviesFilter; }
+            set
+            {
+                if (value != _searchMoviesFilter)
+                {
+                    string oldValue = _searchMoviesFilter;
+                    _searchMoviesFilter = value;
+                    Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, value, "SearchMoviesFilter"), SearchMessageToken);
+                }
+            }
+        }
+        #endregion
+
         #endregion
 
         #region Commands
@@ -201,14 +228,14 @@ namespace Yak.ViewModel
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    MoviesViewModelTabs.Add(new MoviePlayerViewModel(e.PathToFile)
+                    MoviesViewModelTabs.Add(new MoviePlayerViewModel(e.Movie, e.MovieFilePath)
                     {
                         TabName = "playing"
                     });
 
                     SelectedTabViewModel = MoviesViewModelTabs.Last();
 
-                    OnBufferedMovie(new MovieBufferedEventArgs(e.PathToFile));
+                    OnBufferedMovie(new MovieBufferedEventArgs(e.MovieFilePath));
                 });
             });
 
@@ -221,6 +248,88 @@ namespace Yak.ViewModel
                     StopDownloadingMovie();
                 }
             });
+
+            Messenger.Default.Register<PropertyChangedMessage<string>>(
+                this, SearchMessageToken, async e =>
+                {
+                    if (String.IsNullOrEmpty(e.NewValue))
+                    {
+                        MoviesViewModel searchTabToRemove = new MoviesViewModel();
+                        foreach (object tab in MoviesViewModelTabs)
+                        {
+                            var moviesViewModel = tab as MoviesViewModel;
+                            if (moviesViewModel != null && moviesViewModel.TabName.Equals("search"))
+                            {
+                                searchTabToRemove = moviesViewModel;
+                            }
+                        }
+
+                        if (searchTabToRemove == SelectedTabViewModel)
+                        {
+                            SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
+                        }
+
+                        if (searchTabToRemove.TabName.Equals("search"))
+                        {
+                            MoviesViewModelTabs.Remove(searchTabToRemove);
+                        }
+
+                        return;
+                    }
+
+                    var currentTabItem = SelectedTabViewModel as MoviesViewModel;
+                    if (currentTabItem != null)
+                    {
+                        if (!currentTabItem.TabName.Equals("search"))
+                        {
+                            MoviesViewModelTabs.Add(new MoviesViewModel()
+                            {
+                                TabName = "search",
+                                SearchMoviesFilter = e.NewValue
+                            });
+
+                            SelectedTabViewModel = MoviesViewModelTabs.Last();
+                            var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
+                            if (searchMovieTab != null)
+                            {
+                                await searchMovieTab.SearchMovies(SearchMoviesFilter);
+                            }
+                        }
+                        else
+                        {
+                            currentTabItem.SearchMoviesFilter = e.NewValue;
+                            await currentTabItem.SearchMovies(SearchMoviesFilter);
+                        }
+                    }
+                    else
+                    {
+                        var newCurrentTabItem = SelectedTabViewModel as MoviePlayerViewModel;
+                        if (newCurrentTabItem != null)
+                        {
+                            if (!currentTabItem.TabName.Equals("search"))
+                            {
+                                MoviesViewModelTabs.Add(new MoviesViewModel()
+                                {
+                                    TabName = "search",
+                                    SearchMoviesFilter = e.NewValue
+                                });
+
+                                SelectedTabViewModel = MoviesViewModelTabs.Last();
+                                var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
+                                if (searchMovieTab != null)
+                                {
+                                    await searchMovieTab.SearchMovies(SearchMoviesFilter);
+                                }
+                            }
+                            else
+                            {
+                                currentTabItem.SearchMoviesFilter = e.NewValue;
+                                await currentTabItem.SearchMovies(SearchMoviesFilter);
+                            }
+                        }
+                    }
+                }
+            );
 
             StopDownloadingMovieCommand = new RelayCommand(() =>
             {
@@ -530,7 +639,7 @@ namespace Yak.ViewModel
                                 )
                             {
                                 // Inform subscribers we have finished buffering the movie
-                                Messenger.Default.Send<MovieBufferedMessage>(new MovieBufferedMessage(filePath));
+                                Messenger.Default.Send<MovieBufferedMessage>(new MovieBufferedMessage(Movie, filePath));
                                 alreadyBuffered = true;
                             }
 

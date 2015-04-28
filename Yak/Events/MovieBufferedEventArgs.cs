@@ -18,7 +18,7 @@ namespace Yak.Events
 
         #region Properties
 
-        #region Property -> PathToFile
+        #region Property -> movieFilePath
         public string PathToFile
         {
             get

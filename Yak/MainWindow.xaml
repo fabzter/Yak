@@ -11,6 +11,7 @@
         xmlns:styles="clr-namespace:Yak.Resources.Styles"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
         xmlns:command="http://www.galasoft.ch/mvvmlight"
+        xmlns:helpers="clr-namespace:Yak.Helpers"
         mc:Ignorable="d ignore"
         Height="{Binding Source={x:Static SystemParameters.PrimaryScreenHeight}, Converter={converters:RatioConverter}, ConverterParameter='0.7' }" 
         Width="{Binding Source={x:Static SystemParameters.PrimaryScreenWidth}, Converter={converters:RatioConverter}, ConverterParameter='0.7' }" 
@@ -341,19 +342,19 @@
                         MaxLength="15"
                         Background="Transparent"
                         BorderThickness="0"
-                        Text="{Binding ElementName=MainTabControl, Path=SelectedItem.SearchMoviesFilter, UpdateSourceTrigger=PropertyChanged}">
-                    <TextBox.Style>
-                        <Style TargetType="{x:Type TextBox}"
+                        Text="{Binding Path=SearchMoviesFilter, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.Style>
+                            <Style TargetType="{x:Type TextBox}"
                                BasedOn="{StaticResource SearchMetroTextBox}">
-                            <Style.Triggers>
-                                <Trigger Property="controls:TextBoxHelper.HasText"
+                                <Style.Triggers>
+                                    <Trigger Property="controls:TextBoxHelper.HasText"
                                          Value="True">
-                                    <Setter Property="controls:TextBoxHelper.ButtonTemplate"
+                                        <Setter Property="controls:TextBoxHelper.ButtonTemplate"
                                             Value="{DynamicResource ChromelessButtonTemplate}" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBox.Style>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
                     </TextBox>
                 </StackPanel>
             </Border>
@@ -366,10 +367,11 @@
             Grid.RowSpan="2" 
             x:Name="MainTabControl" 
             IsSynchronizedWithCurrentItem="True"
-            TabStripMargin="17.2"
+            TabStripMargin="17.3"
             ItemsSource="{Binding MoviesViewModelTabs}"
             SelectedItem="{Binding SelectedTabViewModel}"
-            controls:TabControlHelper.IsUnderlined="True">
+            controls:TabControlHelper.IsUnderlined="True"
+            helpers:TabContent.IsCached="True">
 
             <controls:MetroAnimatedSingleRowTabControl.Resources>
                 <DataTemplate x:Shared="False" DataType="{x:Type viewModels:MoviesViewModel}">
