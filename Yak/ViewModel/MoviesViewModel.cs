@@ -63,11 +63,11 @@ namespace Yak.ViewModel
         public int MaxMoviesPerPage { private get; set; }
         #endregion
 
-        #region Property -> TabName
+        #region Property -> Tab
         /// <summary>
         /// Name of the tab
         /// </summary>
-        public string TabName { get; set; }
+        public TabDescription Tab { get; set; }
         #endregion
 
         #region Property -> IsConnectionInError
@@ -128,7 +128,7 @@ namespace Yak.ViewModel
         {
             ApiService = apiService;
 
-            // Set the CancellationToken for having the possibility to stop a task
+            // Set the CancellationToken for having the possibility to stop loading movies
             CancellationLoadingToken = new CancellationTokenSource();
 
             MaxMoviesPerPage = Constants.MaxMoviesPerPage;
@@ -181,7 +181,7 @@ namespace Yak.ViewModel
         /// <param name="searchFilter">An optional search parameter which is specified to the API</param>
         public async Task LoadNextPage(string searchFilter = null)
         {
-            // Set the CancellationToken for having the possibility to stop a task
+            // Set the CancellationToken for having the possibility to stop the loading task
             CancellationLoadingToken = new CancellationTokenSource();
 
             // We update the current pagination
@@ -194,7 +194,7 @@ namespace Yak.ViewModel
 
             // The page to load is new, never met it before, so we load the new page via the service
             Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>> results =
-                await ApiService.GetMoviesAsync(TabName,
+                await ApiService.GetMoviesAsync(Tab,
                     searchFilter,
                     MaxMoviesPerPage,
                     Pagination,
@@ -213,10 +213,11 @@ namespace Yak.ViewModel
             }
 
             // Check if we met any exception in the GetMoviesInfosAsync method
-            if (HandleExceptions(results.Item2))
+            if (HandleExceptions(results.Item2).Item1)
             {
                 // Inform the subscribers we loaded movies
-                OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, true));
+                Pagination--;
+                OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, HandleExceptions(results.Item2).Item2));
                 return;
             }
 
@@ -236,11 +237,12 @@ namespace Yak.ViewModel
                                 movie.MediumCoverImage,
                                 CancellationLoadingToken);
 
-                        // Check if we met any exception
-                        if (HandleExceptions(movieCover.Item2))
+                        // Check if we met any exception in the GetMoviesInfosAsync method
+                        if (HandleExceptions(results.Item2).Item1)
                         {
                             // Inform the subscribers we loaded movies
-                            OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, true));
+                            Pagination--;
+                            OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, HandleExceptions(results.Item2).Item2));
                             return;
                         }
 
@@ -262,17 +264,17 @@ namespace Yak.ViewModel
         /// Handle list of exceptions
         /// </summary>
         /// <param name="exceptions">List of exceptions</param>
-        private bool HandleExceptions(IEnumerable<Exception> exceptions)
+        /// <returns>
+        /// Returns a tuple which represents if exception(s) has been thrown, and if one of them is the result of an unhandled exception
+        /// </returns>
+        private Tuple<bool, bool> HandleExceptions(IEnumerable<Exception> exceptions)
         {
+            bool isExceptionThrown = false;
+            bool isUnhandledException = false;
+            bool isConnexionInError = false;
             foreach (var e in exceptions)
             {
-                var taskCancelledException = e as TaskCanceledException;
-                if (taskCancelledException != null)
-                {
-                    // Something as cancelled the loading. We go back.
-                    Pagination--;
-                    return true;
-                }
+                isExceptionThrown = true;
 
                 var webException = e as WebException;
                 if (webException != null)
@@ -280,17 +282,21 @@ namespace Yak.ViewModel
                     if (webException.Status == WebExceptionStatus.NameResolutionFailure)
                     {
                         // There's a connection error.
-                        Messenger.Default.Send<bool>(true, Constants.ConnectionErrorPropertyName);
-                        Pagination--;
-                        return true;
+                        isConnexionInError = true;
                     }
                 }
-
-                // Another exception has occured. Go back.
-                Pagination--;
-                return true;
+                else
+                {
+                    isUnhandledException = true;
+                }
             }
-            return false;
+
+            if (isConnexionInError)
+            {
+                Messenger.Default.Send<bool>(true, Constants.ConnectionErrorPropertyName);
+            }
+
+            return new Tuple<bool, bool>(isExceptionThrown, isUnhandledException);
         }
         #endregion
 
@@ -298,11 +304,11 @@ namespace Yak.ViewModel
         /// <summary>
         /// Cancel the loading of movies 
         /// </summary>
-        public void StopLoadingMovies()
+        private void StopLoadingMovies()
         {
             if (CancellationLoadingToken != null)
             {
-                CancellationLoadingToken.Cancel(false);
+                CancellationLoadingToken.Cancel(true);
             }
         }
         #endregion
@@ -354,7 +360,6 @@ namespace Yak.ViewModel
         public override void Cleanup()
         {
             Messenger.Default.Unregister<Tuple<int, string>>(this);
-            Messenger.Default.Unregister<PropertyChangedMessage<string>>(this);
             base.Cleanup();
         }
     }

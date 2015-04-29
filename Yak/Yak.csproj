@@ -181,6 +181,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Helpers\TabContent.cs" />
+    <Compile Include="Helpers\TabDescription.cs" />
     <Compile Include="Helpers\YoutubeStreamingQuality.cs" />
     <Compile Include="Messaging\MainWindowClosingMessage.cs" />
     <Compile Include="Messaging\MovieBufferedMessage.cs" />

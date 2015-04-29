@@ -384,7 +384,7 @@
             
             <controls:MetroAnimatedSingleRowTabControl.ItemContainerStyle>
                 <Style TargetType="{x:Type TabItem}">
-                    <Setter Property="Header" Value="{Binding TabName}" />
+                    <Setter Property="Header" Value="{Binding Tab.TabName}" />
                     <Setter Property="controls:ControlsHelper.HeaderFontSize" Value="28"></Setter>
                 </Style>
             </controls:MetroAnimatedSingleRowTabControl.ItemContainerStyle>

@@ -18,7 +18,7 @@ namespace Yak.Helpers
         public static readonly string PosterMovieDirectory = Path.GetTempPath() + "Yak\\Posters\\";
 
         /// <summary>
-        /// Directory of movies' background image 
+        /// Directory of movie background image 
         /// </summary>
         public static readonly string BackgroundMovieDirectory = Path.GetTempPath() + "Yak\\Backgrounds\\";
 
@@ -61,16 +61,6 @@ namespace Yak.Helpers
         /// Generic path to youtube video
         /// </summary>
         public const string YoutubePath = "http://www.youtube.com/watch?v=";
-
-        /// <summary>
-        /// Maximum width of the movie title in the main interface until sliding
-        /// </summary>
-        public const int MaxWidthBeforeSlidingTitle = 160;
-
-        /// <summary>
-        /// Font size of the movie title in the main interface
-        /// </summary>
-        public const int MovieTitleFontSize = 18;
 
         /// <summary>
         /// We want at least 5 rows to be able to scroll inside the main window

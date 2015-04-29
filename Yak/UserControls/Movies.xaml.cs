@@ -4,12 +4,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using Yak.ViewModel;
-using System.Threading.Tasks;
-using GalaSoft.MvvmLight.Threading;
 using Yak.CustomPanels;
 using Yak.Events;
-using System.Windows.Controls.Primitives;
-using MahApps.Metro.Controls;
 using Microsoft.Practices.ServiceLocation;
 
 namespace Yak.UserControls
@@ -40,34 +36,16 @@ namespace Yak.UserControls
                 var vm = DataContext as MoviesViewModel;
                 if (vm != null)
                 {
+                    vm.MoviesLoaded -= OnMoviesLoaded;
+                    vm.MoviesLoading -= OnMoviesLoading;
+
                     vm.MoviesLoaded += OnMoviesLoaded;
                     vm.MoviesLoading += OnMoviesLoading;
-                    TabName = vm.TabName;
+                    TabName = vm.Tab.TabName;
 
                     if (!vm.Movies.Any())
                     {
-                        // At first load, we load the first page of movies
                         await vm.LoadNextPage();
-                    }
-                }
-            };
-
-            Unloaded += (s, e) =>
-            {
-                MainViewModel mainViewModel = ServiceLocator.Current.GetInstance<MainViewModel>();
-                if (mainViewModel != null)
-                {
-                    foreach (object iMoviesViewModel in mainViewModel.MoviesViewModelTabs)
-                    {
-                        MoviesViewModel moviesViewModel = iMoviesViewModel as MoviesViewModel;
-                        if (moviesViewModel != null)
-                        {
-                            if (moviesViewModel.TabName.Equals(TabName))
-                            {
-                                moviesViewModel.MoviesLoaded -= OnMoviesLoaded;
-                                moviesViewModel.MoviesLoading -= OnMoviesLoading;
-                            }
-                        }
                     }
                 }
             };
@@ -75,30 +53,6 @@ namespace Yak.UserControls
         #endregion
 
         #region Methods
-
-        #region Method -> OnMoviesUcLoaded
-        /// <summary>
-        /// Subscribe to events and load first page
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">RoutedEventArgs</param>
-        private async Task OnMoviesUcLoaded(object sender, RoutedEventArgs e)
-        {
-            var vm = DataContext as MoviesViewModel;
-            if (vm != null)
-            {
-                vm.MoviesLoaded += OnMoviesLoaded;
-                vm.MoviesLoading += OnMoviesLoading;
-                TabName = vm.TabName;
-
-                if (!vm.Movies.Any())
-                {
-                    // At first load, we load the first page of movies
-                    await vm.LoadNextPage();
-                }
-            }
-        }
-        #endregion
 
         #region Method -> OnMoviesLoading
 
@@ -144,7 +98,7 @@ namespace Yak.UserControls
         private void OnMoviesLoaded(object sender, NumberOfLoadedMoviesEventArgs e)
         {
             // We exclude exceptions like TaskCancelled when getting back results
-            if ((e.NumberOfMovies == 0 && !e.IsExceptionThrown) || (e.NumberOfMovies != 0 && !e.IsExceptionThrown))
+            if ((e.NumberOfMovies == 0 && !e.IsUnhandledException) || (e.NumberOfMovies != 0 && !e.IsUnhandledException))
             {
                 ProgressRing.IsActive = false;
 
@@ -168,7 +122,7 @@ namespace Yak.UserControls
             if (vm != null)
             {
                 // If we searched movies and there's no result, display the NoMovieFound label (we exclude exceptions like TaskCancelled when getting back results)
-                if (!vm.Movies.Any() && e.NumberOfMovies == 0 && !e.IsExceptionThrown)
+                if (!vm.Movies.Any() && e.NumberOfMovies == 0 && !e.IsUnhandledException)
                 {
                     NoMouvieFound.Visibility = Visibility.Visible;
                 }

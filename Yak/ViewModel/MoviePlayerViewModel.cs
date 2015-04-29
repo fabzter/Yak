@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using Yak.Events;
+using Yak.Helpers;
 using Yak.Messaging;
 using Yak.Model.Movie;
 
@@ -13,7 +14,7 @@ namespace Yak.ViewModel
         /// <summary>
         /// Name of the tab to be displayed in the interface
         /// </summary>
-        public string TabName { get; set; }
+        public TabDescription Tab { get; set; }
         #endregion
 
         #region Property -> SearchMoviesFilter

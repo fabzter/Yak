@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TMDbLib.Objects.Movies;
+using Yak.Helpers;
 using Yak.Model.Movie;
 
 namespace Yak.Model.Api
 {
     public interface IService
     {
-        Task<Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>>> GetMoviesAsync(string sortByFilter,
+        Task<Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>>> GetMoviesAsync(TabDescription tabDescription,
             string searchParameter,
             int maxMoviesPerPage,
             int pageNumberToLoad, 

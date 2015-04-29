@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Animation;
 using MahApps.Metro.Controls;
@@ -6,8 +8,6 @@ using MahApps.Metro.Controls.Dialogs;
 using Yak.Events;
 using Yak.ViewModel;
 using GalaSoft.MvvmLight.Threading;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace Yak
 {
@@ -25,41 +25,51 @@ namespace Yak
             InitializeComponent();
 
             Loaded += MainWindow_Loaded;
-
-            // Action when window is about to close
-            Closing += (s, e) =>
-            {
-                // Unsubscribe events
-                Loaded -= MainWindow_Loaded;
-
-                // Stop playing and downloading a movie if any
-                var vm = DataContext as MainViewModel;
-                if (vm != null)
-                {
-                    if (vm.IsDownloadingMovie)
-                    {
-                        vm.StopDownloadingMovie();
-                    }
-
-                    // Unsubscribe events
-                    vm.ConnectionError -= OnConnectionInError;
-                    vm.DownloadingMovie -= OnDownloadingMovie;
-                    vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
-                    vm.LoadedMovie -= OnLoadedMovie;
-                    vm.BufferedMovie -= OnBufferedMovie;
-                    vm.LoadingMovieProgress -= OnLoadingMovieProgress;
-                }
-
-                ViewModelLocator.Cleanup();
-            };
+            Closing += OnClosing;
         }
+
         #endregion
 
         #region Methods
 
+        #region Method -> OnClosing
+        /// <summary>
+        /// Do actions when closing
+        /// </summary>
+        /// <param name="sender">Sender object</param>
+        /// <param name="e">CancelEventArgs</param>
+        private void OnClosing(object sender, CancelEventArgs e)
+        {
+            // Unsubscribe events
+            Loaded -= MainWindow_Loaded;
+
+            // Stop playing and downloading a movie if any
+            var vm = DataContext as MainViewModel;
+            if (vm != null)
+            {
+                if (vm.IsDownloadingMovie)
+                {
+                    vm.StopDownloadingMovie();
+                }
+
+                // Unsubscribe events
+                vm.ConnectionError -= OnConnectionInError;
+                vm.DownloadingMovie -= OnDownloadingMovie;
+                vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
+                vm.LoadedMovie -= OnLoadedMovie;
+                vm.LoadingMovie -= OnLoadingMovie;
+                vm.BufferedMovie -= OnBufferedMovie;
+                vm.LoadingMovieProgress -= OnLoadingMovieProgress;
+                vm.LoadedTrailer -= OnLoadedTrailer;
+            }
+
+            ViewModelLocator.Cleanup();
+        }
+        #endregion
+
         #region Method -> MainWindow_Loaded
         /// <summary>
-        /// Subscribes to events when window is loaded
+        /// Do actions when loaded
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">RoutedEventArgs</param>
@@ -262,6 +272,7 @@ namespace Yak
         #endregion
 
         #region Method -> OnConnectionInError
+
         /// <summary>
         /// Open the popup when a connection error has occured
         /// </summary>
@@ -287,6 +298,7 @@ namespace Yak
                 }
             }
         }
+
         #endregion
 
         #region Method -> OnStoppedDownloadingMovie

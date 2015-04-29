@@ -8,13 +8,13 @@ namespace Yak.Events
     public class NumberOfLoadedMoviesEventArgs : EventArgs
     {
         private readonly int _numberOfMovies;
-        private readonly bool _isExceptionThrown;
+        private readonly bool _isUnhandledException;
 
         #region Constructor
-        public NumberOfLoadedMoviesEventArgs(int numberOfMovies, bool isExceptionThrown)
+        public NumberOfLoadedMoviesEventArgs(int numberOfMovies, bool isUnhandledException)
         {
             _numberOfMovies = numberOfMovies;
-            _isExceptionThrown = isExceptionThrown;
+            _isUnhandledException = isUnhandledException;
         }
         #endregion
 
@@ -30,12 +30,12 @@ namespace Yak.Events
         }
         #endregion
 
-        #region Property -> IsExceptionThrown
-        public bool IsExceptionThrown
+        #region Property -> isUnhandledException
+        public bool IsUnhandledException
         {
             get
             {
-                return _isExceptionThrown;
+                return _isUnhandledException;
             }
         }
         #endregion
