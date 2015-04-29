@@ -246,9 +246,12 @@ namespace Yak.ViewModel
                             return;
                         }
 
-                        movie.MediumCoverImageUri = movieCover.Item1;
+                        if (!CancellationLoadingToken.IsCancellationRequested)
+                        {
+                            movie.MediumCoverImageUri = movieCover.Item1;
 
-                        Movies.Add(movie);
+                            Movies.Add(movie);
+                        }
                     }
                 }
             }
@@ -308,7 +311,7 @@ namespace Yak.ViewModel
         {
             if (CancellationLoadingToken != null)
             {
-                CancellationLoadingToken.Cancel(true);
+                CancellationLoadingToken.Cancel(false);
             }
         }
         #endregion
