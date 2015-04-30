@@ -1,8 +1,4 @@
-﻿// TabContent.cs, version 1.2
-// The code in this file is Copyright (c) Ivan Krivyakov
-// See http://www.ikriv.com/legal.php for more information
-//
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;

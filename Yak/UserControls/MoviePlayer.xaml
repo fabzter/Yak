@@ -25,7 +25,10 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <MediaElement Name="Player" Grid.Row="0" LoadedBehavior="Manual" Stretch="Uniform"/>
+        <MediaElement x:Name="Player" 
+                      Grid.Row="0" 
+                      LoadedBehavior="Manual" 
+                      Stretch="Uniform"/>
 
         <StatusBar Grid.Row="1">
             <StatusBar.ItemsPanel>
@@ -40,38 +43,54 @@
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
-            <StatusBarItem x:Name="MoviePlayerStatusBarItemPause" Grid.Column="0" Background="#FF2F2F2F" Visibility="Collapsed">
-                <Button Command="MediaCommands.Pause" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
-                    <Image Width="20" Height="20" Source="../Resources/Images/Pause.png"></Image>
+            <StatusBarItem x:Name="MoviePlayerStatusBarItemPause" 
+                           Grid.Column="0" 
+                           Background="#FF2F2F2F" 
+                           Visibility="Collapsed">
+                <Button Command="MediaCommands.Pause" 
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
+                    <Image Width="20" 
+                           Height="20" 
+                           Source="../Resources/Images/Pause.png"></Image>
                 </Button>
             </StatusBarItem>
-            <StatusBarItem x:Name="MoviePlayerStatusBarItemPlay" Grid.Column="0" Background="#FF2F2F2F" Visibility="Collapsed">
-                <Button Command="MediaCommands.Play" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
-                    <Image Width="20" Height="20" Source="../Resources/Images/Play.png"></Image>
+            <StatusBarItem x:Name="MoviePlayerStatusBarItemPlay" 
+                           Grid.Column="0" 
+                           Background="#FF2F2F2F" 
+                           Visibility="Collapsed">
+                <Button Command="MediaCommands.Play" 
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
+                    <Image Width="20" 
+                           Height="20" 
+                           Source="../Resources/Images/Play.png"></Image>
                 </Button>
             </StatusBarItem>
-            <StatusBarItem Grid.Column="1" Background="#FF2F2F2F">
+            <StatusBarItem Grid.Column="1" 
+                           Background="#FF2F2F2F">
                 <TextBlock Name="MoviePlayerTextProgressStatus">00:00:00</TextBlock>
             </StatusBarItem>
-            <StatusBarItem Grid.Column="2" HorizontalContentAlignment="Stretch" Background="#FF2F2F2F">
-                <Slider Name="MoviePlayerSliderProgress"
-                                    Style="{DynamicResource FlatSlider}"
-                                    Thumb.DragStarted="MovieSliderProgress_DragStarted"  
-                                    Thumb.DragCompleted="MovieSliderProgress_DragCompleted" 
-                                    ValueChanged="MovieSliderProgress_ValueChanged"
-                                    Width="{Binding ElementName=Player, Path=ActualWidth, Mode=OneWay}"/>
+            <StatusBarItem Grid.Column="2"
+                           HorizontalContentAlignment="Stretch" 
+                           Background="#FF2F2F2F">
+                <Slider x:Name="MoviePlayerSliderProgress"
+                        Style="{DynamicResource FlatSlider}"
+                        Thumb.DragStarted="MovieSliderProgress_DragStarted"  
+                        Thumb.DragCompleted="MovieSliderProgress_DragCompleted" 
+                        ValueChanged="MovieSliderProgress_ValueChanged"
+                        Width="{Binding ElementName=Player, Path=ActualWidth, Mode=OneWay}"/>
             </StatusBarItem>
-            <StatusBarItem Grid.Column="3" Background="#FF2F2F2F">
+            <StatusBarItem Grid.Column="3" 
+                           Background="#FF2F2F2F">
                 <Slider x:Name="MoviePlayerVolume"
-                                Minimum="0"
-                                Maximum="1"
-                                Style="{DynamicResource FlatSlider}"
-                                Value="{Binding ElementName=Player, Path=Volume}"
-                                LargeChange="0.2"
-                                SmallChange="0.1"
-                                Width="100"
-                                Height="10"
-                                Margin="0,0,0,2.5">
+                        Minimum="0"
+                        Maximum="1"
+                        Style="{DynamicResource FlatSlider}"
+                        Value="{Binding ElementName=Player, Path=Volume}"
+                        LargeChange="0.2"
+                        SmallChange="0.1"
+                        Width="100"
+                        Height="10"
+                        Margin="0,0,0,2.5">
                 </Slider>
             </StatusBarItem>
         </StatusBar>

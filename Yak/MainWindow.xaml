@@ -44,25 +44,29 @@
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="SizeChanged">
-            <command:EventToCommand Command="{Binding Mode=OneWay, Path=MainWindowSizeChangedCommand}" CommandParameter="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}}"
-                            PassEventArgsToCommand="True" />
+            <command:EventToCommand Command="{Binding Mode=OneWay, Path=MainWindowSizeChangedCommand}" 
+                                    CommandParameter="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}}"
+                                    PassEventArgsToCommand="True" />
         </i:EventTrigger>
         <i:EventTrigger EventName="Closing">
             <command:EventToCommand Command="{Binding Mode=OneWay, Path=MainWindowClosingCommand}"
-                            PassEventArgsToCommand="True" />
+                                    PassEventArgsToCommand="True" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
     <controls:MetroWindow.Flyouts>
         <controls:FlyoutsControl x:Name="FlyoutsControl">
-            <controls:Flyout x:Name="MoviePage" Header="{Binding Movie.Title}"
+            <controls:Flyout x:Name="MoviePage" 
+                             Header="{Binding Movie.Title}"
                              Position="Right"
                              AnimateOpacity="True"
                              FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light"
                              CloseButtonVisibility="{Binding IsDownloadingMovie, Converter={StaticResource BoolToVisibilityConverter}}"
                              Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=controls:MetroWindow}, Path=ActualWidth, Mode=OneWay}">
                 <Grid>
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="3">
+                    <StackPanel HorizontalAlignment="Center" 
+                                VerticalAlignment="Center" 
+                                Panel.ZIndex="3">
                         <TextBlock x:Name="LoadingText"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center"
@@ -92,12 +96,21 @@
                             Margin="0, 10, 0, 0"
                             Content="Cancel"
                             Command="{Binding StopDownloadingMovieCommand}"
-                            Visibility="Collapsed" VerticalAlignment="Bottom"/>
+                            Visibility="Collapsed" 
+                            VerticalAlignment="Bottom"/>
                     </StackPanel>
-                    <MediaElement Name="TrailerPlayer" LoadedBehavior="Manual" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <MediaElement x:Name="TrailerPlayer" 
+                                  LoadedBehavior="Manual" 
+                                  Stretch="Uniform" 
+                                  HorizontalAlignment="Center" 
+                                  VerticalAlignment="Center"/>
                     <Grid x:Name="MovieContainer">
-                        <Image x:Name="BackgroundImage" Source="{Binding Path=Movie.BackgroundImage, Converter={StaticResource NullImageConverter}}" Stretch="UniformToFill" Opacity="0.3"/>
-                        <Grid x:Name="Content" Panel.ZIndex="2">
+                        <Image x:Name="BackgroundImage" 
+                               Source="{Binding Path=Movie.BackgroundImage, Converter={StaticResource NullImageConverter}}" 
+                               Stretch="UniformToFill" 
+                               Opacity="0.3"/>
+                        <Grid x:Name="Content" 
+                              Panel.ZIndex="2">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="1*"></RowDefinition>
                                 <RowDefinition Height="1*"></RowDefinition>
@@ -151,96 +164,149 @@
                                 <ColumnDefinition Width="1*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Border BorderThickness="1" 
-                                CornerRadius="40" 
-                                HorizontalAlignment="Left" 
-                                VerticalAlignment="Top" 
-                                Grid.Row="3" 
-                                Grid.RowSpan="18" 
-                                Grid.Column="2" 
-                                Grid.ColumnSpan="10">
+                                    CornerRadius="40" 
+                                    HorizontalAlignment="Left" 
+                                    VerticalAlignment="Top" 
+                                    Grid.Row="3" 
+                                    Grid.RowSpan="18" 
+                                    Grid.Column="2" 
+                                    Grid.ColumnSpan="10">
                                 <Grid>
-                                    <Border Name="mask" Background="Black" CornerRadius="40"/>
+                                    <Border Name="mask" 
+                                            Background="Black" 
+                                            CornerRadius="40"/>
                                     <StackPanel>
                                         <StackPanel.OpacityMask>
                                             <VisualBrush Visual="{Binding ElementName=mask}"/>
                                         </StackPanel.OpacityMask>
-                                        <Image 
-                                        x:Name="Poster"
-                                        Source="{Binding Path=Movie.PosterImage, Converter={StaticResource NullImageConverter}}" 
-                                        Width="{Binding ElementName=MovieContainer, Path=ActualWidth, Converter={StaticResource RatioConverter}, ConverterParameter=0.25}"/>
+                                        <Image x:Name="Poster"
+                                               Source="{Binding Path=Movie.PosterImage, Converter={StaticResource NullImageConverter}}" 
+                                               Width="{Binding ElementName=MovieContainer, Path=ActualWidth, Converter={StaticResource RatioConverter}, ConverterParameter=0.25}"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
-                            <StackPanel Grid.Row="3" Grid.RowSpan="21" Grid.Column="10" Grid.ColumnSpan="13" Orientation="Vertical">
+                            <StackPanel Grid.Row="3" 
+                                        Grid.RowSpan="21" 
+                                        Grid.Column="10" 
+                                        Grid.ColumnSpan="13" 
+                                        Orientation="Vertical">
                                 <DockPanel>
                                     <DockPanel DockPanel.Dock="Top">
-                                    <TextBlock Text="{Binding Movie.Title}" DockPanel.Dock="Top" VerticalAlignment="Top" TextTrimming="CharacterEllipsis" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="36" HorizontalAlignment="Left"/>
-                                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Movie.Year}" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="16"/>
-                                        <Canvas Background="LightGray" VerticalAlignment="Center" Margin="10,0,0,5">
+                                    <TextBlock Text="{Binding Movie.Title}" 
+                                               DockPanel.Dock="Top"
+                                               VerticalAlignment="Top" 
+                                               TextTrimming="CharacterEllipsis" 
+                                               FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
+                                               FontSize="36" 
+                                               HorizontalAlignment="Left"/>
+                                    <StackPanel DockPanel.Dock="Bottom" 
+                                                Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Movie.Year}" 
+                                                   VerticalAlignment="Center" 
+                                                   FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
+                                                   FontSize="16"/>
+                                        <Canvas Background="LightGray" 
+                                                VerticalAlignment="Center" 
+                                                Margin="10,0,0,5">
                                             <Ellipse
-                                          Fill="#FFFFFF"
-                                          Height="5"
-                                          Width="5"
-                                          StrokeThickness="5"
-                                          Stroke="#FFFFFF"/>
+                                                  Fill="#FFFFFF"
+                                                  Height="5"
+                                                  Width="5"
+                                                  StrokeThickness="5"
+                                                  Stroke="#FFFFFF"/>
                                         </Canvas>
-                                        <TextBlock Text="{Binding Movie.Runtime, Converter={StaticResource RuntimeConverter}}" Margin="15,0,0,0" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="16"/>
-                                        <Canvas Background="LightGray" VerticalAlignment="Center" Margin="10,0,0,5">
+                                        <TextBlock Text="{Binding Movie.Runtime, Converter={StaticResource RuntimeConverter}}" 
+                                                   Margin="15,0,0,0" 
+                                                   VerticalAlignment="Center" 
+                                                   FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
+                                                   FontSize="16"/>
+                                        <Canvas Background="LightGray" 
+                                                VerticalAlignment="Center" 
+                                                Margin="10,0,0,5">
                                             <Ellipse
-                                          Fill="#FFFFFF"
-                                          Height="5"
-                                          Width="5"
-                                          StrokeThickness="5"
-                                          Stroke="#FFFFFF"/>
+                                                  Fill="#FFFFFF"
+                                                  Height="5"
+                                                  Width="5"
+                                                  StrokeThickness="5"
+                                                  Stroke="#FFFFFF"/>
                                         </Canvas>
-                                        <TextBlock Text="{Binding Movie.Genres, Converter={StaticResource GenresConverter}}" Margin="15,0,0,0" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="16"/>
-                                        <Canvas Background="LightGray" VerticalAlignment="Center" Margin="10,0,0,5">
+                                        <TextBlock Text="{Binding Movie.Genres, Converter={StaticResource GenresConverter}}" 
+                                                   Margin="15,0,0,0" 
+                                                   VerticalAlignment="Center" 
+                                                   FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
+                                                   FontSize="16"/>
+                                        <Canvas Background="LightGray" 
+                                                VerticalAlignment="Center" 
+                                                Margin="10,0,0,5">
                                             <Ellipse
-                                          Fill="#FFFFFF"
-                                          Height="5"
-                                          Width="5"
-                                          StrokeThickness="5"
-                                          Stroke="#FFFFFF"/>
+                                                  Fill="#FFFFFF"
+                                                  Height="5"
+                                                  Width="5"
+                                                  StrokeThickness="5"
+                                                  Stroke="#FFFFFF"/>
                                         </Canvas>
-                                        <styles:Rating Margin="15,0,0,4" Height="20" Width="60" RatingValue="{Binding Movie.Rating, Converter={StaticResource StringRatingToIntRatingConverter}}" />
-                                        <Canvas Background="LightGray" VerticalAlignment="Center" Margin="10,0,0,5">
+                                        <styles:Rating Margin="15,0,0,4" 
+                                                       Height="20" 
+                                                       Width="60" 
+                                                       RatingValue="{Binding Movie.Rating, Converter={StaticResource StringRatingToIntRatingConverter}}" />
+                                        <Canvas Background="LightGray" 
+                                                VerticalAlignment="Center" 
+                                                Margin="10,0,0,5">
                                             <Ellipse
-                                          Fill="#FFFFFF"
-                                          Height="5"
-                                          Width="5"
-                                          StrokeThickness="5"
-                                          Stroke="#FFFFFF"/>
+                                                  Fill="#FFFFFF"
+                                                  Height="5"
+                                                  Width="5"
+                                                  StrokeThickness="5"
+                                                  Stroke="#FFFFFF"/>
                                         </Canvas>
-                                        <TextBlock Text="{Binding Movie.MpaRating}" Margin="15,0,0,0" VerticalAlignment="Center" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="16"/>
+                                        <TextBlock Text="{Binding Movie.MpaRating}" 
+                                                   Margin="15,0,0,0" 
+                                                   VerticalAlignment="Center" 
+                                                   FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
+                                                   FontSize="16"/>
                                     </StackPanel>
                                     
                                 </DockPanel>
                                     <DockPanel DockPanel.Dock="Bottom">
-                                        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                                        <StackPanel HorizontalAlignment="Left" 
+                                                    Orientation="Horizontal">
                                             <Button Width="100"
-                                            Height="30"
-                                            Margin="0, 10, 10, 0"
-                                            Content="Trailer"
-                                            Command="{Binding GetTrailerCommand}"  HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                    Height="30"
+                                                    Margin="0, 10, 10, 0"
+                                                    Content="Trailer"
+                                                    Command="{Binding GetTrailerCommand}"  
+                                                    HorizontalAlignment="Left" 
+                                                    VerticalAlignment="Center"/>
                                             <Button Width="100"
-                                            Height="30"
-                                            Margin="0, 10, 0, 0"
-                                            Content="Watch"
-                                            Command="{Binding DownloadMovieCommand}"  HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                    Height="30"
+                                                    Margin="0, 10, 0, 0"
+                                                    Content="Watch"
+                                                    Command="{Binding DownloadMovieCommand}"  
+                                                    HorizontalAlignment="Right" 
+                                                    VerticalAlignment="Center"/>
                                         </StackPanel >
                                     </DockPanel>
                                 </DockPanel>
                                 <Grid Height="{Binding ElementName=MovieContainer, Path=ActualHeight, Converter={StaticResource RatioConverter}, ConverterParameter=0.5}">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <StackPanel>
-                                            <TextBlock VerticalAlignment="Center" Padding="0,20,0,0" TextAlignment="Justify" Text="{Binding Movie.DescriptionFull}" TextWrapping="Wrap" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light Light" FontSize="16"></TextBlock>
+                                            <TextBlock VerticalAlignment="Center" 
+                                                       Padding="0,20,0,0" 
+                                                       TextAlignment="Justify" 
+                                                       Text="{Binding Movie.DescriptionFull}" 
+                                                       TextWrapping="Wrap" 
+                                                       FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light Light" 
+                                                       FontSize="16"></TextBlock>
                                             <StackPanel Margin="0,20,0,0">
-                                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+                                                <ScrollViewer HorizontalScrollBarVisibility="Auto" 
+                                                              VerticalScrollBarVisibility="Hidden">
                                                     <StackPanel Orientation="Horizontal">
                                                         <StackPanel>
-                                                            <TextBlock Text="Directors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" FontSize="18"></TextBlock>
-                                                            <ItemsControl ItemsSource="{Binding Movie.Directors}" Padding="0,15,0,0">
+                                                            <TextBlock Text="Directors" 
+                                                                       FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" 
+                                                                       FontSize="18"></TextBlock>
+                                                            <ItemsControl ItemsSource="{Binding Movie.Directors}" 
+                                                                          Padding="0,15,0,0">
                                                                 <ItemsControl.ItemsPanel>
                                                                     <ItemsPanelTemplate>
                                                                         <StackPanel Orientation="Horizontal"/>
@@ -250,18 +316,25 @@
                                                                     <DataTemplate>
                                                                         <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
                                                                             <StackPanel Orientation="Vertical">
-                                                                                <TextBlock Text="{Binding Name}" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="14"></TextBlock>
+                                                                                <TextBlock Text="{Binding Name}" 
+                                                                                           FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
+                                                                                           FontSize="14"></TextBlock>
                                                                                 <Border BorderThickness="1" 
-                                                                                CornerRadius="40" 
-                                                                                HorizontalAlignment="Center" 
-                                                                                VerticalAlignment="Top">
+                                                                                        CornerRadius="40" 
+                                                                                        HorizontalAlignment="Center" 
+                                                                                        VerticalAlignment="Top">
                                                                                     <Grid>
-                                                                                        <Border Name="mask" Background="Black" CornerRadius="40"/>
+                                                                                        <Border x:Name="mask" 
+                                                                                                Background="Black" 
+                                                                                                CornerRadius="40"/>
                                                                                         <StackPanel>
                                                                                             <StackPanel.OpacityMask>
                                                                                                 <VisualBrush Visual="{Binding ElementName=mask}"/>
                                                                                             </StackPanel.OpacityMask>
-                                                                                            <Image Source="{Binding SmallImagePath, Converter={StaticResource NullImageConverter}}" Width="60" Height="60" HorizontalAlignment="Left"></Image>
+                                                                                            <Image Source="{Binding SmallImagePath, Converter={StaticResource NullImageConverter}}"
+                                                                                                   Width="60" 
+                                                                                                   Height="60" 
+                                                                                                   HorizontalAlignment="Left"></Image>
                                                                                         </StackPanel>
                                                                                     </Grid>
                                                                                 </Border>
@@ -271,12 +344,18 @@
                                                                 </ItemsControl.ItemTemplate>
                                                             </ItemsControl>
                                                         </StackPanel>
-                                                        <StackPanel Orientation="Horizontal" Margin="20,0,20,0">
-                                                            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="White" />
+                                                        <StackPanel Orientation="Horizontal" 
+                                                                    Margin="20,0,20,0">
+                                                            <Rectangle VerticalAlignment="Stretch" 
+                                                                       Width="1" Margin="2" 
+                                                                       Stroke="White" />
                                                         </StackPanel>
                                                         <StackPanel>
-                                                            <TextBlock Text="Actors" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" FontSize="18"></TextBlock>
-                                                            <ItemsControl ItemsSource="{Binding Movie.Actors}" Padding="0,15,0,0">
+                                                            <TextBlock Text="Actors" 
+                                                                       FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std" 
+                                                                       FontSize="18"></TextBlock>
+                                                            <ItemsControl ItemsSource="{Binding Movie.Actors}" 
+                                                                          Padding="0,15,0,0">
                                                                 <ItemsControl.ItemsPanel>
                                                                     <ItemsPanelTemplate>
                                                                         <StackPanel Orientation="Horizontal"/>
@@ -284,20 +363,28 @@
                                                                 </ItemsControl.ItemsPanel>
                                                                 <ItemsControl.ItemTemplate>
                                                                     <DataTemplate>
-                                                                        <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
+                                                                        <StackPanel Orientation="Horizontal" 
+                                                                                    Margin="0,0,20,0">
                                                                             <StackPanel Orientation="Vertical">
-                                                                                <TextBlock Text="{Binding Name}" FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" FontSize="14"></TextBlock>
+                                                                                <TextBlock Text="{Binding Name}" 
+                                                                                           FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
+                                                                                           FontSize="14"></TextBlock>
                                                                                 <Border BorderThickness="1" 
-                                                            CornerRadius="40" 
-                                                            HorizontalAlignment="Center" 
-                                                            VerticalAlignment="Top">
+                                                                                        CornerRadius="40" 
+                                                                                        HorizontalAlignment="Center" 
+                                                                                        VerticalAlignment="Top">
                                                                                     <Grid>
-                                                                                        <Border Name="mask" Background="Black" CornerRadius="40"/>
+                                                                                        <Border x:Name="mask" 
+                                                                                                Background="Black" 
+                                                                                                CornerRadius="40"/>
                                                                                         <StackPanel>
                                                                                             <StackPanel.OpacityMask>
                                                                                                 <VisualBrush Visual="{Binding ElementName=mask}"/>
                                                                                             </StackPanel.OpacityMask>
-                                                                                            <Image Source="{Binding SmallImagePath, Converter={StaticResource NullImageConverter}}" Width="60" Height="60" HorizontalAlignment="Left"></Image>
+                                                                                            <Image Source="{Binding SmallImagePath, Converter={StaticResource NullImageConverter}}" 
+                                                                                                   Width="60" 
+                                                                                                   Height="60" 
+                                                                                                   HorizontalAlignment="Left"></Image>
                                                                                         </StackPanel>
                                                                                     </Grid>
                                                                                 </Border>
@@ -317,7 +404,6 @@
                         </Grid>
                     </Grid>
                 </Grid>
-                
             </controls:Flyout>
         </controls:FlyoutsControl>
     </controls:MetroWindow.Flyouts>
@@ -332,8 +418,13 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Column="0" Grid.Row="0" Background="#cc4d4d">
-            <Border BorderThickness="0,0,0,1" BorderBrush="White" Width="150" Height="25">
+        <Grid Grid.Column="0" 
+              Grid.Row="0" 
+              Background="#cc4d4d">
+            <Border BorderThickness="0,0,0,1" 
+                    BorderBrush="White"
+                    Width="150" 
+                    Height="25">
                 <StackPanel Orientation="Horizontal">
                     <TextBox
                         controls:TextBoxHelper.Watermark="Search movies..."
@@ -359,7 +450,9 @@
                 </StackPanel>
             </Border>
         </Grid>
-        <StackPanel Grid.Column="0" Grid.Row="1" Background="#11171c"></StackPanel>
+        <StackPanel Grid.Column="0" 
+                    Grid.Row="1" 
+                    Background="#11171c"></StackPanel>
 
         <controls:MetroAnimatedSingleRowTabControl 
             Grid.Column="1" 

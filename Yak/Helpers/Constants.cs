@@ -8,17 +8,17 @@ namespace Yak.Helpers
     public static class Constants
     {
         /// <summary>
-        /// Directory of movies covers
+        /// Directory of covers images
         /// </summary>
         public static readonly string CoverMoviesDirectory = Path.GetTempPath() + "Yak\\Covers\\";
 
         /// <summary>
-        /// Directory of poster movies
+        /// Directory of poster images
         /// </summary>
         public static readonly string PosterMovieDirectory = Path.GetTempPath() + "Yak\\Posters\\";
 
         /// <summary>
-        /// Directory of movie background image 
+        /// Directory of background images 
         /// </summary>
         public static readonly string BackgroundMovieDirectory = Path.GetTempPath() + "Yak\\Backgrounds\\";
 
@@ -97,6 +97,9 @@ namespace Yak.Helpers
         /// </summary>
         public const string ConnectionErrorPropertyName = "ConnectionError";
         
+        /// <summary>
+        /// Used to manage file extensions
+        /// </summary>
         public enum FileType
         {
             BackgroundImage = 0,

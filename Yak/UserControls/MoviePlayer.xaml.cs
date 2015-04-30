@@ -13,26 +13,39 @@ using Yak.ViewModel;
 namespace Yak.UserControls
 {
     /// <summary>
-    /// Logique d'interaction pour MoviePlayer.xaml
+    /// Interaction logic for MoviePlayer.xaml
     /// </summary>
     public partial class MoviePlayer : UserControl
     {
         #region Properties
 
         #region Property -> MoviePlayerIsPlaying
+        /// <summary>
+        /// Indicates if a movie is playing
+        /// </summary>
         public bool MoviePlayerIsPlaying;
         #endregion
 
         #region Property -> UserIsDraggingMoviePlayerSlider
+        /// <summary>
+        /// Indicate if user is manipulating the timeline player
+        /// </summary>
         public bool UserIsDraggingMoviePlayerSlider;
         #endregion
 
         #region Property -> MoviePlayerTimer
+        /// <summary>
+        /// Timer used for report time on the timeline
+        /// </summary>
         public DispatcherTimer MoviePlayerTimer;
         #endregion
 
         #endregion
 
+        #region Constructor
+        /// <summary>
+        /// MoviePlayer
+        /// </summary>
         public MoviePlayer()
         {
             InitializeComponent();
@@ -67,11 +80,11 @@ namespace Yak.UserControls
                 }
             };
         }
+        #endregion
 
         #region Method -> OnStoppedDownloadingMovie
-
         /// <summary>
-        /// Close the player and go back to the movie page when the downloading of the movie has stopped
+        /// When downloading movie has finished, stop player and reset timer
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">EventArgs</param>
@@ -87,19 +100,13 @@ namespace Yak.UserControls
                     MoviePlayerIsPlaying = false;
                 }
 
-                #region Dispatcher Timer
-
                 MoviePlayerTimer.Tick -= MoviePlayerTimer_Tick;
                 MoviePlayerTimer.Stop();
-
-                #endregion
             });
         }
-
         #endregion
 
         #region Method -> PlayMovie
-
         /// <summary>
         /// Play the movie when buffered
         /// </summary>
@@ -124,13 +131,11 @@ namespace Yak.UserControls
                 MoviePlayerIsPlaying = true;
             });
         }
-
         #endregion
 
         #region Method -> OnWindowSizeChanged
-
         /// <summary>
-        /// Subscribes to events when window is loaded
+        /// Changed playing stretching when window is maximized
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">RoutedEventArgs</param>
@@ -139,6 +144,7 @@ namespace Yak.UserControls
             if (e.NewWindowState == WindowState.Maximized && Player != null && Player.Source != null)
             {
                 //Player.Stretch = Stretch.Fill;
+                // TODO
             }
             else if (e.NewWindowState != WindowState.Maximized && Player != null && Player.Source != null)
             {
@@ -165,7 +171,6 @@ namespace Yak.UserControls
         #endregion
 
         #region Method -> MoviePlayerPlay_CanExecute
-
         /// <summary>
         /// Each time the CanExecute play command change, update the visibility of Play/Pause buttons in the player
         /// </summary>

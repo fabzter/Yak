@@ -24,7 +24,7 @@ using Yak.Messaging;
 namespace Yak.ViewModel
 {
     /// <summary>
-    /// ViewModel which takes care of a movie (retrieving infos from API and torrent downloading)
+    /// MainViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
@@ -51,7 +51,7 @@ namespace Yak.ViewModel
 
         #region Property -> MoviesViewModelTabs
         /// <summary>
-        /// Movies loaded from the service and shown in the interface
+        /// Tabs shown into the interface via TabControl
         /// </summary>
         private ObservableCollection<object> _moviesViewModelTabs;
         public ObservableCollection<object> MoviesViewModelTabs
@@ -63,7 +63,7 @@ namespace Yak.ViewModel
 
         #region Property -> SelectedTabViewModel
         /// <summary>
-        /// The movie to play, retrieved from YTS API
+        /// The selected viewmodel tab via TabControl
         /// </summary>
         private object _selectedTabViewModel;
         public object SelectedTabViewModel
@@ -75,21 +75,21 @@ namespace Yak.ViewModel
 
         #region Property -> CancellationLoadingToken
         /// <summary>
-        /// Token to cancel the loading of movies
+        /// Token to cancel movie loading
         /// </summary>
         private CancellationTokenSource CancellationLoadingToken { get; set; }
         #endregion
 
         #region Property -> CancellationSearchingMovie
         /// <summary>
-        /// Token to cancel the loading of movies
+        /// Token to cancel movie searching
         /// </summary>
         private CancellationTokenSource CancellationSearchingMovie { get; set; }
         #endregion
         
         #region Property -> CancellationDownloadingToken
         /// <summary>
-        /// Token to cancel the downloading of a movie
+        /// Token to cancel movie downloading
         /// </summary>
         private CancellationTokenSource CancellationDownloadingToken { get; set; }
         #endregion
@@ -146,12 +146,27 @@ namespace Yak.ViewModel
         }
         #endregion
 
+        #region Method -> StreamingQualityMap
+        /// <summary>
+        /// Map for defining youtube video quality
+        /// </summary>
+        private static readonly IReadOnlyDictionary<YoutubeStreamingQuality, IEnumerable<int>> StreamingQualityMap =
+    new Dictionary<YoutubeStreamingQuality, IEnumerable<int>>
+            {
+                { YoutubeStreamingQuality.High, new HashSet<int> { 1080, 720 } },
+                { YoutubeStreamingQuality.Medium, new HashSet<int> { 480 } },
+                { YoutubeStreamingQuality.Low, new HashSet<int> { 360, 240 } }
+            };
+        #endregion
+
         #endregion
 
         #region Commands
 
         #region Command -> StopDownloadingMovieCommand
-
+        /// <summary>
+        /// StopDownloadingMovieCommand
+        /// </summary>
         public RelayCommand StopDownloadingMovieCommand
         {
             get; 
@@ -160,7 +175,9 @@ namespace Yak.ViewModel
         #endregion
 
         #region Command -> DownloadMovieCommand
-
+        /// <summary>
+        /// DownloadMovieCommand
+        /// </summary>
         public RelayCommand DownloadMovieCommand
         {
             get;
@@ -169,6 +186,9 @@ namespace Yak.ViewModel
         #endregion
 
         #region Command -> LoadMovieCommand
+        /// <summary>
+        /// LoadMovieCommand
+        /// </summary>
         public RelayCommand<MovieShortDetails> LoadMovieCommand
         {
             get;
@@ -177,6 +197,9 @@ namespace Yak.ViewModel
         #endregion
 
         #region Command -> GetTrailerCommand
+        /// <summary>
+        /// GetTrailerCommand
+        /// </summary>
         public RelayCommand GetTrailerCommand
         {
             get;
@@ -185,6 +208,9 @@ namespace Yak.ViewModel
         #endregion
 
         #region Command -> MainWindowSizeChangedCommand
+        /// <summary>
+        /// MainWindowSizeChangedCommand
+        /// </summary>
         public RelayCommand<WindowState> MainWindowSizeChangedCommand
         {
             get;
@@ -193,6 +219,9 @@ namespace Yak.ViewModel
         #endregion
 
         #region Command -> MainWindowClosingCommand
+        /// <summary>
+        /// MainWindowClosingCommand
+        /// </summary>
         public RelayCommand MainWindowClosingCommand
         {
             get;
@@ -221,17 +250,6 @@ namespace Yak.ViewModel
         /// <param name="apiService">The service which will be used</param>
         private MainViewModel(IService apiService)
         {
-            ApiService = apiService;
-
-            // Set the CancellationToken for having the possibility to stop a loading movie infos
-            CancellationLoadingToken = new CancellationTokenSource();
-
-            // Set the CancellationToken for having the possibility to stop a searching movies
-            CancellationSearchingMovie = new CancellationTokenSource();
-
-            // Set the CancellationToken for having the possibility to stop downloading a movie
-            CancellationDownloadingToken = new CancellationTokenSource();
-
             Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, arg => OnConnectionError(new ConnectionErrorEventArgs(arg)));
 
             Messenger.Default.Register<MovieBufferedMessage>(this, e =>
@@ -280,6 +298,17 @@ namespace Yak.ViewModel
                         }
                     });
                 });
+
+            ApiService = apiService;
+
+            // Set the CancellationToken for having the possibility to stop a loading movie infos
+            CancellationLoadingToken = new CancellationTokenSource();
+
+            // Set the CancellationToken for having the possibility to stop a searching movies
+            CancellationSearchingMovie = new CancellationTokenSource();
+
+            // Set the CancellationToken for having the possibility to stop downloading a movie
+            CancellationDownloadingToken = new CancellationTokenSource();
 
             StopDownloadingMovieCommand = new RelayCommand(() =>
             {
@@ -333,7 +362,17 @@ namespace Yak.ViewModel
 
             SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
         }
+        #endregion
 
+        #endregion
+
+        #region Methods
+
+        #region Method -> SearchMovies
+        /// <summary>
+        /// Search for movie
+        /// </summary>
+        /// <param name="e">The PropertyChangedMessage containing the new filter criteria</param>
         private async Task SearchMovies(PropertyChangedMessage<string> e)
         {
             if (String.IsNullOrEmpty(e.NewValue))
@@ -415,12 +454,7 @@ namespace Yak.ViewModel
                 }
             }
         }
-
         #endregion
-
-        #endregion
-
-        #region Methods
 
         #region Method -> LoadMovie
         /// <summary>
@@ -543,6 +577,12 @@ namespace Yak.ViewModel
 
         #endregion
 
+        #region Method -> GetVideoInfoForStreaming
+        /// <summary>
+        /// Get VideoInfo of a youtube video
+        /// </summary>
+        /// <param name="youtubeLink">The youtube link of a movie</param>
+        /// <param name="qualitySetting">The youtube quality settings</param>
         private static async Task<VideoInfo> GetVideoInfoForStreaming(string youtubeLink, YoutubeStreamingQuality qualitySetting)
         {
             IEnumerable<VideoInfo> videoInfos = await Task.Run(() => DownloadUrlResolver.GetDownloadUrls(youtubeLink, false));
@@ -552,7 +592,14 @@ namespace Yak.ViewModel
 
             return GetVideoByStreamingQuality(filtered, qualitySetting);
         }
+        #endregion
 
+        #region Method -> GetVideoByStreamingQuality
+        /// <summary>
+        /// Get youtube video depending of choosen quality settings
+        /// </summary>
+        /// <param name="videos">List of VideoInfo</param>
+        /// <param name="quality">The youtube quality settings</param>
         private static VideoInfo GetVideoByStreamingQuality(IEnumerable<VideoInfo> videos, YoutubeStreamingQuality quality)
         {
             videos = videos.ToList(); // Prevent multiple enumeration
@@ -578,30 +625,21 @@ namespace Yak.ViewModel
 
             return video;
         }
-
-        private static readonly IReadOnlyDictionary<YoutubeStreamingQuality, IEnumerable<int>> StreamingQualityMap =
-    new Dictionary<YoutubeStreamingQuality, IEnumerable<int>>
-            {
-                { YoutubeStreamingQuality.High, new HashSet<int> { 1080, 720 } },
-                { YoutubeStreamingQuality.Medium, new HashSet<int> { 480 } },
-                { YoutubeStreamingQuality.Low, new HashSet<int> { 360, 240 } }
-            };
+        #endregion
 
         #region Method -> HandleExceptions
         /// <summary>
         /// Handle list of exceptions
         /// </summary>
         /// <param name="exceptions">List of exceptions</param>
+        /// <returns name="isExceptionThrown">Returns true if an exception has been thrown, else false</returns>
         private static bool HandleExceptions(IEnumerable<Exception> exceptions)
         {
+            bool isExceptionThrown = false;
+            bool isConnexionInError = false;
             foreach (var e in exceptions)
             {
-                var taskCancelledException = e as TaskCanceledException;
-                if (taskCancelledException != null)
-                {
-                    // Something as cancelled the loading. We go back.
-                    return true;
-                }
+                isExceptionThrown = true;
 
                 var webException = e as WebException;
                 if (webException != null)
@@ -609,15 +647,17 @@ namespace Yak.ViewModel
                     if (webException.Status == WebExceptionStatus.NameResolutionFailure)
                     {
                         // There's a connection error.
-                        Messenger.Default.Send<bool>(true, Constants.ConnectionErrorPropertyName);
-                        return true;
+                        isConnexionInError = true;
                     }
                 }
-
-                // Another exception has occured. Go back.
-                return true;
             }
-            return false;
+
+            if (isConnexionInError)
+            {
+                Messenger.Default.Send<bool>(true, Constants.ConnectionErrorPropertyName);
+            }
+
+            return isExceptionThrown;
         }
         #endregion
 
@@ -706,6 +746,7 @@ namespace Yak.ViewModel
         {
             if (CancellationDownloadingToken != null)
             {
+                // Set throwOnFirstException to false, allowing callbacks to return
                 CancellationDownloadingToken.Cancel(false);
             }
         }
@@ -717,7 +758,7 @@ namespace Yak.ViewModel
 
         #region Event -> OnConnectionError
         /// <summary>
-        /// ConnectionErrorEvent event
+        /// ConnectionError event
         /// </summary>
         public event EventHandler<ConnectionErrorEventArgs> ConnectionError;
         /// <summary>
@@ -744,7 +785,7 @@ namespace Yak.ViewModel
 
         #region Event -> OnLoadingMovieProgress
         /// <summary>
-        /// MovieLoadingProgress event
+        /// LoadingMovieProgress event
         /// </summary>
         public event EventHandler<MovieLoadingProgressEventArgs> LoadingMovieProgress;
         /// <summary>
@@ -879,7 +920,11 @@ namespace Yak.ViewModel
 
         public override void Cleanup()
         {
-            Messenger.Default.Unregister<string>(this);
+            Messenger.Default.Unregister<PropertyChangedMessage<string>>(this);
+            Messenger.Default.Unregister<bool>(this);
+            Messenger.Default.Unregister<MovieBufferedMessage>(this);
+            Messenger.Default.Unregister<StopDownloadingMovieMessage>(this);
+            Messenger.Default.Unregister<MainWindowClosingMessage>(this);
             base.Cleanup();
         }
     }

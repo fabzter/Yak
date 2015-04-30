@@ -15,17 +15,6 @@ namespace Yak.UserControls
     /// </summary>
     public partial class Movies : UserControl
     {
-        #region Properties
-
-        #region Property -> TabName
-        /// <summary>
-        /// Used to store the tab name
-        /// </summary>
-        private string TabName { get; set; }
-        #endregion
-
-        #endregion
-
         #region Constructor
         public Movies()
         {
@@ -36,13 +25,15 @@ namespace Yak.UserControls
                 var vm = DataContext as MoviesViewModel;
                 if (vm != null)
                 {
+                    // Unsubscribe previous events if any
                     vm.MoviesLoaded -= OnMoviesLoaded;
                     vm.MoviesLoading -= OnMoviesLoading;
 
+                    // Subscribe events
                     vm.MoviesLoaded += OnMoviesLoaded;
                     vm.MoviesLoading += OnMoviesLoading;
-                    TabName = vm.Tab.TabName;
 
+                    // At first load, we load the first page of movies
                     if (!vm.Movies.Any())
                     {
                         await vm.LoadNextPage();
@@ -55,7 +46,6 @@ namespace Yak.UserControls
         #region Methods
 
         #region Method -> OnMoviesLoading
-
         /// <summary>
         /// Fade in opacity of the window, let the progress ring appear and collapse the NoMouvieFound label when loading movies
         /// </summary>
@@ -89,9 +79,8 @@ namespace Yak.UserControls
         #endregion
 
         #region Method -> OnMoviesLoaded
-
         /// <summary>
-        /// Fade out opacity of the window, let the progress ring disappear and set to visible the NoMouvieFound label when movies are loaded
+        /// Fade out opacity of the window, let the progress ring disappear and manage visibility of NoMouvieFound label when movies are loaded
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">EventArgs</param>
@@ -133,7 +122,7 @@ namespace Yak.UserControls
 
         #region Method -> ScrollViewer_ScrollChanged
         /// <summary>
-        /// Decide if we have to load previous or next page regarding the scroll position
+        /// Decide if we have to load previous or next page regarding to the scroll position
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">ScrollChangedEventArgs</param>

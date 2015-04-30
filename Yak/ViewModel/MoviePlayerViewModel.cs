@@ -10,9 +10,9 @@ namespace Yak.ViewModel
 {
     public class MoviePlayerViewModel : ViewModelBase
     {
-        #region Property -> TabName
+        #region Property -> Tab
         /// <summary>
-        /// Name of the tab to be displayed in the interface
+        /// Name of the tab to be displayed into the interface
         /// </summary>
         public TabDescription Tab { get; set; }
         #endregion
@@ -62,10 +62,11 @@ namespace Yak.ViewModel
         /// </summary>
         public MoviePlayerViewModel(MovieFullDetails movie, string movieFilePath)
         {
-            Movie = movie;
-            MovieFilePath = movieFilePath;
-            Messenger.Default.Register<WindowSizeChangedMessage>(this, e => OnWindowSizeChanged(new WindowSizeChangedEventArgs(e.NewWindowState)));
             Messenger.Default.Register<StopDownloadingMovieMessage>(this, e => OnStoppedDownloadingMovie(new EventArgs()));
+            Messenger.Default.Register<WindowSizeChangedMessage>(this, e => OnWindowSizeChanged(new WindowSizeChangedEventArgs(e.NewWindowState)));
+
+            Movie = movie;
+            MovieFilePath = movieFilePath;            
         }
         #endregion
 
@@ -77,7 +78,7 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<EventArgs> StoppedDownloadingMovie;
         /// <summary>
-        /// When movie is stopped downloading
+        /// When movie has stopped downloading
         /// </summary>
         ///<param name="e">EventArgs parameter</param>
         protected virtual void OnStoppedDownloadingMovie(EventArgs e)

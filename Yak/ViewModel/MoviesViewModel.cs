@@ -65,7 +65,7 @@ namespace Yak.ViewModel
 
         #region Property -> Tab
         /// <summary>
-        /// Name of the tab
+        /// Description of the tab
         /// </summary>
         public TabDescription Tab { get; set; }
         #endregion
@@ -126,6 +126,8 @@ namespace Yak.ViewModel
         /// <param name="apiService">apiService</param>
         private MoviesViewModel(IService apiService)
         {
+            Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, e => IsConnectionInError = e);
+
             ApiService = apiService;
 
             // Set the CancellationToken for having the possibility to stop loading movies
@@ -137,8 +139,6 @@ namespace Yak.ViewModel
             {
                 await LoadNextPage();
             });
-
-            Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, e => IsConnectionInError = e);
         }
         #endregion
 
@@ -174,7 +174,6 @@ namespace Yak.ViewModel
         #endregion
 
         #region Method -> LoadNextPage
-
         /// <summary>
         /// Load next page with an optional search parameter
         /// </summary>
@@ -206,6 +205,10 @@ namespace Yak.ViewModel
             }
             else
             {
+                /* 
+                 * There's a search criteria : at the moment, there's no searching option into the interface (title, actor name...), so we 
+                 * manually filter results on the title by default
+                 */
                 moviesCount = results.Item1 != null
                     ? results.Item1.Count(
                         movie => movie.Title.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0)
@@ -215,9 +218,9 @@ namespace Yak.ViewModel
             // Check if we met any exception in the GetMoviesInfosAsync method
             if (HandleExceptions(results.Item2).Item1)
             {
-                // Inform the subscribers we loaded movies
-                Pagination--;
+                // Inform the subscribers we stopped loading this page and decrement pagination (we stopped loading this page's movies)
                 OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, HandleExceptions(results.Item2).Item2));
+                Pagination--;
                 return;
             }
 
@@ -240,9 +243,9 @@ namespace Yak.ViewModel
                         // Check if we met any exception in the GetMoviesInfosAsync method
                         if (HandleExceptions(results.Item2).Item1)
                         {
-                            // Inform the subscribers we loaded movies
-                            Pagination--;
+                            // Inform the subscribers we stopped loading this page and decrement pagination (we stopped loading this page's movies)
                             OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, HandleExceptions(results.Item2).Item2));
+                            Pagination--;
                             return;
                         }
 
@@ -311,6 +314,7 @@ namespace Yak.ViewModel
         {
             if (CancellationLoadingToken != null)
             {
+                // Set throwOnFirstException to false, allowing callbacks to return
                 CancellationLoadingToken.Cancel(false);
             }
         }
