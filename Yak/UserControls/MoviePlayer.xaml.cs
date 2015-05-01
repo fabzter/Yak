@@ -60,6 +60,7 @@ namespace Yak.UserControls
             InitializeComponent();
 
             Loaded += OnLoaded;
+            Player.MediaFailed += Player_MediaFailed;
 
             Unloaded += (s, e) =>
             {
@@ -124,6 +125,16 @@ namespace Yak.UserControls
                 MoviePlayerTimer.Stop();
             });
         }
+
+        void Player_MediaFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+            Console.WriteLine(e.ErrorException);
+            Player.Stop();
+            Uri sourceFile = Player.Source;
+            Player.Source = null;
+            Player.Source = sourceFile;
+            Player.Play();
+        }
         #endregion
 
         #region Method -> PlayMovie
@@ -134,22 +145,15 @@ namespace Yak.UserControls
         /// <param name="pathToFile">MovieBufferedEventArgs</param>
         private void PlayMovie(double currentMoviePlayingProgressValue, string pathToFile)
         {
-            DispatcherHelper.CheckBeginInvokeOnUI(() =>
-            {
-                #region Dispatcher Timer
+            MoviePlayerTimer.Tick += MoviePlayerTimer_Tick;
+            MoviePlayerTimer.Start();
 
-                MoviePlayerTimer.Tick += MoviePlayerTimer_Tick;
-                MoviePlayerTimer.Start();
+            Player.Source = new Uri(pathToFile);
+            Player.Position = TimeSpan.FromSeconds(currentMoviePlayingProgressValue);
+            Player.Play();
+            Player.StretchDirection = StretchDirection.Both;
 
-                #endregion
-
-                Player.Source = new Uri(pathToFile);
-                Player.Position = TimeSpan.FromSeconds(currentMoviePlayingProgressValue);
-                Player.Play();
-                Player.StretchDirection = StretchDirection.Both;
-
-                MoviePlayerIsPlaying = true;
-            });
+            MoviePlayerIsPlaying = true;
         }
         #endregion
 

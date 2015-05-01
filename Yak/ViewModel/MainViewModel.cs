@@ -662,13 +662,16 @@ namespace Yak.ViewModel
                 TorrentHandle handle = session.AddTorrent(addParams);
                 // We have to download sequentially, so that we're able to play the movie without waiting
                 handle.SequentialDownload = true;
-
                 bool alreadyBuffered = false;
 
                 while (IsDownloadingMovie)
                 {
                     TorrentStatus status = handle.QueryStatus();
                     double progress = status.Progress*100.0;
+                    if(status.NeedSaveResume)
+                    {
+                        handle.SaveResumeData();
+                    }
 
                     // Inform subscribers of our progress
                     OnLoadingMovieProgress(new MovieLoadingProgressEventArgs(progress, status.DownloadRate/1024));
