@@ -672,7 +672,7 @@ namespace Yak.ViewModel
                     {
                         handle.SaveResumeData();
                     }
-
+                    handle.FlushCache();
                     // Inform subscribers of our progress
                     OnLoadingMovieProgress(new MovieLoadingProgressEventArgs(progress, status.DownloadRate/1024));
 

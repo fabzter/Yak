@@ -60,11 +60,17 @@ namespace Yak.UserControls
             InitializeComponent();
 
             Loaded += OnLoaded;
-            Player.MediaFailed += Player_MediaFailed;
 
             Unloaded += (s, e) =>
             {
-                Dispose();
+                var vm = DataContext as MoviePlayerViewModel;
+                if (vm != null)
+                {
+                    if (vm.IsInFullScreenMode)
+                    {
+                        Dispose();
+                    }
+                }
             };
         }
         #endregion
@@ -124,16 +130,6 @@ namespace Yak.UserControls
                 MoviePlayerTimer.Tick -= MoviePlayerTimer_Tick;
                 MoviePlayerTimer.Stop();
             });
-        }
-
-        void Player_MediaFailed(object sender, ExceptionRoutedEventArgs e)
-        {
-            Console.WriteLine(e.ErrorException);
-            Player.Stop();
-            Uri sourceFile = Player.Source;
-            Player.Source = null;
-            Player.Source = sourceFile;
-            Player.Play();
         }
         #endregion
 
@@ -347,6 +343,12 @@ namespace Yak.UserControls
             if (moviePlayerViewModel != null)
             {
                 IsInFullScreen = false;
+
+                if (Player != null)
+                {
+                    Player.Position = TimeSpan.FromSeconds(moviePlayerViewModel.CurrentMovieProgressValue);
+                    Player.Play();
+                }
             }
         }
         #endregion
