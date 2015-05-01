@@ -137,7 +137,30 @@ namespace Yak.ViewModel
                 {
                     string oldValue = _searchMoviesFilter;
                     _searchMoviesFilter = value;
-                    Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, value, "SearchMoviesFilter"), _searchMessageToken);
+                    Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, _searchMoviesFilter, "SearchMoviesFilter"), _searchMessageToken);
+
+                    if (String.IsNullOrEmpty(_searchMoviesFilter))
+                    {
+                        MoviesViewModel searchTabToRemove = new MoviesViewModel();
+                        foreach (object tab in MoviesViewModelTabs)
+                        {
+                            var moviesViewModel = tab as MoviesViewModel;
+                            if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("search"))
+                            {
+                                searchTabToRemove = moviesViewModel;
+                            }
+                        }
+
+                        if (searchTabToRemove == SelectedTabViewModel)
+                        {
+                            SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
+                        }
+
+                        if (searchTabToRemove.Tab != null && !String.IsNullOrEmpty(searchTabToRemove.Tab.TabName) && searchTabToRemove.Tab.TabName.Equals("search"))
+                        {
+                            MoviesViewModelTabs.Remove(searchTabToRemove);
+                        }
+                    }
                 }
             }
         }
@@ -216,6 +239,17 @@ namespace Yak.ViewModel
         }
         #endregion
 
+        #region Command -> SearchMovieCommand
+        /// <summary>
+        /// SearchMovieCommand
+        /// </summary>
+        public RelayCommand SearchMovieCommand
+        {
+            get;
+            private set;
+        }
+        #endregion
+
         #endregion
 
         #region Constructors
@@ -264,12 +298,6 @@ namespace Yak.ViewModel
                 }
             });
 
-            Messenger.Default.Register<PropertyChangedMessage<string>>(
-                this, _searchMessageToken, async e =>
-                {
-                    await SearchMovies(e);
-                });
-
             ApiService = apiService;
 
             // Set the CancellationToken for having the possibility to stop a loading movie infos
@@ -277,6 +305,11 @@ namespace Yak.ViewModel
 
             // Set the CancellationToken for having the possibility to stop downloading a movie
             CancellationDownloadingToken = new CancellationTokenSource();
+
+            SearchMovieCommand = new RelayCommand(async () =>
+            {
+                await SearchMovies(SearchMoviesFilter);
+            });
 
             StopDownloadingMovieCommand = new RelayCommand(() =>
             {
@@ -332,59 +365,55 @@ namespace Yak.ViewModel
         #region Methods
 
         #region Method -> SearchMovies
+
         /// <summary>
         /// Search for movie
         /// </summary>
         /// <param name="e">The PropertyChangedMessage containing the new filter criteria</param>
-        private async Task SearchMovies(PropertyChangedMessage<string> e)
+        private async Task SearchMovies(string criteria)
         {
-            if (String.IsNullOrEmpty(e.NewValue))
+            foreach (object tab in MoviesViewModelTabs)
             {
-                MoviesViewModel searchTabToRemove = new MoviesViewModel();
-                foreach (object tab in MoviesViewModelTabs)
+                var moviesViewModel = tab as MoviesViewModel;
+                if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("search"))
                 {
-                    var moviesViewModel = tab as MoviesViewModel;
-                    if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("search"))
+                    moviesViewModel.SearchMoviesFilter = criteria;
+                    await moviesViewModel.SearchMovies(criteria);
+                    if (SelectedTabViewModel != moviesViewModel)
                     {
-                        searchTabToRemove = moviesViewModel;
+                        SelectedTabViewModel = moviesViewModel;
                     }
-                }
 
-                if (searchTabToRemove == SelectedTabViewModel)
-                {
-                    SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
+                    return;
                 }
+            }
 
-                if (!String.IsNullOrEmpty(searchTabToRemove.Tab.TabName) && searchTabToRemove.Tab.TabName.Equals("search"))
+            var currentTabItem = SelectedTabViewModel as MoviesViewModel;
+            if (currentTabItem != null)
+            {
+                MoviesViewModelTabs.Add(new MoviesViewModel()
                 {
-                    MoviesViewModelTabs.Remove(searchTabToRemove);
+                    Tab = new TabDescription(TabDescription.TabType.Search),
+                    SearchMoviesFilter = criteria
+                });
+
+                SelectedTabViewModel = MoviesViewModelTabs.Last();
+
+                var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
+                if (searchMovieTab != null)
+                {
+                    await searchMovieTab.SearchMovies(criteria);
                 }
             }
             else
             {
-                foreach (object tab in MoviesViewModelTabs)
-                {
-                    var moviesViewModel = tab as MoviesViewModel;
-                    if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("search"))
-                    {
-                        moviesViewModel.SearchMoviesFilter = e.NewValue;
-                        await moviesViewModel.SearchMovies(e.NewValue);
-                        if (SelectedTabViewModel != moviesViewModel)
-                        {
-                            SelectedTabViewModel = moviesViewModel;
-                        }
-
-                        return;
-                    }
-                }
-
-                var currentTabItem = SelectedTabViewModel as MoviesViewModel;
-                if (currentTabItem != null)
+                var newCurrentTabItem = SelectedTabViewModel as MoviePlayerViewModel;
+                if (newCurrentTabItem != null)
                 {
                     MoviesViewModelTabs.Add(new MoviesViewModel()
                     {
                         Tab = new TabDescription(TabDescription.TabType.Search),
-                        SearchMoviesFilter = e.NewValue
+                        SearchMoviesFilter = criteria
                     });
 
                     SelectedTabViewModel = MoviesViewModelTabs.Last();
@@ -392,27 +421,7 @@ namespace Yak.ViewModel
                     var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
                     if (searchMovieTab != null)
                     {
-                        await searchMovieTab.SearchMovies(e.NewValue);
-                    }
-                }
-                else
-                {
-                    var newCurrentTabItem = SelectedTabViewModel as MoviePlayerViewModel;
-                    if (newCurrentTabItem != null)
-                    {
-                        MoviesViewModelTabs.Add(new MoviesViewModel()
-                        {
-                            Tab = new TabDescription(TabDescription.TabType.Search),
-                            SearchMoviesFilter = e.NewValue
-                        });
-
-                        SelectedTabViewModel = MoviesViewModelTabs.Last();
-
-                        var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
-                        if (searchMovieTab != null)
-                        {
-                            await searchMovieTab.SearchMovies(e.NewValue);
-                        }
+                        await searchMovieTab.SearchMovies(criteria);
                     }
                 }
             }

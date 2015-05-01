@@ -443,6 +443,10 @@
                             </Style.Triggers>
                         </Style>
                     </TextBox.Style>
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SearchMovieCommand}"/>
+                        <KeyBinding Key="Tab" Command="{Binding SearchMovieCommand}"/>
+                    </TextBox.InputBindings>
                 </TextBox>
             </Border>
         </Grid>

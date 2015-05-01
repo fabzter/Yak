@@ -192,7 +192,7 @@ namespace Yak.ViewModel
             int moviesCount = 0;
 
             // The page to load is new, never met it before, so we load the new page via the service
-            Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>> results =
+            Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>> movies =
                 await ApiService.GetMoviesAsync(Tab,
                     searchFilter,
                     MaxMoviesPerPage,
@@ -201,7 +201,7 @@ namespace Yak.ViewModel
 
             if (String.IsNullOrEmpty(searchFilter))
             {
-                moviesCount = results.Item1 != null ? results.Item1.Count() : 0;
+                moviesCount = movies.Item1 != null ? movies.Item1.Count() : 0;
             }
             else
             {
@@ -209,25 +209,25 @@ namespace Yak.ViewModel
                  * There's a search criteria : at the moment, there's no searching option into the interface (title, actor name...), so we 
                  * manually filter results on the title by default
                  */
-                moviesCount = results.Item1 != null
-                    ? results.Item1.Count(
+                moviesCount = movies.Item1 != null
+                    ? movies.Item1.Count(
                         movie => movie.Title.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0)
                     : 0;
             }
 
             // Check if we met any exception in the GetMoviesInfosAsync method
-            if (HandleExceptions(results.Item2).Item1)
+            if (HandleExceptions(movies.Item2).Item1)
             {
                 // Inform the subscribers we stopped loading this page and decrement pagination (we stopped loading this page's movies)
-                OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, HandleExceptions(results.Item2).Item2));
+                OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, HandleExceptions(movies.Item2).Item2));
                 Pagination--;
                 return;
             }
 
-            if (results.Item1 != null)
+            if (movies.Item1 != null)
             {
                 // Now we download the cover image for each movie
-                foreach (var movie in results.Item1.Except(Movies, new MovieComparer()))
+                foreach (var movie in movies.Item1.Except(Movies, new MovieComparer()))
                 {
                     // The API filters on titles, actor's name and director's name. Here we just want to filter on title movie.
                     if (String.IsNullOrEmpty(searchFilter) ||
@@ -241,10 +241,10 @@ namespace Yak.ViewModel
                                 CancellationLoadingToken);
 
                         // Check if we met any exception in the GetMoviesInfosAsync method
-                        if (HandleExceptions(results.Item2).Item1)
+                        if (HandleExceptions(movieCover.Item2).Item1)
                         {
                             // Inform the subscribers we stopped loading this page and decrement pagination (we stopped loading this page's movies)
-                            OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, HandleExceptions(results.Item2).Item2));
+                            OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, HandleExceptions(movieCover.Item2).Item2));
                             Pagination--;
                             return;
                         }
