@@ -6,8 +6,7 @@
              xmlns:usercontrols="clr-namespace:Yak.UserControls"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300"
-             xmlns:wpf="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf">
+             d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -21,7 +20,7 @@
         <CommandBinding Command="MediaCommands.Play" CanExecute="MoviePlayerPlay_CanExecute" Executed="MoviePlayerPlay_Executed" />
         <CommandBinding Command="MediaCommands.Pause" CanExecute="MoviePlayerPause_CanExecute" Executed="MoviePlayerPause_Executed" />
     </UserControl.CommandBindings>
-    
+
     <Grid MouseWheel="MouseWheelMoviePlayer" Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -54,9 +53,11 @@
             </i:Interaction.Triggers>
         </ToggleButton>
 
-        <wpf:VlcControl x:Name="Player" 
-                      Grid.Row="0"/>
-       
+        <MediaElement x:Name="Player" 
+                      Grid.Row="0" 
+                      LoadedBehavior="Manual" 
+                      Stretch="Uniform"/>
+
         <StatusBar Grid.Row="1">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>

@@ -184,5 +184,10 @@ namespace Yak.ViewModel
         #endregion
 
         #endregion
+        public override void Cleanup()
+        {
+            Messenger.Default.Unregister<StopDownloadingMovieMessage>(this);
+            base.Cleanup();
+        }
     }
 }

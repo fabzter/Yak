@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Animation;
 using MahApps.Metro.Controls;
@@ -61,7 +60,16 @@ namespace Yak.UserControls
                 vm.BufferedMovie -= OnBufferedMovie;
                 vm.LoadingMovieProgress -= OnLoadingMovieProgress;
                 vm.LoadedTrailer -= OnLoadedTrailer;
-            }
+
+                foreach (object tab in vm.MoviesViewModelTabs)
+                {
+                    var moviesViewModelTab = tab as MoviesViewModel;
+                    if (moviesViewModelTab != null)
+                    {
+                        moviesViewModelTab.Cleanup();
+                    }
+                }
+            }            
 
             ViewModelLocator.Cleanup();
         }

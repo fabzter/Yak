@@ -13,9 +13,7 @@ namespace Yak.ViewModel
         static ViewModelLocator()
         {
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-
             SimpleIoc.Default.Register<IService, Service>();
-
             SimpleIoc.Default.Register(() => new MainViewModel());
         }
 
