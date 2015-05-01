@@ -9,7 +9,7 @@ using Yak.Events;
 using Yak.ViewModel;
 using GalaSoft.MvvmLight.Threading;
 
-namespace Yak
+namespace Yak.UserControls
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

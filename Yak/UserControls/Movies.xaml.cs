@@ -7,6 +7,7 @@ using Yak.ViewModel;
 using Yak.CustomPanels;
 using Yak.Events;
 using Microsoft.Practices.ServiceLocation;
+using Yak.Helpers;
 
 namespace Yak.UserControls
 {
@@ -34,7 +35,7 @@ namespace Yak.UserControls
                     vm.MoviesLoading += OnMoviesLoading;
 
                     // At first load, we load the first page of movies
-                    if (!vm.Movies.Any())
+                    if (!vm.Movies.Any() && !vm.Tab.Type.Equals(TabDescription.TabType.Search))
                     {
                         await vm.LoadNextPage();
                     }
@@ -179,7 +180,7 @@ namespace Yak.UserControls
             var vm = DataContext as MoviesViewModel;
             if (vm != null)
             {
-                vm.MaxMoviesPerPage = e.NumberOfColumns * Helpers.Constants.NumberOfRowsPerPage;
+                vm.MaxMoviesPerPage = e.NumberOfColumns * Constants.NumberOfRowsPerPage;
             }
         }
         #endregion

@@ -18,7 +18,6 @@ using TMDbLib.Objects.Movies;
 using YoutubeExtractor;
 using System.Collections.ObjectModel;
 using System.Windows;
-using GalaSoft.MvvmLight.Threading;
 using Yak.Messaging;
 
 namespace Yak.ViewModel
@@ -80,13 +79,6 @@ namespace Yak.ViewModel
         private CancellationTokenSource CancellationLoadingToken { get; set; }
         #endregion
 
-        #region Property -> CancellationSearchingMovie
-        /// <summary>
-        /// Token to cancel movie searching
-        /// </summary>
-        private CancellationTokenSource CancellationSearchingMovie { get; set; }
-        #endregion
-        
         #region Property -> CancellationDownloadingToken
         /// <summary>
         /// Token to cancel movie downloading
@@ -131,9 +123,14 @@ namespace Yak.ViewModel
         /// The filter for searching movies
         /// </summary>
         private string _searchMoviesFilter;
+
         public string SearchMoviesFilter
         {
-            get { return _searchMoviesFilter; }
+            get
+            {
+                return _searchMoviesFilter;
+                
+            }
             set
             {
                 if (_searchMoviesFilter != value)
@@ -144,6 +141,7 @@ namespace Yak.ViewModel
                 }
             }
         }
+
         #endregion
 
         #region Method -> StreamingQualityMap
@@ -207,17 +205,6 @@ namespace Yak.ViewModel
         }
         #endregion
 
-        #region Command -> MainWindowSizeChangedCommand
-        /// <summary>
-        /// MainWindowSizeChangedCommand
-        /// </summary>
-        public RelayCommand<WindowState> MainWindowSizeChangedCommand
-        {
-            get;
-            private set;
-        }
-        #endregion
-
         #region Command -> MainWindowClosingCommand
         /// <summary>
         /// MainWindowClosingCommand
@@ -258,7 +245,7 @@ namespace Yak.ViewModel
                 {
                     MoviesViewModelTabs.Add(new MoviePlayerViewModel(e.Movie, e.MovieFilePath)
                     {
-                        Tab = new TabDescription(TabDescription.TabType.Playing)
+                        Tab = new TabDescription(TabDescription.TabType.Playing, e.Movie.Title)
                     });
 
                     SelectedTabViewModel = MoviesViewModelTabs.Last();
@@ -280,32 +267,13 @@ namespace Yak.ViewModel
             Messenger.Default.Register<PropertyChangedMessage<string>>(
                 this, _searchMessageToken, async e =>
                 {
-                    if (!String.IsNullOrEmpty(e.OldValue))
-                    {
-                        CancellationSearchingMovie.Cancel(false);
-                        CancellationSearchingMovie = new CancellationTokenSource();
-                    }
-
-                    await Task.Delay(500, CancellationSearchingMovie.Token).ContinueWith(_ =>
-                    {
-                        if (!CancellationSearchingMovie.IsCancellationRequested)
-                        {
-                            Application.Current.Dispatcher.Invoke(async () =>
-                            {
-                                CancellationSearchingMovie = new CancellationTokenSource();
-                                await SearchMovies(e);
-                            });
-                        }
-                    });
+                    await SearchMovies(e);
                 });
 
             ApiService = apiService;
 
             // Set the CancellationToken for having the possibility to stop a loading movie infos
             CancellationLoadingToken = new CancellationTokenSource();
-
-            // Set the CancellationToken for having the possibility to stop a searching movies
-            CancellationSearchingMovie = new CancellationTokenSource();
 
             // Set the CancellationToken for having the possibility to stop downloading a movie
             CancellationDownloadingToken = new CancellationTokenSource();
@@ -322,11 +290,6 @@ namespace Yak.ViewModel
                     CancellationDownloadingToken = new CancellationTokenSource();
                     await DownloadMovie(Movie);
                 }
-            });
-
-            MainWindowSizeChangedCommand = new RelayCommand<WindowState>(e =>
-            {
-                Messenger.Default.Send<WindowSizeChangedMessage>(new WindowSizeChangedMessage(e));
             });
 
             MainWindowClosingCommand = new RelayCommand(() =>
@@ -746,8 +709,7 @@ namespace Yak.ViewModel
         {
             if (CancellationDownloadingToken != null)
             {
-                // Set throwOnFirstException to false, allowing callbacks to return
-                CancellationDownloadingToken.Cancel(false);
+                CancellationDownloadingToken.Cancel(true);
             }
         }
         #endregion  

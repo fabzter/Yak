@@ -2,13 +2,14 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media.Imaging;
 
 namespace Yak.Converters
 {
     /// <summary>
     /// Used to check if the path to the image file is empty or not
     /// </summary>
-    public class NullImageConverter : IValueConverter
+    public class UriToCachedImageConverter : IValueConverter
     {
         #region IValueConverter Members
         /// <summary>
@@ -20,11 +21,20 @@ namespace Yak.Converters
         /// <param name="culture">The culture to use in the converter.</param>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string result = value as string;
-            if (String.IsNullOrEmpty(result))
-                return DependencyProperty.UnsetValue;
+            if (value == null)
+                return null;
 
-            return result;
+            if (!string.IsNullOrEmpty(value.ToString()))
+            {
+                BitmapImage bi = new BitmapImage();
+                bi.BeginInit();
+                bi.UriSource = new Uri(value.ToString());
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.EndInit();
+                return bi;
+            }
+
+            return null;
         }
 
         /// <summary>

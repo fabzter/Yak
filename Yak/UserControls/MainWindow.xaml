@@ -1,4 +1,4 @@
-﻿<controls:MetroWindow x:Class="Yak.MainWindow"
+﻿<controls:MetroWindow x:Class="Yak.UserControls.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -20,7 +20,7 @@
         Title="Yak"
         AllowsTransparency="True"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
-        Icon="/Resources/Images/Logo.ico"
+        Icon="../Resources/Images/Logo.ico"
         ShowIconOnTitleBar="True"
         ShowTitleBar="False"
         WindowStartupLocation="CenterScreen"
@@ -29,11 +29,11 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Skins/MainSkin.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Icons.xaml" />
+                <ResourceDictionary Source="../Skins/MainSkin.xaml" />
+                <ResourceDictionary Source="../Resources/Styles/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            
-            <converters:NullImageConverter x:Key="NullImageConverter" />
+
+            <converters:UriToCachedImageConverter x:Key="UriToCachedImageConverter" />
             <converters:RatioConverter x:Key="RatioConverter" />
             <converters:RuntimeConverter x:Key="RuntimeConverter" />
             <converters:GenresConverter x:Key="GenresConverter" />
@@ -43,11 +43,6 @@
     </Window.Resources>
 
     <i:Interaction.Triggers>
-        <i:EventTrigger EventName="SizeChanged">
-            <command:EventToCommand Command="{Binding Mode=OneWay, Path=MainWindowSizeChangedCommand}" 
-                                    CommandParameter="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}}"
-                                    PassEventArgsToCommand="True" />
-        </i:EventTrigger>
         <i:EventTrigger EventName="Closing">
             <command:EventToCommand Command="{Binding Mode=OneWay, Path=MainWindowClosingCommand}"
                                     PassEventArgsToCommand="True" />
@@ -106,7 +101,7 @@
                                   VerticalAlignment="Center"/>
                     <Grid x:Name="MovieContainer">
                         <Image x:Name="BackgroundImage" 
-                               Source="{Binding Path=Movie.BackgroundImage, Converter={StaticResource NullImageConverter}}" 
+                               Source="{Binding Path=Movie.BackgroundImage, Converter={StaticResource UriToCachedImageConverter}}" 
                                Stretch="UniformToFill" 
                                Opacity="0.3"/>
                         <Grid x:Name="Content" 
@@ -180,7 +175,7 @@
                                             <VisualBrush Visual="{Binding ElementName=mask}"/>
                                         </StackPanel.OpacityMask>
                                         <Image x:Name="Poster"
-                                               Source="{Binding Path=Movie.PosterImage, Converter={StaticResource NullImageConverter}}" 
+                                               Source="{Binding Path=Movie.PosterImage, Converter={StaticResource UriToCachedImageConverter}}" 
                                                Width="{Binding ElementName=MovieContainer, Path=ActualWidth, Converter={StaticResource RatioConverter}, ConverterParameter=0.25}"/>
                                     </StackPanel>
                                 </Grid>
@@ -331,7 +326,7 @@
                                                                                             <StackPanel.OpacityMask>
                                                                                                 <VisualBrush Visual="{Binding ElementName=mask}"/>
                                                                                             </StackPanel.OpacityMask>
-                                                                                            <Image Source="{Binding SmallImagePath, Converter={StaticResource NullImageConverter}}"
+                                                                                            <Image Source="{Binding SmallImagePath, Converter={StaticResource UriToCachedImageConverter}}"
                                                                                                    Width="60" 
                                                                                                    Height="60" 
                                                                                                    HorizontalAlignment="Left"></Image>
@@ -381,7 +376,7 @@
                                                                                             <StackPanel.OpacityMask>
                                                                                                 <VisualBrush Visual="{Binding ElementName=mask}"/>
                                                                                             </StackPanel.OpacityMask>
-                                                                                            <Image Source="{Binding SmallImagePath, Converter={StaticResource NullImageConverter}}" 
+                                                                                            <Image Source="{Binding SmallImagePath, Converter={StaticResource UriToCachedImageConverter}}" 
                                                                                                    Width="60" 
                                                                                                    Height="60" 
                                                                                                    HorizontalAlignment="Left"></Image>
@@ -418,36 +413,37 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Column="0" 
-              Grid.Row="0" 
-              Background="#cc4d4d">
+        <Grid  x:Name="TopLeftBar"
+               Grid.Column="0" 
+               Grid.Row="0" 
+               Background="#cc4d4d">
             <Border BorderThickness="0,0,0,1" 
                     BorderBrush="White"
-                    Width="150" 
+                    Width="{Binding ElementName=SearchBox, Path=ActualWidth}"
                     Height="25">
-                <StackPanel Orientation="Horizontal">
-                    <TextBox
-                        controls:TextBoxHelper.Watermark="Search movies..."
-                        controls:TextBoxHelper.ClearTextButton="True"
-                        Foreground="White"
-                        MaxLength="15"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Text="{Binding Path=SearchMoviesFilter, UpdateSourceTrigger=PropertyChanged}">
-                        <TextBox.Style>
-                            <Style TargetType="{x:Type TextBox}"
-                               BasedOn="{StaticResource SearchMetroTextBox}">
-                                <Style.Triggers>
-                                    <Trigger Property="controls:TextBoxHelper.HasText"
-                                         Value="True">
-                                        <Setter Property="controls:TextBoxHelper.ButtonTemplate"
-                                            Value="{DynamicResource ChromelessButtonTemplate}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                </StackPanel>
+                <TextBox
+                    x:Name="SearchBox"
+                    controls:TextBoxHelper.Watermark="Search movies..."
+                    controls:TextBoxHelper.ClearTextButton="True"
+                    Foreground="White"
+                    Width="{Binding ElementName=TopLeftBar, Path=ActualWidth, Converter={StaticResource RatioConverter}, ConverterParameter=0.8}"
+                    MaxLength="20"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Text="{Binding Path=SearchMoviesFilter, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style TargetType="{x:Type TextBox}"
+                            BasedOn="{StaticResource SearchMetroTextBox}">
+                            <Style.Triggers>
+                                <Trigger Property="controls:TextBoxHelper.HasText"
+                                        Value="True">
+                                    <Setter Property="controls:TextBoxHelper.ButtonTemplate"
+                                        Value="{DynamicResource ChromelessButtonTemplate}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
             </Border>
         </Grid>
         <StackPanel Grid.Column="0" 

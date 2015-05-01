@@ -15,8 +15,12 @@ namespace Yak.Helpers
 
         public string TabName { get; set; }
 
-        public TabDescription(TabType tabType)
+        public TabType Type { get; set; }
+
+        public TabDescription(TabType tabType, string movieName = null)
         {
+            Type = tabType;
+
             if (tabType == TabType.Popular)
             {
                 TabName = "popular";
@@ -34,7 +38,15 @@ namespace Yak.Helpers
             }
             else if (tabType == TabType.Playing)
             {
-                TabName = "playing";
+                if (!String.IsNullOrEmpty(movieName))
+                {
+                    TabName = movieName;
+                }
+                else
+                {
+                    TabName = "playing";
+                }
+
                 ApiSort = String.Empty;
             }
             else if (tabType == TabType.Search)

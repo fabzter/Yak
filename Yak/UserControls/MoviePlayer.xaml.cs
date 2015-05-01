@@ -4,10 +4,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Threading;
-using Yak.Events;
 using Yak.ViewModel;
 
 namespace Yak.UserControls
@@ -15,30 +13,41 @@ namespace Yak.UserControls
     /// <summary>
     /// Interaction logic for MoviePlayer.xaml
     /// </summary>
-    public partial class MoviePlayer : UserControl
+    public partial class MoviePlayer : UserControl, IDisposable
     {
         #region Properties
+
+        private bool _disposed;
 
         #region Property -> MoviePlayerIsPlaying
         /// <summary>
         /// Indicates if a movie is playing
         /// </summary>
-        public bool MoviePlayerIsPlaying;
+        private bool MoviePlayerIsPlaying;
+        #endregion
+
+        #region Property -> MoviePlayerIsPlaying
+        /// <summary>
+        /// Indicates if this controls is hosted in a fullscreen context
+        /// </summary>
+        public bool IsInFullScreen { get; set; }
         #endregion
 
         #region Property -> UserIsDraggingMoviePlayerSlider
         /// <summary>
         /// Indicate if user is manipulating the timeline player
         /// </summary>
-        public bool UserIsDraggingMoviePlayerSlider;
+        private bool UserIsDraggingMoviePlayerSlider;
         #endregion
 
         #region Property -> MoviePlayerTimer
         /// <summary>
         /// Timer used for report time on the timeline
         /// </summary>
-        public DispatcherTimer MoviePlayerTimer;
+        private DispatcherTimer MoviePlayerTimer;
         #endregion
+
+        private FullScreenMoviePlayer fsFullScreenMoviePlayer;
 
         #endregion
 
@@ -50,35 +59,46 @@ namespace Yak.UserControls
         {
             InitializeComponent();
 
-            Loaded += (s, e) =>
-            {
-                var vm = DataContext as MoviePlayerViewModel;
-                if (vm != null)
-                {
-                    MoviePlayerTimer = new DispatcherTimer()
-                    {
-                        Interval = TimeSpan.FromSeconds(1)
-                    };
-
-                    vm.WindowSizeChanged += OnWindowSizeChanged;
-                    vm.StoppedDownloadingMovie += OnStoppedDownloadingMovie;
-
-                    if (!String.IsNullOrEmpty(vm.MovieFilePath))
-                    {
-                        PlayMovie(vm.CurrentMovieProgressValue, vm.MovieFilePath);
-                    }
-                }
-            };
+            Loaded += OnLoaded;
 
             Unloaded += (s, e) =>
             {
-                var vm = DataContext as MoviePlayerViewModel;
-                if (vm != null)
-                {
-                    vm.WindowSizeChanged -= OnWindowSizeChanged;
-                    vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
-                }
+                Dispose();              
             };
+        }
+        #endregion
+
+        #region Method -> Onloaded
+
+        /// <summary>
+        /// Do action when loaded
+        /// </summary>
+        /// <param name="sender">Sender object</param>
+        /// <param name="e">EventArgs</param>
+        private void OnLoaded(object sender, EventArgs e)
+        {
+            var vm = DataContext as MoviePlayerViewModel;
+            if (vm != null)
+            {
+                MoviePlayerTimer = new DispatcherTimer()
+                {
+                    Interval = TimeSpan.FromSeconds(1)
+                };
+
+                vm.StoppedDownloadingMovie += OnStoppedDownloadingMovie;
+
+                if (!vm.IsInFullScreenMode)
+                {
+                    vm.ToggleFullScreenChanged += OnToggleFullScreen;
+                }
+
+                vm.BackToNormalScreenChanged += OnBackToNormalScreen;
+
+                if (!String.IsNullOrEmpty(vm.MovieFilePath))
+                {
+                    PlayMovie(vm.CurrentMovieProgressValue, vm.MovieFilePath);
+                }
+            }
         }
         #endregion
 
@@ -110,9 +130,9 @@ namespace Yak.UserControls
         /// <summary>
         /// Play the movie when buffered
         /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">MovieBufferedEventArgs</param>
-        private void PlayMovie(double currentMoviePlayingProgressValue,string pathToFile)
+        /// <param name="currentMoviePlayingProgressValue">Sender object</param>
+        /// <param name="pathToFile">MovieBufferedEventArgs</param>
+        private void PlayMovie(double currentMoviePlayingProgressValue, string pathToFile)
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
@@ -130,26 +150,6 @@ namespace Yak.UserControls
 
                 MoviePlayerIsPlaying = true;
             });
-        }
-        #endregion
-
-        #region Method -> OnWindowSizeChanged
-        /// <summary>
-        /// Changed playing stretching when window is maximized
-        /// </summary>
-        /// <param name="sender">Sender object</param>
-        /// <param name="e">RoutedEventArgs</param>
-        private void OnWindowSizeChanged(object sender, WindowSizeChangedEventArgs e)
-        {
-            if (e.NewWindowState == WindowState.Maximized && Player != null && Player.Source != null)
-            {
-                //Player.Stretch = Stretch.Fill;
-                // TODO
-            }
-            else if (e.NewWindowState != WindowState.Maximized && Player != null && Player.Source != null)
-            {
-                Player.Stretch = Stretch.Uniform;
-            }
         }
         #endregion
 
@@ -306,5 +306,78 @@ namespace Yak.UserControls
             Player.Volume += (e.Delta > 0) ? 0.1 : -0.1;
         }
         #endregion
+
+        #region Method -> OnToggleFullScreen
+        /// <summary>
+        /// When fullscreen value has changed
+        /// </summary>
+        /// <param name="sender">Sender object</param>
+        /// <param name="e">EventArgs</param>
+        private void OnToggleFullScreen(object sender, EventArgs e)
+        {
+            var moviePlayerViewModel = DataContext as MoviePlayerViewModel;
+            if (moviePlayerViewModel != null && !IsInFullScreen)
+            {
+                if (fsFullScreenMoviePlayer == null)
+                {
+                    fsFullScreenMoviePlayer = new FullScreenMoviePlayer();
+                    fsFullScreenMoviePlayer.Closed += (o, args) => fsFullScreenMoviePlayer = null;
+                    fsFullScreenMoviePlayer.DataContext = DataContext;
+                    Player.Pause();
+                    fsFullScreenMoviePlayer.Launch();
+                    IsInFullScreen = true;
+                }
+            }
+        }
+        #endregion
+
+        #region Method -> OnBackToNormalScreen
+        /// <summary>
+        /// When back to normal screen size has been requested
+        /// </summary>
+        /// <param name="sender">Sender object</param>
+        /// <param name="e">EventArgs</param>
+        private void OnBackToNormalScreen(object sender, EventArgs e)
+        {
+            var moviePlayerViewModel = DataContext as MoviePlayerViewModel;
+            if (moviePlayerViewModel != null)
+            {
+                IsInFullScreen = false;
+            }
+        }
+        #endregion
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed && disposing)
+            {
+                Loaded -= OnLoaded;
+                var vm = DataContext as MoviePlayerViewModel;
+                if (vm != null)
+                {
+                    vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
+                    vm.ToggleFullScreenChanged -= OnToggleFullScreen;
+                    vm.BackToNormalScreenChanged -= OnBackToNormalScreen;
+                }
+
+                MoviePlayerTimer.Tick -= MoviePlayerTimer_Tick;
+                MoviePlayerTimer.Stop();
+
+                if (Player != null && Player.Source != null)
+                {
+                    Player.Stop();
+                    Player.Source = null;
+                    Player = null;
+                    MoviePlayerIsPlaying = false;
+                }   
+                _disposed = true;
+            }
+        }
     }
 }

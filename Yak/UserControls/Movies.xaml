@@ -124,7 +124,7 @@
             </Style>
             
             <converters:StringRatingToIntRatingConverter x:Key="StringRatingToIntRatingConverter" />
-            <converters:NullImageConverter x:Key="NullImageConverter" />
+            <converters:UriToCachedImageConverter x:Key="UriToCachedImageConverter" />
             <converters:GenresConverter x:Key="GenresConverter"/>
             <converters:RuntimeConverter x:Key="RuntimeConverter"/>
             <converters:BoolToInverseVisibilityConverter x:Key="BoolToInverseVisibilityConverter"/>
@@ -180,7 +180,7 @@
                                             Grid.Row="0"
                                             Grid.RowSpan="2"
                                             x:Name="BackgroundImage"
-                                            Source="{Binding MediumCoverImageUri, Converter={StaticResource NullImageConverter}}" 
+                                            Source="{Binding MediumCoverImageUri, Converter={StaticResource UriToCachedImageConverter}}" 
                                             Stretch="UniformToFill" 
                                             VerticalAlignment="Center"
                                             HorizontalAlignment="Center"/>

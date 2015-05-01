@@ -5,9 +5,13 @@ using Yak.Events;
 using Yak.Helpers;
 using Yak.Messaging;
 using Yak.Model.Movie;
+using GalaSoft.MvvmLight.Command;
 
 namespace Yak.ViewModel
 {
+    /// <summary>
+    /// MoviePlayerViewModel
+    /// </summary>
     public class MoviePlayerViewModel : ViewModelBase
     {
         #region Property -> Tab
@@ -45,6 +49,47 @@ namespace Yak.ViewModel
         public double CurrentMovieProgressValue { get; set; }
         #endregion
 
+        #region Property -> IsInFullScreenMode
+
+        /// <summary>
+        /// Indicates if we are in fullscreen mode
+        /// </summary>
+        private bool _isInFullScreenMode;
+
+        public bool IsInFullScreenMode
+        {
+            get { return _isInFullScreenMode; }
+            set { Set(() => IsInFullScreenMode, ref _isInFullScreenMode, value, true); }
+        }
+
+        #endregion
+
+        #region Commands
+
+        #region Command -> ToggleFullScreenCommand
+        /// <summary>
+        /// ToggleFullScreenCommand
+        /// </summary>
+        public RelayCommand ToggleFullScreenCommand
+        {
+            get;
+            private set;
+        }
+        #endregion
+
+        #region Command -> BackToNormalScreenComand
+        /// <summary>
+        /// ToggleFullScreenCommand
+        /// </summary>
+        public RelayCommand BackToNormalScreenComand
+        {
+            get;
+            private set;
+        }
+        #endregion
+
+        #endregion
+
         #region Constructor -> MoviePlayerViewModel
         /// <summary>
         /// Initializes a new instance of the MoviePlayerViewModel class.
@@ -63,10 +108,19 @@ namespace Yak.ViewModel
         public MoviePlayerViewModel(MovieFullDetails movie, string movieFilePath)
         {
             Messenger.Default.Register<StopDownloadingMovieMessage>(this, e => OnStoppedDownloadingMovie(new EventArgs()));
-            Messenger.Default.Register<WindowSizeChangedMessage>(this, e => OnWindowSizeChanged(new WindowSizeChangedEventArgs(e.NewWindowState)));
 
             Movie = movie;
-            MovieFilePath = movieFilePath;            
+            MovieFilePath = movieFilePath;
+
+            ToggleFullScreenCommand = new RelayCommand(() =>
+            {
+                OnToggleFullScreen(new EventArgs());
+            });
+
+            BackToNormalScreenComand = new RelayCommand(() =>
+            {
+                OnBackToNormalScreen(new EventArgs());
+            });
         }
         #endregion
 
@@ -91,18 +145,37 @@ namespace Yak.ViewModel
         }
         #endregion
 
-        #region Event -> OnWindowSizeChanged
+        #region Event -> OnToggleFullScreen
         /// <summary>
-        /// WindowSizeChanged event
+        /// ToggleFullScreenChanged event
         /// </summary>
-        public event EventHandler<WindowSizeChangedEventArgs> WindowSizeChanged;
+        public event EventHandler<EventArgs> ToggleFullScreenChanged;
         /// <summary>
-        /// When windows size has changed
+        /// When fullscreen mode has been requested
         /// </summary>
         ///<param name="e">EventArgs parameter</param>
-        protected virtual void OnWindowSizeChanged(WindowSizeChangedEventArgs e)
+        protected virtual void OnToggleFullScreen(EventArgs e)
         {
-            EventHandler<WindowSizeChangedEventArgs> handler = WindowSizeChanged;
+            EventHandler<EventArgs> handler = ToggleFullScreenChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+        #endregion
+
+        #region Event -> OnBackToNormalScreen
+        /// <summary>
+        /// BackToNormalScreenChanged event
+        /// </summary>
+        public event EventHandler<EventArgs> BackToNormalScreenChanged;
+        /// <summary>
+        /// When back to normal screen size has been requested
+        /// </summary>
+        ///<param name="e">EventArgs parameter</param>
+        protected virtual void OnBackToNormalScreen(EventArgs e)
+        {
+            EventHandler<EventArgs> handler = BackToNormalScreenChanged;
             if (handler != null)
             {
                 handler(this, e);

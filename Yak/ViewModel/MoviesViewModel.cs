@@ -314,8 +314,7 @@ namespace Yak.ViewModel
         {
             if (CancellationLoadingToken != null)
             {
-                // Set throwOnFirstException to false, allowing callbacks to return
-                CancellationLoadingToken.Cancel(false);
+                CancellationLoadingToken.Cancel(true);
             }
         }
         #endregion
