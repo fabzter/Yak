@@ -655,8 +655,7 @@ namespace Yak.ViewModel
                     // Where do we save the video file
                     SavePath = Constants.MovieDownloads,
                     // At this time, no quality selection is available in the interface, so we take the lowest
-                    Url = movie.Torrents.Aggregate((i1, i2) => (i1.SizeBytes < i2.SizeBytes ? i1 : i2)).Url,
-                    SeedMode = false
+                    Url = movie.Torrents.Aggregate((i1, i2) => (i1.SizeBytes < i2.SizeBytes ? i1 : i2)).Url
                 };
 
                 TorrentHandle handle = session.AddTorrent(addParams);
@@ -668,9 +667,13 @@ namespace Yak.ViewModel
                 {
                     TorrentStatus status = handle.QueryStatus();
                     double progress = status.Progress*100.0;
-                    if(status.NeedSaveResume)
+                    if(handle.NeedSaveResumeData())
                     {
                         handle.SaveResumeData();
+                    }
+                    if (!String.IsNullOrEmpty(status.Error))
+                    {
+                        Console.WriteLine(status.Error);
                     }
                     handle.FlushCache();
                     // Inform subscribers of our progress
