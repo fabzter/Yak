@@ -26,11 +26,11 @@ namespace Yak.UserControls
         private bool MoviePlayerIsPlaying;
         #endregion
 
-        #region Property -> MoviePlayerIsPlaying
+        #region Property -> IsInFullScreen
         /// <summary>
         /// Indicates if this controls is hosted in a fullscreen context
         /// </summary>
-        public bool IsInFullScreen { get; set; }
+        private bool IsInFullScreen { get; set; }
         #endregion
 
         #region Property -> UserIsDraggingMoviePlayerSlider
@@ -378,8 +378,8 @@ namespace Yak.UserControls
                 if (Player != null && Player.Source != null)
                 {
                     Player.Stop();
+                    Player.Close();
                     Player.Source = null;
-                    Player = null;
                     MoviePlayerIsPlaying = false;
                 }
                 _disposed = true;

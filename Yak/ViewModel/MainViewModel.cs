@@ -671,11 +671,13 @@ namespace Yak.ViewModel
                     {
                         handle.SaveResumeData();
                     }
+
                     if (!String.IsNullOrEmpty(status.Error))
                     {
                         Console.WriteLine(status.Error);
                     }
                     handle.FlushCache();
+
                     // Inform subscribers of our progress
                     OnLoadingMovieProgress(new MovieLoadingProgressEventArgs(progress, status.DownloadRate/1024));
 
