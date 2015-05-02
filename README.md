@@ -33,8 +33,6 @@ Well, there's some points.
 
 * Features. Since Yak is a recent project, Popcorn Time supports more features. But it's just a matter of time.
 
-* Stability. Yak appears to be more stable than Popcorn Time. Sometimes, Popcorn Time crashes randomly. Not sayin I guarantee it will never happen to Yak, but unit tests are there. Seems not to be considered in Popcorn Time project...
-
 * API. It's simple: Yak uses the YTS and The Movie Database APIs, same ones that Popcorn Time uses.
 
 ## How do I compile the solution?
