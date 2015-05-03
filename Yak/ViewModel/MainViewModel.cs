@@ -277,14 +277,14 @@ namespace Yak.ViewModel
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    MoviesViewModelTabs.Add(new MoviePlayerViewModel(e.Movie, e.MovieFilePath)
+                    MoviesViewModelTabs.Add(new MoviePlayerViewModel(e.Movie, e.MovieUri)
                     {
                         Tab = new TabDescription(TabDescription.TabType.Playing, e.Movie.Title)
                     });
 
                     SelectedTabViewModel = MoviesViewModelTabs.Last();
 
-                    OnBufferedMovie(new MovieBufferedEventArgs(e.MovieFilePath));
+                    OnBufferedMovie(new MovieBufferedEventArgs(e.MovieUri));
                 });
             });
 
@@ -316,12 +316,12 @@ namespace Yak.ViewModel
                 StopDownloadingMovie();
             });
 
-            DownloadMovieCommand = new RelayCommand(async () =>
+            DownloadMovieCommand = new RelayCommand(() =>
             {
                 if (Movie != null && !IsDownloadingMovie)
                 {
                     CancellationDownloadingToken = new CancellationTokenSource();
-                    await DownloadMovie(Movie);
+                    Application.Current.Dispatcher.BeginInvoke(new DownloadMovieDelegate(DownloadMovie), Movie);
                 }
             });
 
@@ -635,6 +635,12 @@ namespace Yak.ViewModel
 
         #region Method -> DownloadMovie
         /// <summary>
+        /// Delegate used to execute DownloadMovie via BeginInvoke 
+        /// </summary>
+        /// <param name="movie"></param>
+        /// <returns></returns>
+        private delegate Task DownloadMovieDelegate(MovieFullDetails movie);
+        /// <summary>
         /// Download a movie
         /// </summary>
         /// <param name="movie">The movie to download</param>
@@ -672,12 +678,6 @@ namespace Yak.ViewModel
                         handle.SaveResumeData();
                     }
 
-                    if (!String.IsNullOrEmpty(status.Error))
-                    {
-                        Console.WriteLine(status.Error);
-                    }
-                    handle.FlushCache();
-
                     // Inform subscribers of our progress
                     OnLoadingMovieProgress(new MovieLoadingProgressEventArgs(progress, status.DownloadRate/1024));
 
@@ -693,7 +693,7 @@ namespace Yak.ViewModel
                                 )
                             {
                                 // Inform subscribers we have finished buffering the movie
-                                Messenger.Default.Send<MovieBufferedMessage>(new MovieBufferedMessage(Movie, filePath));
+                                Messenger.Default.Send<MovieBufferedMessage>(new MovieBufferedMessage(Movie, new Uri(filePath)));
                                 alreadyBuffered = true;
                             }
 
@@ -703,6 +703,7 @@ namespace Yak.ViewModel
                             Console.WriteLine(e.Message);
                         }
                     }
+
                     // Let sleep for a second before updating the torrent status
                     await Task.Delay(1000, CancellationDownloadingToken.Token).ContinueWith(_ =>
                     {
@@ -714,7 +715,7 @@ namespace Yak.ViewModel
                         }
                     }).ConfigureAwait(false);
                 }
-            }
+            }            
         }
         #endregion
 
