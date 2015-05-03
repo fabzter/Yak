@@ -7,23 +7,23 @@ namespace Yak.Events
     /// </summary>
     public class MovieBufferedEventArgs : EventArgs
     {
-        private readonly string _pathToFile;
+        private readonly Uri _movieUri;
 
         #region Constructor
-        public MovieBufferedEventArgs(string pathToFile)
+        public MovieBufferedEventArgs(Uri movieUri)
         {
-            _pathToFile = pathToFile;
+            _movieUri = movieUri;
         }
         #endregion
 
         #region Properties
 
-        #region Property -> movieFilePath
-        public string PathToFile
+        #region Property -> movieUri
+        public Uri MovieUri
         {
             get
             {
-                return _pathToFile;
+                return _movieUri;
             }
         }
         #endregion

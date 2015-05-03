@@ -35,11 +35,11 @@ namespace Yak.ViewModel
         public MovieFullDetails Movie { get; set; }
         #endregion
 
-        #region Property -> MovieFilePath
+        #region Property -> MovieUri
         /// <summary>
-        /// File path to the movie to be played
+        /// Movie Uri to be played
         /// </summary>
-        public string MovieFilePath { get; set; }
+        public Uri MovieUri { get; set; }
         #endregion
 
         #region Property -> CurrentMovieProgressValue
@@ -105,12 +105,12 @@ namespace Yak.ViewModel
         /// <summary>
         /// Initializes a new instance of the MoviePlayerViewModel class.
         /// </summary>
-        public MoviePlayerViewModel(MovieFullDetails movie, string movieFilePath)
+        public MoviePlayerViewModel(MovieFullDetails movie, Uri movieUri)
         {
             Messenger.Default.Register<StopDownloadingMovieMessage>(this, e => OnStoppedDownloadingMovie(new EventArgs()));
 
             Movie = movie;
-            MovieFilePath = movieFilePath;
+            MovieUri = movieUri;
 
             ToggleFullScreenCommand = new RelayCommand(() =>
             {

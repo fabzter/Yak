@@ -10,25 +10,25 @@ namespace Yak.Messaging
     /// </summary>
     public class MovieBufferedMessage : MessageBase
     {
-        private readonly string _movieFilePath;
+        private readonly Uri _movieUri;
         private readonly MovieFullDetails _movie;
 
         #region Constructor
-        public MovieBufferedMessage(MovieFullDetails movie, string movieFilePath)
+        public MovieBufferedMessage(MovieFullDetails movie, Uri movieUri)
         {
-            _movieFilePath = movieFilePath;
+            _movieUri = movieUri;
             _movie = movie;
         }
         #endregion
 
         #region Properties
 
-        #region Property -> movieFilePath
-        public string MovieFilePath
+        #region Property -> movieUri
+        public Uri MovieUri
         {
             get
             {
-                return _movieFilePath;
+                return _movieUri;
             }
         }
         #endregion

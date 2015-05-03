@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -101,9 +104,9 @@ namespace Yak.UserControls
 
                 vm.BackToNormalScreenChanged += OnBackToNormalScreen;
 
-                if (!String.IsNullOrEmpty(vm.MovieFilePath))
+                if (vm.MovieUri != null)
                 {
-                    PlayMovie(vm.CurrentMovieProgressValue, vm.MovieFilePath);
+                    PlayMovie(vm.CurrentMovieProgressValue, vm.MovieUri);
                 }
             }
         }
@@ -134,23 +137,25 @@ namespace Yak.UserControls
         #endregion
 
         #region Method -> PlayMovie
+
         /// <summary>
         /// Play the movie when buffered
         /// </summary>
         /// <param name="currentMoviePlayingProgressValue">Sender object</param>
-        /// <param name="pathToFile">MovieBufferedEventArgs</param>
-        private void PlayMovie(double currentMoviePlayingProgressValue, string pathToFile)
+        /// <param name="movieUri">ovie Uri to be played</param>
+        private void PlayMovie(double currentMoviePlayingProgressValue, Uri movieUri)
         {
             MoviePlayerTimer.Tick += MoviePlayerTimer_Tick;
             MoviePlayerTimer.Start();
 
-            Player.Source = new Uri(pathToFile);
+            Player.Source = new Uri(Uri.UnescapeDataString(movieUri.AbsolutePath));
             Player.Position = TimeSpan.FromSeconds(currentMoviePlayingProgressValue);
             Player.Play();
             Player.StretchDirection = StretchDirection.Both;
 
             MoviePlayerIsPlaying = true;
         }
+
         #endregion
 
         #region Method -> MoviePlayerTimer_Tick
