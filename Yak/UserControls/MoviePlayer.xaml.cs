@@ -148,12 +148,21 @@ namespace Yak.UserControls
             MoviePlayerTimer.Tick += MoviePlayerTimer_Tick;
             MoviePlayerTimer.Start();
 
+            Player.MediaFailed += Player_MediaFailed;
+            
             Player.Source = new Uri(Uri.UnescapeDataString(movieUri.AbsolutePath));
             Player.Position = TimeSpan.FromSeconds(currentMoviePlayingProgressValue);
             Player.Play();
             Player.StretchDirection = StretchDirection.Both;
 
             MoviePlayerIsPlaying = true;
+        }
+
+        void Player_MediaFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+            Console.WriteLine("Player:" + e.ErrorException);
+            Console.WriteLine("Player:" + Player.Source);
+            Console.WriteLine("Player:" + Thread.CurrentThread.ManagedThreadId);
         }
 
         #endregion

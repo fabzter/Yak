@@ -19,6 +19,8 @@ using YoutubeExtractor;
 using System.Collections.ObjectModel;
 using System.Windows;
 using Yak.Messaging;
+using GalaSoft.MvvmLight.Threading;
+using System.Windows.Threading;
 
 namespace Yak.ViewModel
 {
@@ -316,12 +318,12 @@ namespace Yak.ViewModel
                 StopDownloadingMovie();
             });
 
-            DownloadMovieCommand = new RelayCommand(() =>
+            DownloadMovieCommand = new RelayCommand(async () =>
             {
                 if (Movie != null && !IsDownloadingMovie)
                 {
                     CancellationDownloadingToken = new CancellationTokenSource();
-                    Application.Current.Dispatcher.BeginInvoke(new DownloadMovieDelegate(DownloadMovie), Movie);
+                    await DownloadMovie(Movie);
                 }
             });
 
@@ -635,12 +637,6 @@ namespace Yak.ViewModel
 
         #region Method -> DownloadMovie
         /// <summary>
-        /// Delegate used to execute DownloadMovie via BeginInvoke 
-        /// </summary>
-        /// <param name="movie"></param>
-        /// <returns></returns>
-        private delegate Task DownloadMovieDelegate(MovieFullDetails movie);
-        /// <summary>
         /// Download a movie
         /// </summary>
         /// <param name="movie">The movie to download</param>
@@ -672,14 +668,17 @@ namespace Yak.ViewModel
                 while (IsDownloadingMovie)
                 {
                     TorrentStatus status = handle.QueryStatus();
-                    double progress = status.Progress*100.0;
-                    if(handle.NeedSaveResumeData())
+                    double progress = status.Progress * 100.0;
+                    handle.FlushCache();
+
+                    if (handle.NeedSaveResumeData())
                     {
                         handle.SaveResumeData();
                     }
-
+                    Console.WriteLine("Main:" + status.Error);
+                    Console.WriteLine("Main:" + Thread.CurrentThread.ManagedThreadId);
                     // Inform subscribers of our progress
-                    OnLoadingMovieProgress(new MovieLoadingProgressEventArgs(progress, status.DownloadRate/1024));
+                    OnLoadingMovieProgress(new MovieLoadingProgressEventArgs(progress, status.DownloadRate / 1024));
 
                     // We consider 2% of progress is enough to start playing
                     if (progress >= Constants.MinimumBufferingBeforeMoviePlaying && !alreadyBuffered)
@@ -703,8 +702,6 @@ namespace Yak.ViewModel
                             Console.WriteLine(e.Message);
                         }
                     }
-
-                    // Let sleep for a second before updating the torrent status
                     await Task.Delay(1000, CancellationDownloadingToken.Token).ContinueWith(_ =>
                     {
                         if (CancellationDownloadingToken.IsCancellationRequested && session != null)
