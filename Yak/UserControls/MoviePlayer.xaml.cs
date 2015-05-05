@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -22,11 +21,29 @@ namespace Yak.UserControls
 
         private bool _disposed;
 
+        #region DependencyProperty -> MoviePlayerIsPlaying
+        /// <summary>
+        /// Identifies the <see cref="MoviePlayerIsPlaying"/> dependency property. 
+        /// </summary>
+        internal static readonly DependencyProperty MoviePlayerIsPlayingProperty = DependencyProperty.Register("MoviePlayerIsPlaying", typeof(bool), typeof(MoviePlayer), new PropertyMetadata(false, null));
+        #endregion
+
         #region Property -> MoviePlayerIsPlaying
         /// <summary>
-        /// Indicates if a movie is playing
+        /// MoviePlayerIsPlaying 
         /// </summary>
-        private bool MoviePlayerIsPlaying;
+        public bool MoviePlayerIsPlaying
+        {
+            get
+            {
+                return (bool)GetValue(MoviePlayerIsPlayingProperty);
+            }
+
+            set
+            {
+                SetValue(MoviePlayerIsPlayingProperty, value);
+            }
+        }
         #endregion
 
         #region Property -> IsInFullScreen
@@ -104,6 +121,12 @@ namespace Yak.UserControls
 
                 vm.BackToNormalScreenChanged += OnBackToNormalScreen;
 
+                var currentAssembly = Assembly.GetEntryAssembly();
+                var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+                if (currentDirectory == null)
+                    return;
+                Player.MediaPlayer.VlcLibDirectory = new DirectoryInfo(Path.Combine(currentDirectory, @"lib\"));
+
                 if (vm.MovieUri != null)
                 {
                     PlayMovie(vm.CurrentMovieProgressValue, vm.MovieUri);
@@ -122,16 +145,13 @@ namespace Yak.UserControls
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
-                if (Player != null && Player.Source != null)
+                if (Player != null && Player.MediaPlayer != null)
                 {
-                    Player.Stop();
-                    Player.Close();
-                    Player.Source = null;
+                    Player.MediaPlayer.Stop();
                     MoviePlayerIsPlaying = false;
+                    MoviePlayerTimer.Tick -= MoviePlayerTimer_Tick;
+                    MoviePlayerTimer.Stop();
                 }
-
-                MoviePlayerTimer.Tick -= MoviePlayerTimer_Tick;
-                MoviePlayerTimer.Stop();
             });
         }
         #endregion
@@ -147,22 +167,12 @@ namespace Yak.UserControls
         {
             MoviePlayerTimer.Tick += MoviePlayerTimer_Tick;
             MoviePlayerTimer.Start();
-
-            Player.MediaFailed += Player_MediaFailed;
-            
-            Player.Source = new Uri(Uri.UnescapeDataString(movieUri.AbsolutePath));
-            Player.Position = TimeSpan.FromSeconds(currentMoviePlayingProgressValue);
-            Player.Play();
-            Player.StretchDirection = StretchDirection.Both;
-
+            FileInfo movieFile = new FileInfo(Uri.UnescapeDataString(movieUri.AbsolutePath));
+            Player.MediaPlayer.Play(movieFile);
+            Player.MediaPlayer.Time =
+                Convert.ToInt64(TimeSpan.FromSeconds(currentMoviePlayingProgressValue).TotalMilliseconds);
             MoviePlayerIsPlaying = true;
-        }
-
-        void Player_MediaFailed(object sender, ExceptionRoutedEventArgs e)
-        {
-            Console.WriteLine("Player:" + e.ErrorException);
-            Console.WriteLine("Player:" + Player.Source);
-            Console.WriteLine("Player:" + Thread.CurrentThread.ManagedThreadId);
+            Player.MediaPlayer.Audio.Volume = 100;
         }
 
         #endregion
@@ -173,13 +183,13 @@ namespace Yak.UserControls
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">EventArgs</param>
-        public void MoviePlayerTimer_Tick(object sender, EventArgs e)
+        private void MoviePlayerTimer_Tick(object sender, EventArgs e)
         {
-            if ((Player.Source != null) && (Player.NaturalDuration.HasTimeSpan) && (!UserIsDraggingMoviePlayerSlider))
+            if ((Player != null && Player.MediaPlayer != null) && (!UserIsDraggingMoviePlayerSlider))
             {
                 MoviePlayerSliderProgress.Minimum = 0;
-                MoviePlayerSliderProgress.Maximum = Player.NaturalDuration.TimeSpan.TotalSeconds;
-                MoviePlayerSliderProgress.Value = Player.Position.TotalSeconds;
+                MoviePlayerSliderProgress.Maximum = Player.MediaPlayer.Length;
+                MoviePlayerSliderProgress.Value = TimeSpan.FromMilliseconds(Player.MediaPlayer.Time).TotalSeconds;
             }
         }
         #endregion
@@ -194,7 +204,7 @@ namespace Yak.UserControls
         {
             if (MoviePlayerStatusBarItemPlay != null && MoviePlayerStatusBarItemPause != null)
             {
-                e.CanExecute = (Player != null) && (Player.Source != null);
+                e.CanExecute = (Player != null) && (Player.MediaPlayer != null);
                 if (MoviePlayerIsPlaying)
                 {
                     MoviePlayerStatusBarItemPlay.Visibility = Visibility.Collapsed;
@@ -218,7 +228,7 @@ namespace Yak.UserControls
         /// <param name="e">ExecutedRoutedEventArgs</param>
         private void MoviePlayerPlay_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Player.Play();
+            Player.MediaPlayer.Play();
             MoviePlayerIsPlaying = true;
 
             MoviePlayerStatusBarItemPlay.Visibility = Visibility.Collapsed;
@@ -259,7 +269,7 @@ namespace Yak.UserControls
         /// <param name="e">CanExecuteRoutedEventArgs</param>
         private void MoviePlayerPause_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Player.Pause();
+            Player.MediaPlayer.Pause();
             MoviePlayerIsPlaying = false;
 
             MoviePlayerStatusBarItemPlay.Visibility = Visibility.Visible;
@@ -288,7 +298,7 @@ namespace Yak.UserControls
         private void MovieSliderProgress_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             UserIsDraggingMoviePlayerSlider = false;
-            Player.Position = TimeSpan.FromSeconds(MoviePlayerSliderProgress.Value);
+            Player.MediaPlayer.Time = Convert.ToInt64(TimeSpan.FromSeconds(MoviePlayerSliderProgress.Value).TotalMilliseconds);
         }
         #endregion
 
@@ -317,7 +327,7 @@ namespace Yak.UserControls
         /// <param name="e">MouseWheelEventArgs</param>
         private void MouseWheelMoviePlayer(object sender, MouseWheelEventArgs e)
         {
-            Player.Volume += (e.Delta > 0) ? 0.1 : -0.1;
+            Player.MediaPlayer.Audio.Volume += (e.Delta > 0) ? 10 : -10;
         }
         #endregion
 
@@ -337,7 +347,7 @@ namespace Yak.UserControls
                     fsFullScreenMoviePlayer = new FullScreenMoviePlayer();
                     fsFullScreenMoviePlayer.Closed += (o, args) => fsFullScreenMoviePlayer = null;
                     fsFullScreenMoviePlayer.DataContext = DataContext;
-                    Player.Pause();
+                    Player.MediaPlayer.Pause();
                     fsFullScreenMoviePlayer.Launch();
                     IsInFullScreen = true;
                 }
@@ -360,8 +370,8 @@ namespace Yak.UserControls
 
                 if (Player != null)
                 {
-                    Player.Position = TimeSpan.FromSeconds(moviePlayerViewModel.CurrentMovieProgressValue);
-                    Player.Play();
+                    Player.MediaPlayer.Time = Convert.ToInt64(TimeSpan.FromSeconds(moviePlayerViewModel.CurrentMovieProgressValue).TotalMilliseconds);
+                    Player.MediaPlayer.Play();
                 }
             }
         }
@@ -373,7 +383,7 @@ namespace Yak.UserControls
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!_disposed && disposing)
             {
@@ -389,11 +399,10 @@ namespace Yak.UserControls
                 MoviePlayerTimer.Tick -= MoviePlayerTimer_Tick;
                 MoviePlayerTimer.Stop();
 
-                if (Player != null && Player.Source != null)
+                if (Player != null && Player.MediaPlayer != null)
                 {
-                    Player.Stop();
-                    Player.Close();
-                    Player.Source = null;
+                    Player.MediaPlayer.Stop();
+                    Player.MediaPlayer.Dispose();
                     MoviePlayerIsPlaying = false;
                 }
                 _disposed = true;
