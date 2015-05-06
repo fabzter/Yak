@@ -19,17 +19,17 @@ namespace Yak.Helpers
 
             if (tabType == TabType.Popular)
             {
-                TabName = "popular";
+                TabName = "Popular";
                 ApiSort = "like_count";
             }
             else if (tabType == TabType.HallOfFame)
             {
-                TabName = "hall of fame";
+                TabName = "Hall of fame";
                 ApiSort = "rating";
             }
             else if (tabType == TabType.Recent)
             {
-                TabName = "recent";
+                TabName = "Recent";
                 ApiSort = "year";
             }
             else if (tabType == TabType.Playing)
@@ -40,14 +40,14 @@ namespace Yak.Helpers
                 }
                 else
                 {
-                    TabName = "playing";
+                    TabName = "Playing";
                 }
 
                 ApiSort = String.Empty;
             }
             else if (tabType == TabType.Search)
             {
-                TabName = "search";
+                TabName = "Search";
                 ApiSort = String.Empty;
             }
         }
