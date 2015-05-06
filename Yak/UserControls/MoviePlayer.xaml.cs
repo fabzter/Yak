@@ -67,7 +67,12 @@ namespace Yak.UserControls
         private DispatcherTimer MoviePlayerTimer;
         #endregion
 
-        private FullScreenMoviePlayer fsFullScreenMoviePlayer;
+        #region Property -> fullScreenMoviePlayer
+        /// <summary>
+        /// The movie player used in FullScreen mode
+        /// </summary>
+        private FullScreenMoviePlayer fullScreenMoviePlayer;
+        #endregion
 
         #endregion
 
@@ -341,13 +346,13 @@ namespace Yak.UserControls
             var moviePlayerViewModel = DataContext as MoviePlayerViewModel;
             if (moviePlayerViewModel != null && !IsInFullScreen)
             {
-                if (fsFullScreenMoviePlayer == null)
+                if (fullScreenMoviePlayer == null)
                 {
-                    fsFullScreenMoviePlayer = new FullScreenMoviePlayer();
-                    fsFullScreenMoviePlayer.Closed += (o, args) => fsFullScreenMoviePlayer = null;
-                    fsFullScreenMoviePlayer.DataContext = DataContext;
+                    fullScreenMoviePlayer = new FullScreenMoviePlayer();
+                    fullScreenMoviePlayer.Closed += (o, args) => fullScreenMoviePlayer = null;
+                    fullScreenMoviePlayer.DataContext = DataContext;
                     Player.MediaPlayer.Pause();
-                    fsFullScreenMoviePlayer.Launch();
+                    fullScreenMoviePlayer.Launch();
                     IsInFullScreen = true;
                 }
             }
