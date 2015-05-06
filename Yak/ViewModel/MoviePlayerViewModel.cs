@@ -48,8 +48,14 @@ namespace Yak.ViewModel
         public double CurrentMovieProgressValue { get; set; }
         #endregion
 
-        #region Property -> IsInFullScreenMode
+        #region Property -> MediaVolume
+        /// <summary>
+        /// The current volume of the media set in the player
+        /// </summary>
+        public int MediaVolume { get; set; }
+        #endregion
 
+        #region Property -> IsInFullScreenMode
         /// <summary>
         /// Indicates if we are in fullscreen mode
         /// </summary>

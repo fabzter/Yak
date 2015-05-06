@@ -179,7 +179,7 @@ namespace Yak.UserControls
         }
         #endregion
 
-        #region Method -> OnVolumeChnaged
+        #region Method -> OnVolumeChanged
         /// <summary>
         /// When media's volume changed
         /// </summary>
@@ -188,20 +188,24 @@ namespace Yak.UserControls
         private static void OnVolumeChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             MoviePlayer moviePlayer = obj as MoviePlayer;
-            if (obj != null)
+            if (moviePlayer != null)
             {
                 int newValue = (int)e.NewValue;
                 moviePlayer.ChangeMediaVolume(newValue);
+                MoviePlayerViewModel vm = moviePlayer.DataContext as MoviePlayerViewModel;
+                if (vm != null)
+                {
+                    vm.MediaVolume = newValue;
+                }
             }
         }
         #endregion
 
-        #region Method -> OnVolumeChnaged
+        #region Method -> ChangeMediaVolume
         /// <summary>
         /// Change the media's volume
         /// </summary>
-        /// <param name="e">e</param>
-        /// <param name="obj">obj</param>
+        /// <param name="newValue">New volume value</param>
         private void ChangeMediaVolume(int newValue)
         {
             Player.MediaPlayer.Audio.Volume = newValue;
@@ -238,6 +242,7 @@ namespace Yak.UserControls
         {
             FileInfo movieFile = new FileInfo(Uri.UnescapeDataString(movieUri.AbsolutePath));
             Player.MediaPlayer.Play(movieFile);
+
             Player.MediaPlayer.Time =
                 Convert.ToInt64(TimeSpan.FromSeconds(currentMoviePlayingProgressValue).TotalMilliseconds);
             MoviePlayerIsPlaying = true;
@@ -442,6 +447,8 @@ namespace Yak.UserControls
                 {
                     Player.MediaPlayer.Time = Convert.ToInt64(TimeSpan.FromSeconds(moviePlayerViewModel.CurrentMovieProgressValue).TotalMilliseconds);
                     Player.MediaPlayer.Play();
+                    Volume = moviePlayerViewModel.MediaVolume;
+
                     IsInFullScreen = false;
                 }
             }
