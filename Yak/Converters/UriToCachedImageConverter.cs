@@ -19,6 +19,7 @@ namespace Yak.Converters
         /// <param name="targetType">The type of the binding target property.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>CachedImage</returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
@@ -44,6 +45,7 @@ namespace Yak.Converters
         /// <param name="targetType">The type of the binding target property.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>UnsetValue</returns>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return DependencyProperty.UnsetValue;

@@ -117,7 +117,7 @@ namespace Yak.CustomPanels
                          Math.Max(rowHeight, child.DesiredSize.Height) : Math.Min(rowHeight, child.DesiredSize.Height);
                     index++;
 
-                    // Check if the current element is at the end of a row and add an height overflow to get enough space for the next elements of the second  row
+                    // Check if the current element is at the end of a row and add an height overflow to get enough space for the next elements of the second row
                     if (column == Columns && Children.Count != index && (Children.Count - index + 1) <= Columns && !overflowAlreadyCount)
                     {
                         overflow = rowHeight;

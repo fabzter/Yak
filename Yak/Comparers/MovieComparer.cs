@@ -13,6 +13,7 @@ namespace Yak.Comparers
         /// </summary>
         /// <param name="movie1">First movie</param>
         /// <param name="movie2">Second movie</param>
+        /// <returns>True if both movies are the same, false otherwise</returns>
         public bool Equals(MovieShortDetails movie1, MovieShortDetails movie2)
         {
             if (movie1.Id == movie2.Id && movie1.DateUploadedUnix == movie2.DateUploadedUnix)
@@ -23,9 +24,10 @@ namespace Yak.Comparers
         }
 
         /// <summary>
-        /// Define a unique hash code
+        /// Define a unique hash code for a movie
         /// </summary>
         /// <param name="movie">A movie</param>
+        /// <returns>Unique hashcode</returns>
         public int GetHashCode(MovieShortDetails movie)
         {
             int hCode = movie.Id ^ movie.DateUploadedUnix;

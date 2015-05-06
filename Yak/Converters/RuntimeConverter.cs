@@ -6,7 +6,7 @@ using System.Windows.Data;
 namespace Yak.Converters
 {
     /// <summary>
-    /// Used to convert raw runtime movie to minutes
+    /// Used to convert raw runtime movie to formated runtime
     /// </summary>
     public class RuntimeConverter : IValueConverter
     {
@@ -19,6 +19,7 @@ namespace Yak.Converters
         /// <param name="targetType">The type of the binding target property.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>Formated runtime (..h..m)</returns>
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
@@ -26,28 +27,27 @@ namespace Yak.Converters
 
             try
             {
-                double? result = System.Convert.ToDouble(value);
-
-                if (result >= 60)
-                {
-                    double hours = result.Value/60.0;
-                    double minutes = result.Value%60.0;
-
-                    if (minutes < 10)
-                    {
-                        runtime = Math.Floor(hours) + "h" + "0" + minutes;
-                    }
-                    else
-                    {
-                        runtime = Math.Floor(hours) + "h" + minutes;
-                    }
-                }
+                double result = System.Convert.ToDouble(value);
             }
             catch (Exception)
             {
                 return runtime;
             }
 
+            if (result >= 60)
+            {
+                double hours = result.Value / 60.0;
+                double minutes = result.Value % 60.0;
+
+                if (minutes < 10)
+                {
+                    runtime = Math.Floor(hours) + "h" + "0" + minutes;
+                }
+                else
+                {
+                    runtime = Math.Floor(hours) + "h" + minutes;
+                }
+            }
 
             return runtime;
         }
@@ -59,6 +59,7 @@ namespace Yak.Converters
         /// <param name="targetType">The type of the binding target property.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>UnsetValue</returns>
         public object ConvertBack(object value, Type targetType,
             object parameter, CultureInfo culture)
         {

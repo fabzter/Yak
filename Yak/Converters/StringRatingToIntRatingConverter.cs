@@ -5,18 +5,19 @@ using System.Windows.Data;
 namespace Yak.Converters
 {
     /// <summary>
-    /// Convert from rating string ("0" to "10") to an int (0 to 5)
+    /// Convert from rating string ("0" to "10") to an double (0.0 to 5.0)
     /// </summary>
     public class StringRatingToIntRatingConverter : IValueConverter
     {
         #region IValueConverter Members
         /// <summary>
-        /// Convert rating string ("0" to "10") to an int (0 to 5)
+        /// Convert rating string ("0" to "10") to a double (0.0 to 5.0)
         /// </summary>
         /// <param name="value">The value produced by the binding source.</param>
         /// <param name="targetType">The type of the binding target property.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>Formated rating double</returns>
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
@@ -29,11 +30,7 @@ namespace Yak.Converters
                 {
                     result = System.Convert.ToDouble(rating, CultureInfo.InvariantCulture);
                 }
-                catch (FormatException)
-                {
-                    return result;
-                }
-                catch (OverflowException)
+                catch (Exception)
                 {
                     return result;
                 }
