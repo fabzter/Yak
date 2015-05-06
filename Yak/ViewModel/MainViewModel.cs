@@ -19,8 +19,6 @@ using YoutubeExtractor;
 using System.Collections.ObjectModel;
 using System.Windows;
 using Yak.Messaging;
-using GalaSoft.MvvmLight.Threading;
-using System.Windows.Threading;
 
 namespace Yak.ViewModel
 {
@@ -329,7 +327,7 @@ namespace Yak.ViewModel
                 },
                 new MoviesViewModel
                 { 
-                    Tab = new TabDescription(TabDescription.TabType.BestRated),
+                    Tab = new TabDescription(TabDescription.TabType.HallOfFame),
                 },
                 new MoviesViewModel
                 { 

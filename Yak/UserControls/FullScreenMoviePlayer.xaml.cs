@@ -41,6 +41,8 @@ namespace Yak.UserControls
         }
         #endregion
 
+        #region Methods
+
         #region Method -> Onloaded
         /// <summary>
         /// Close and dispose this player when back to normal screen
@@ -64,6 +66,8 @@ namespace Yak.UserControls
             WindowState = WindowState.Maximized;
             Show();
         }
+        #endregion
+
         #endregion
 
         #region Dispose

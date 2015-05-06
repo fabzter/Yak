@@ -5,13 +5,13 @@ using System.Windows.Data;
 namespace Yak.Converters
 {
     /// <summary>
-    /// Used to convert boolean to a Visibility class property
+    /// Used to convert a boolean to a Visibility class property
     /// </summary>
     public class BoolToVisibilityConverter : IValueConverter
     {
         #region IValueConverter Members
         /// <summary>
-        /// Convert method
+        /// Convert bool to Visibility
         /// </summary>
         /// <param name="value">The value produced by the binding source.</param>
         /// <param name="targetType">The type of the binding target property.</param>

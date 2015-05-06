@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Yak.Helpers
 {
@@ -26,9 +22,9 @@ namespace Yak.Helpers
                 TabName = "popular";
                 ApiSort = "like_count";
             }
-            else if (tabType == TabType.BestRated)
+            else if (tabType == TabType.HallOfFame)
             {
-                TabName = "best rated";
+                TabName = "hall of fame";
                 ApiSort = "rating";
             }
             else if (tabType == TabType.Recent)
@@ -59,7 +55,7 @@ namespace Yak.Helpers
         public enum TabType
         {
             Popular = 0,
-            BestRated = 1,
+            HallOfFame = 1,
             Recent = 2,
             Playing = 3,
             Search = 4

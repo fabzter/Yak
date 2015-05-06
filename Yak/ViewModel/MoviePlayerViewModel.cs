@@ -1,7 +1,6 @@
 ﻿using System;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
-using Yak.Events;
 using Yak.Helpers;
 using Yak.Messaging;
 using Yak.Model.Movie;

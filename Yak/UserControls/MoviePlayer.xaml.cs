@@ -100,6 +100,8 @@ namespace Yak.UserControls
         }
         #endregion
 
+        #region Methods
+
         #region Method -> Onloaded
 
         /// <summary>
@@ -379,6 +381,8 @@ namespace Yak.UserControls
                 }
             }
         }
+        #endregion
+
         #endregion
 
         #region Dispose

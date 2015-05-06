@@ -6,7 +6,6 @@ using System.Windows.Media.Animation;
 using Yak.ViewModel;
 using Yak.CustomPanels;
 using Yak.Events;
-using Microsoft.Practices.ServiceLocation;
 using Yak.Helpers;
 
 namespace Yak.UserControls
