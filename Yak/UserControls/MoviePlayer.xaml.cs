@@ -21,7 +21,7 @@ namespace Yak.UserControls
 
         private bool _disposed;
 
-        #region DependencyProperty -> MoviePlayerIsPlaying
+        #region DependencyProperty -> MoviePlayerIsPlayingProperty
         /// <summary>
         /// Identifies the <see cref="MoviePlayerIsPlaying"/> dependency property. 
         /// </summary>
@@ -42,6 +42,30 @@ namespace Yak.UserControls
             set
             {
                 SetValue(MoviePlayerIsPlayingProperty, value);
+            }
+        }
+        #endregion
+
+        #region DependencyProperty -> VolumeProperty
+        /// Identifies the <see cref="MoviePlayerIsPlaying"/> dependency property. 
+        /// </summary>
+        internal static readonly DependencyProperty VolumeProperty = DependencyProperty.Register("Volume", typeof(int), typeof(MoviePlayer), new PropertyMetadata(100, new PropertyChangedCallback(OnVolumeChanged)));
+        #endregion
+
+        #region Property -> Volume
+        /// <summary>
+        /// MoviePlayerIsPlaying 
+        /// </summary>
+        public int Volume
+        {
+            get
+            {
+                return (int)GetValue(VolumeProperty);
+            }
+
+            set
+            {
+                SetValue(VolumeProperty, value);
             }
         }
         #endregion
@@ -155,6 +179,35 @@ namespace Yak.UserControls
         }
         #endregion
 
+        #region Method -> OnVolumeChnaged
+        /// <summary>
+        /// When media's volume changed
+        /// </summary>
+        /// <param name="e">e</param>
+        /// <param name="obj">obj</param>
+        private static void OnVolumeChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            MoviePlayer moviePlayer = obj as MoviePlayer;
+            if (obj != null)
+            {
+                int newValue = (int)e.NewValue;
+                moviePlayer.ChangeMediaVolume(newValue);
+            }
+        }
+        #endregion
+
+        #region Method -> OnVolumeChnaged
+        /// <summary>
+        /// Change the media's volume
+        /// </summary>
+        /// <param name="e">e</param>
+        /// <param name="obj">obj</param>
+        private void ChangeMediaVolume(int newValue)
+        {
+            Player.MediaPlayer.Audio.Volume = newValue;
+        }
+        #endregion
+
         #region Method -> OnStoppedDownloadingMovie
         /// <summary>
         /// When downloading movie has finished, stop player and reset timer
@@ -187,7 +240,6 @@ namespace Yak.UserControls
             Player.MediaPlayer.Play(movieFile);
             Player.MediaPlayer.Time =
                 Convert.ToInt64(TimeSpan.FromSeconds(currentMoviePlayingProgressValue).TotalMilliseconds);
-            Player.MediaPlayer.Audio.Volume = 100;
             MoviePlayerIsPlaying = true;
         }
 
@@ -343,7 +395,10 @@ namespace Yak.UserControls
         /// <param name="e">MouseWheelEventArgs</param>
         private void MouseWheelMoviePlayer(object sender, MouseWheelEventArgs e)
         {
-            Player.MediaPlayer.Audio.Volume += (e.Delta > 0) ? 10 : -10;
+            if ((Volume <= 190 && e.Delta > 0) || (Volume >= 10 && e.Delta < 0))
+            {
+                Volume += (e.Delta > 0) ? 10 : -10;
+            }
         }
         #endregion
 
@@ -365,6 +420,7 @@ namespace Yak.UserControls
                     fullScreenMoviePlayer.DataContext = DataContext;
                     Player.MediaPlayer.Pause();
                     fullScreenMoviePlayer.Launch();
+                    fullScreenMoviePlayer.PlayerUc.Volume = Volume;
                     IsInFullScreen = true;
                 }
             }
@@ -386,9 +442,8 @@ namespace Yak.UserControls
                 {
                     Player.MediaPlayer.Time = Convert.ToInt64(TimeSpan.FromSeconds(moviePlayerViewModel.CurrentMovieProgressValue).TotalMilliseconds);
                     Player.MediaPlayer.Play();
+                    IsInFullScreen = false;
                 }
-
-                IsInFullScreen = false;
             }
         }
         #endregion
