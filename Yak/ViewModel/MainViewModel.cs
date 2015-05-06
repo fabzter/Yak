@@ -131,7 +131,7 @@ namespace Yak.ViewModel
             get
             {
                 return _searchMoviesFilter;
-                
+
             }
             set
             {
@@ -141,28 +141,7 @@ namespace Yak.ViewModel
                     _searchMoviesFilter = value;
                     Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, _searchMoviesFilter, "SearchMoviesFilter"), _searchMessageToken);
 
-                    if (String.IsNullOrEmpty(_searchMoviesFilter))
-                    {
-                        MoviesViewModel searchTabToRemove = new MoviesViewModel();
-                        foreach (object tab in MoviesViewModelTabs)
-                        {
-                            var moviesViewModel = tab as MoviesViewModel;
-                            if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("search"))
-                            {
-                                searchTabToRemove = moviesViewModel;
-                            }
-                        }
-
-                        if (searchTabToRemove == SelectedTabViewModel)
-                        {
-                            SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
-                        }
-
-                        if (searchTabToRemove.Tab != null && !String.IsNullOrEmpty(searchTabToRemove.Tab.TabName) && searchTabToRemove.Tab.TabName.Equals("search"))
-                        {
-                            MoviesViewModelTabs.Remove(searchTabToRemove);
-                        }
-                    }
+                    RemoveSearchTabOnEmptySearch();
                 }
             }
         }
@@ -367,7 +346,6 @@ namespace Yak.ViewModel
         #region Methods
 
         #region Method -> SearchMovies
-
         /// <summary>
         /// Search for movie
         /// </summary>
@@ -376,11 +354,14 @@ namespace Yak.ViewModel
         {
             foreach (object tab in MoviesViewModelTabs)
             {
+                // Looking for a Search tab. If any, search movies with the criteria, and select this tab to be shown in the UI
                 var moviesViewModel = tab as MoviesViewModel;
                 if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("search"))
                 {
                     moviesViewModel.SearchMoviesFilter = criteria;
+
                     await moviesViewModel.SearchMovies(criteria);
+                    
                     if (SelectedTabViewModel != moviesViewModel)
                     {
                         SelectedTabViewModel = moviesViewModel;
@@ -390,41 +371,49 @@ namespace Yak.ViewModel
                 }
             }
 
-            var currentTabItem = SelectedTabViewModel as MoviesViewModel;
-            if (currentTabItem != null)
+            // There is no current search tab, we have to create it
+            MoviesViewModelTabs.Add(new MoviesViewModel()
             {
-                MoviesViewModelTabs.Add(new MoviesViewModel()
-                {
-                    Tab = new TabDescription(TabDescription.TabType.Search),
-                    SearchMoviesFilter = criteria
-                });
+                Tab = new TabDescription(TabDescription.TabType.Search),
+                SearchMoviesFilter = criteria
+            });
 
-                SelectedTabViewModel = MoviesViewModelTabs.Last();
+            SelectedTabViewModel = MoviesViewModelTabs.Last();
 
-                var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
-                if (searchMovieTab != null)
-                {
-                    await searchMovieTab.SearchMovies(criteria);
-                }
+            var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
+            if (searchMovieTab != null)
+            {
+                await searchMovieTab.SearchMovies(criteria);
             }
-            else
+        }
+        #endregion
+
+        #region Method -> RemoveSearchTabOnEmptySearch
+        /// <summary>
+        /// Remove the Search tab when search filter is empty
+        /// </summary>
+        private void RemoveSearchTabOnEmptySearch()
+        {
+            if (String.IsNullOrEmpty(_searchMoviesFilter))
             {
-                var newCurrentTabItem = SelectedTabViewModel as MoviePlayerViewModel;
-                if (newCurrentTabItem != null)
+                MoviesViewModel searchTabToRemove = new MoviesViewModel();
+                foreach (object tab in MoviesViewModelTabs)
                 {
-                    MoviesViewModelTabs.Add(new MoviesViewModel()
+                    var moviesViewModel = tab as MoviesViewModel;
+                    if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("search"))
                     {
-                        Tab = new TabDescription(TabDescription.TabType.Search),
-                        SearchMoviesFilter = criteria
-                    });
-
-                    SelectedTabViewModel = MoviesViewModelTabs.Last();
-
-                    var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
-                    if (searchMovieTab != null)
-                    {
-                        await searchMovieTab.SearchMovies(criteria);
+                        searchTabToRemove = moviesViewModel;
                     }
+                }
+
+                if (searchTabToRemove == SelectedTabViewModel)
+                {
+                    SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
+                }
+
+                if (searchTabToRemove.Tab != null && !String.IsNullOrEmpty(searchTabToRemove.Tab.TabName) && searchTabToRemove.Tab.TabName.Equals("search"))
+                {
+                    MoviesViewModelTabs.Remove(searchTabToRemove);
                 }
             }
         }

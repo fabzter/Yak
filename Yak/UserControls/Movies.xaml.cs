@@ -17,6 +17,9 @@ namespace Yak.UserControls
     public partial class Movies : UserControl
     {
         #region Constructor
+        /// <summary>
+        /// Initializes a new instance of the Movies class.
+        /// </summary>
         public Movies()
         {
             InitializeComponent();
@@ -29,6 +32,12 @@ namespace Yak.UserControls
                     // Unsubscribe previous events if any
                     vm.MoviesLoaded -= OnMoviesLoaded;
                     vm.MoviesLoading -= OnMoviesLoading;
+
+                    var elasticWrapPanel = sender as ElasticWrapPanel;
+                    if (elasticWrapPanel != null)
+                    {
+                        elasticWrapPanel.NumberOfColumnsChanged -= NumberOfColumnsChanged;
+                    }
 
                     // Subscribe events
                     vm.MoviesLoaded += OnMoviesLoaded;
@@ -48,7 +57,7 @@ namespace Yak.UserControls
 
         #region Method -> OnMoviesLoading
         /// <summary>
-        /// Fade in opacity of the window, let the progress ring appear and collapse the NoMouvieFound label when loading movies
+        /// Fade in opacity of the UserControl, let the progress ring appear and collapse the NoMouvieFound label when loading movies
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">EventArgs</param>
@@ -71,7 +80,7 @@ namespace Yak.UserControls
 
             #endregion
 
-            if (NoMouvieFound.Visibility == Visibility.Visible)
+            if (NoMouvieFound.Visibility != Visibility.Collapsed)
             {
                 NoMouvieFound.Visibility = Visibility.Collapsed;
             }
@@ -81,7 +90,7 @@ namespace Yak.UserControls
 
         #region Method -> OnMoviesLoaded
         /// <summary>
-        /// Fade out opacity of the window, let the progress ring disappear and manage visibility of NoMouvieFound label when movies are loaded
+        /// Fade out opacity of the window, let the progress ring disappear and manage visibility of NoMouvieFound label when movies has been loaded
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">EventArgs</param>

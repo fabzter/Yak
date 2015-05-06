@@ -78,7 +78,7 @@ namespace Yak.UserControls
 
         #region Constructor
         /// <summary>
-        /// MoviePlayer
+        /// Initializes a new instance of the MoviePlayer class.
         /// </summary>
         public MoviePlayer()
         {
@@ -381,6 +381,10 @@ namespace Yak.UserControls
         }
         #endregion
 
+        #region Dispose
+        /// <summary>
+        /// Free resources
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -416,5 +420,6 @@ namespace Yak.UserControls
                 }
             }
         }
+        #endregion
     }
 }

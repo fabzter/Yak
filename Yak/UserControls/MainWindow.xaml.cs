@@ -23,7 +23,7 @@ namespace Yak.UserControls
         {
             InitializeComponent();
 
-            Loaded += MainWindow_Loaded;
+            Loaded += OnLoaded;
             Closing += OnClosing;
         }
 
@@ -40,7 +40,7 @@ namespace Yak.UserControls
         private void OnClosing(object sender, CancelEventArgs e)
         {
             // Unsubscribe events
-            Loaded -= MainWindow_Loaded;
+            Loaded -= OnLoaded;
 
             // Stop playing and downloading a movie if any
             var vm = DataContext as MainViewModel;
@@ -75,13 +75,13 @@ namespace Yak.UserControls
         }
         #endregion
 
-        #region Method -> MainWindow_Loaded
+        #region Method -> OnLoaded
         /// <summary>
         /// Do actions when loaded
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">RoutedEventArgs</param>
-        void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        void OnLoaded(object sender, RoutedEventArgs e)
         {
             var vm = DataContext as MainViewModel;
             if (vm != null)

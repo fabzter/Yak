@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using Yak.ViewModel;
 
 namespace Yak.UserControls
@@ -7,13 +8,13 @@ namespace Yak.UserControls
     /// <summary>
     /// Interaction logic for FullScreenMoviePlayer.xaml
     /// </summary>
-    public partial class FullScreenMoviePlayer : IDisposable
+    public partial class FullScreenMoviePlayer : UserControl, IDisposable
     {
         private bool _disposed;
 
         #region Constructor
         /// <summary>
-        /// FullScreenMoviePlayer
+        /// Initializes a new instance of the FullScreenMoviePlayer class.
         /// </summary>
         public FullScreenMoviePlayer()
         {
@@ -54,7 +55,7 @@ namespace Yak.UserControls
 
         #region Method -> Launch
         /// <summary>
-        /// Open this FullScreen movie player
+        /// Open the FullScreen movie player
         /// </summary>
         public void Launch()
         {
@@ -65,7 +66,7 @@ namespace Yak.UserControls
         }
         #endregion
 
-        #region Method -> Launch
+        #region Dispose
         /// <summary>
         /// Dispose all resources and close the UserControl
         /// </summary>
