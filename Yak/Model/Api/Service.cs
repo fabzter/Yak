@@ -371,10 +371,10 @@ namespace Yak.Model.Api
             string backgroundImage = String.Empty;
 
             TMDbClient tmDbclient = new TMDbClient(Constants.TmDbClientId);
-            tmDbclient.GetConfig();
 
             try
             {
+                tmDbclient.GetConfig();
                 TMDbLib.Objects.Movies.Movie movie = tmDbclient.GetMovie(imdbCode, MovieMethods.Images);
                 if (movie.ImdbId != null)
                 {
