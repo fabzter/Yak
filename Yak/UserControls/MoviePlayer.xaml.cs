@@ -95,6 +95,10 @@ namespace Yak.UserControls
                     {
                         Dispose();
                     }
+                    else if (MoviePlayerIsPlaying && Player != null && Player.MediaPlayer != null)
+                    {
+                        Player.MediaPlayer.Pause();
+                    }
                 }
             };
         }
@@ -177,8 +181,8 @@ namespace Yak.UserControls
             Player.MediaPlayer.Play(movieFile);
             Player.MediaPlayer.Time =
                 Convert.ToInt64(TimeSpan.FromSeconds(currentMoviePlayingProgressValue).TotalMilliseconds);
-            MoviePlayerIsPlaying = true;
             Player.MediaPlayer.Audio.Volume = 100;
+            MoviePlayerIsPlaying = true;
         }
 
         #endregion
@@ -372,13 +376,13 @@ namespace Yak.UserControls
             var moviePlayerViewModel = DataContext as MoviePlayerViewModel;
             if (moviePlayerViewModel != null)
             {
-                IsInFullScreen = false;
-
-                if (Player != null)
+                if (Player != null && IsInFullScreen)
                 {
                     Player.MediaPlayer.Time = Convert.ToInt64(TimeSpan.FromSeconds(moviePlayerViewModel.CurrentMovieProgressValue).TotalMilliseconds);
                     Player.MediaPlayer.Play();
                 }
+
+                IsInFullScreen = false;
             }
         }
         #endregion

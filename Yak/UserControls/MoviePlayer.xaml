@@ -281,7 +281,7 @@
                     BasedOn="{StaticResource FlatSlider}">
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding Path=MoviePlayerIsPlaying, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" Value="True">
-                        <Setter Property="Value" Value="{Binding MediaPlayer.Audio.Volume, ElementName=Player, Mode=TwoWay}"/>
+                        <Setter Property="Value" Value="{Binding MediaPlayer.Audio.Volume, ElementName=Player}"/>
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
