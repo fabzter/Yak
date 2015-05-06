@@ -44,7 +44,23 @@ Temporary Items
 
 # Nuget Packages
 .nuget
-packages
+packages/CommonServiceLocator.1.3
+packages/DeltaCompressionDotNet.1.0.0
+packages/MahApps.Metro.1.1.2.0
+packages/MahApps.Metro.Resources.0.4.0.0
+packages/Microsoft.Web.Xdt.2.1.1
+packages/Mono.Cecil.0.9.6.0
+packages/MvvmLight.5.1.1.0
+packages/MvvmLightLibs.5.1.1.0
+packages/Newtonsoft.Json.6.0.8
+packages/Nuget.Core.2.8.5
+packages/Ragnar.0.6.0
+packages/RestSharp.105.0.1
+packages/Splat.1.6.2
+packages/squirrel.windows.0.9.4
+packages/TMDbLib.0.7.7
+packages/YoutubeExtractor.0.10.6
+packages/repositories.config
 
 # Bin and obj
 Yak/Bin
