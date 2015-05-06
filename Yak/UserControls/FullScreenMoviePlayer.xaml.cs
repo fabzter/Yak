@@ -34,7 +34,6 @@ namespace Yak.UserControls
 
         private void OnBackToNormalScreenChanged(object sender, EventArgs toggleFullScreenEventArgs)
         {
-            PlayerUc.Dispose();
             Dispose();
         }
 
@@ -49,15 +48,21 @@ namespace Yak.UserControls
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
-            if (!_disposed && disposing)
+            if (!_disposed)
             {
+                PlayerUc.Dispose();
+
                 _disposed = true;
-                Close();
+
+                if (disposing)
+                {
+                    GC.SuppressFinalize(this);
+                    Close();
+                }
             }
         }
     }

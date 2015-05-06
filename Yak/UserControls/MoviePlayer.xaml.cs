@@ -112,6 +112,9 @@ namespace Yak.UserControls
                     Interval = TimeSpan.FromSeconds(1)
                 };
 
+                MoviePlayerTimer.Tick += MoviePlayerTimer_Tick;
+                MoviePlayerTimer.Start();
+
                 vm.StoppedDownloadingMovie += OnStoppedDownloadingMovie;
 
                 if (!vm.IsInFullScreenMode)
@@ -149,8 +152,6 @@ namespace Yak.UserControls
                 {
                     Player.MediaPlayer.Stop();
                     MoviePlayerIsPlaying = false;
-                    MoviePlayerTimer.Tick -= MoviePlayerTimer_Tick;
-                    MoviePlayerTimer.Stop();
                 }
             });
         }
@@ -165,8 +166,6 @@ namespace Yak.UserControls
         /// <param name="movieUri">ovie Uri to be played</param>
         private void PlayMovie(double currentMoviePlayingProgressValue, Uri movieUri)
         {
-            MoviePlayerTimer.Tick += MoviePlayerTimer_Tick;
-            MoviePlayerTimer.Start();
             FileInfo movieFile = new FileInfo(Uri.UnescapeDataString(movieUri.AbsolutePath));
             Player.MediaPlayer.Play(movieFile);
             Player.MediaPlayer.Time =
@@ -380,12 +379,11 @@ namespace Yak.UserControls
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
-            if (!_disposed && disposing)
+            if (!_disposed)
             {
                 Loaded -= OnLoaded;
                 var vm = DataContext as MoviePlayerViewModel;
@@ -406,6 +404,11 @@ namespace Yak.UserControls
                     MoviePlayerIsPlaying = false;
                 }
                 _disposed = true;
+
+                if (disposing)
+                {
+                    GC.SuppressFinalize(this);
+                }
             }
         }
     }
