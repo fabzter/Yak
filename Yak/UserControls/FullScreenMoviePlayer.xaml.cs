@@ -8,7 +8,7 @@ namespace Yak.UserControls
     /// <summary>
     /// Interaction logic for FullScreenMoviePlayer.xaml
     /// </summary>
-    public partial class FullScreenMoviePlayer : UserControl, IDisposable
+    public partial class FullScreenMoviePlayer : IDisposable
     {
         private bool _disposed;
 

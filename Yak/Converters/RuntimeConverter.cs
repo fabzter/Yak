@@ -24,22 +24,23 @@ namespace Yak.Converters
             object parameter, CultureInfo culture)
         {
             string runtime = String.Empty;
+            double result = 0.0;
 
             try
             {
-                double result = System.Convert.ToDouble(value);
+                result = System.Convert.ToDouble(value);
             }
             catch (Exception)
             {
                 return runtime;
             }
 
-            if (result >= 60)
+            if (result >= 60.0)
             {
-                double hours = result.Value / 60.0;
-                double minutes = result.Value % 60.0;
+                double hours = result / 60.0;
+                double minutes = result % 60.0;
 
-                if (minutes < 10)
+                if (minutes < 10.0)
                 {
                     runtime = Math.Floor(hours) + "h" + "0" + minutes;
                 }

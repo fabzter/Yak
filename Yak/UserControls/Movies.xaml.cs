@@ -33,12 +33,6 @@ namespace Yak.UserControls
                     vm.MoviesLoaded -= OnMoviesLoaded;
                     vm.MoviesLoading -= OnMoviesLoading;
 
-                    var elasticWrapPanel = sender as ElasticWrapPanel;
-                    if (elasticWrapPanel != null)
-                    {
-                        elasticWrapPanel.NumberOfColumnsChanged -= NumberOfColumnsChanged;
-                    }
-
                     // Subscribe events
                     vm.MoviesLoaded += OnMoviesLoaded;
                     vm.MoviesLoading += OnMoviesLoading;
