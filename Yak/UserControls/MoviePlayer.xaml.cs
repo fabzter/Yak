@@ -86,28 +86,11 @@ namespace Yak.UserControls
 
             Loaded += OnLoaded;
 
-            Unloaded += (s, e) =>
-            {
-                var vm = DataContext as MoviePlayerViewModel;
-                if (vm != null)
-                {
-                    if (vm.IsInFullScreenMode)
-                    {
-                        Dispose();
-                    }
-                    else if (MoviePlayerIsPlaying && Player != null && Player.MediaPlayer != null)
-                    {
-                        Player.MediaPlayer.Pause();
-                    }
-                }
-            };
+            Unloaded += OnUnloaded;
         }
         #endregion
 
-        #region Methods
-
         #region Method -> Onloaded
-
         /// <summary>
         /// Do action when loaded
         /// </summary>
@@ -144,6 +127,29 @@ namespace Yak.UserControls
                 if (vm.MovieUri != null)
                 {
                     PlayMovie(vm.CurrentMovieProgressValue, vm.MovieUri);
+                }
+            }
+        }
+        #endregion
+
+        #region Method -> OnUnloaded
+        /// <summary>
+        /// Do action when unloaded
+        /// </summary>
+        /// <param name="sender">Sender object</param>
+        /// <param name="e">EventArgs</param>
+        private void OnUnloaded(object sender, EventArgs e)
+        {
+            var vm = DataContext as MoviePlayerViewModel;
+            if (vm != null)
+            {
+                if (vm.IsInFullScreenMode)
+                {
+                    Dispose();
+                }
+                else if (MoviePlayerIsPlaying && Player != null && Player.MediaPlayer != null)
+                {
+                    Player.MediaPlayer.Pause();
                 }
             }
         }
@@ -387,8 +393,6 @@ namespace Yak.UserControls
         }
         #endregion
 
-        #endregion
-
         #region Dispose
         /// <summary>
         /// Free resources
@@ -403,6 +407,7 @@ namespace Yak.UserControls
             if (!_disposed)
             {
                 Loaded -= OnLoaded;
+                Unloaded -= OnUnloaded;
                 var vm = DataContext as MoviePlayerViewModel;
                 if (vm != null)
                 {
