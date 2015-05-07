@@ -153,7 +153,7 @@ namespace Yak.ViewModel
                     _searchMoviesFilter = value;
                     Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, _searchMoviesFilter, "SearchMoviesFilter"), _searchMessageToken);
 
-                    RemoveSearchTabOnEmptySearch();
+                    RemoveSearchTabIfEmptySearch();
                 }
             }
         }
@@ -264,7 +264,10 @@ namespace Yak.ViewModel
         /// <param name="apiService">The service which will be used</param>
         private MainViewModel(IService apiService)
         {
-            // Fire event on connection error
+            ApiService = apiService;
+
+            #region Messaging
+            // Inform subscribers a connection error has occured
             Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, arg => OnConnectionError(new ConnectionErrorEventArgs(arg)));
 
             // Create and open movie tab of the buffered movie
@@ -272,19 +275,24 @@ namespace Yak.ViewModel
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
+                    // Create a tab with the movie name as the title
                     MoviesViewModelTabs.Add(new MoviePlayerViewModel(e.Movie, e.MovieUri)
                     {
                         Tab = new TabDescription(TabDescription.TabType.Playing, e.Movie.Title)
                     });
 
+                    // Select this tab in the tab control
                     SelectedTabViewModel = MoviesViewModelTabs.Last();
 
+                    // Inform subscribers that a movie has been buffered
                     OnBufferedMovie(new MovieBufferedEventArgs(e.MovieUri));
                 });
             });
 
+            // Inform subscribers that a movie has stopped downloading
             Messenger.Default.Register<StopDownloadingMovieMessage>(this, e => OnStoppedDownloadingMovie(new EventArgs()));
 
+            // Stop downloading a movie if any
             Messenger.Default.Register<MainWindowClosingMessage>(this, e =>
             {
                 if (IsDownloadingMovie)
@@ -292,8 +300,7 @@ namespace Yak.ViewModel
                     StopDownloadingMovie();
                 }
             });
-
-            ApiService = apiService;
+            #endregion
 
             // Set the CancellationToken for having the possibility to stop a loading movie infos
             CancellationLoadingToken = new CancellationTokenSource();
@@ -301,16 +308,20 @@ namespace Yak.ViewModel
             // Set the CancellationToken for having the possibility to stop downloading a movie
             CancellationDownloadingToken = new CancellationTokenSource();
 
+            #region Commands
+            // Search movies with the current SearchMoviesFilter as criteria
             SearchMovieCommand = new RelayCommand(async () =>
             {
                 await SearchMovies(SearchMoviesFilter);
             });
 
+            // Stop downloading a movie if any
             StopDownloadingMovieCommand = new RelayCommand(() =>
             {
                 StopDownloadingMovie();
             });
 
+            // Download the current movie
             DownloadMovieCommand = new RelayCommand(async () =>
             {
                 if (Movie != null && !IsDownloadingMovie)
@@ -320,21 +331,26 @@ namespace Yak.ViewModel
                 }
             });
 
+            // Inform everyone that program is exiting
             MainWindowClosingCommand = new RelayCommand(() =>
             {
                 Messenger.Default.Send<MainWindowClosingMessage>(new MainWindowClosingMessage());
             });
 
+            // Load requested movie
             LoadMovieCommand = new RelayCommand<MovieShortDetails>(async movie =>
             {
                 await LoadMovie(movie.Id, movie.ImdbCode);
             });
 
+            // Load requested movie trailer
             GetTrailerCommand = new RelayCommand(async () =>
             {
                 await GetTrailer(Movie.ImdbCode);
             });
+            #endregion
 
+            // Creates the different tabs in the tab control
             MoviesViewModelTabs = new ObservableCollection<object>
             {
                 new MoviesViewModel
@@ -351,6 +367,7 @@ namespace Yak.ViewModel
                 }
             };
 
+            // Select the Popular tab at the beginning
             SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
         }
         #endregion
@@ -361,16 +378,16 @@ namespace Yak.ViewModel
 
         #region Method -> SearchMovies
         /// <summary>
-        /// Search for movie
+        /// Search for movie with a criteria
         /// </summary>
-        /// <param name="e">The PropertyChangedMessage containing the new filter criteria</param>
+        /// <param name="criteria">The criteria used for search</param>
         private async Task SearchMovies(string criteria)
         {
             foreach (object tab in MoviesViewModelTabs)
             {
                 // Looking for a Search tab. If any, search movies with the criteria, and select this tab to be shown in the UI
                 var moviesViewModel = tab as MoviesViewModel;
-                if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("search"))
+                if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("Search"))
                 {
                     moviesViewModel.SearchMoviesFilter = criteria;
 
@@ -392,8 +409,10 @@ namespace Yak.ViewModel
                 SearchMoviesFilter = criteria
             });
 
+            // Select in the UI the search tab we've just created
             SelectedTabViewModel = MoviesViewModelTabs.Last();
 
+            // Search movies with criteria
             var searchMovieTab = SelectedTabViewModel as MoviesViewModel;
             if (searchMovieTab != null)
             {
@@ -402,30 +421,34 @@ namespace Yak.ViewModel
         }
         #endregion
 
-        #region Method -> RemoveSearchTabOnEmptySearch
+        #region Method -> RemoveSearchTabIfEmptySearch
         /// <summary>
-        /// Remove the Search tab when search filter is empty
+        /// Remove the Search tab if search filter is empty
         /// </summary>
-        private void RemoveSearchTabOnEmptySearch()
+        private void RemoveSearchTabIfEmptySearch()
         {
             if (String.IsNullOrEmpty(_searchMoviesFilter))
             {
+                // The search filter is empty. We have to find the search tab if any
                 MoviesViewModel searchTabToRemove = new MoviesViewModel();
                 foreach (object tab in MoviesViewModelTabs)
                 {
                     var moviesViewModel = tab as MoviesViewModel;
-                    if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("search"))
+                    if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("Search"))
                     {
+                        // We've found it
                         searchTabToRemove = moviesViewModel;
                     }
                 }
 
+                // The search tab is currently selected in the UI, we have to pick a different selected tab prior deleting
                 if (searchTabToRemove == SelectedTabViewModel)
                 {
                     SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
                 }
 
-                if (searchTabToRemove.Tab != null && !String.IsNullOrEmpty(searchTabToRemove.Tab.TabName) && searchTabToRemove.Tab.TabName.Equals("search"))
+                // Remove the search tab
+                if (searchTabToRemove.Tab != null && !String.IsNullOrEmpty(searchTabToRemove.Tab.TabName) && searchTabToRemove.Tab.TabName.Equals("Search"))
                 {
                     MoviesViewModelTabs.Remove(searchTabToRemove);
                 }
@@ -442,6 +465,8 @@ namespace Yak.ViewModel
         private async Task LoadMovie(int movieId, string imdbCode)
         {
             Movie = new MovieFullDetails();
+
+            // Inform subscribers we are loading the requested movie
             OnLoadingMovie(new EventArgs());
 
             // Get the requested movie using the service
@@ -515,22 +540,28 @@ namespace Yak.ViewModel
         /// <param name="imdbId">The IMDb Id of the movie</param>
         private async Task GetTrailer(string imdbId)
         {
+            // Retrieve trailer from API
             Tuple<Trailers, Exception> trailer =
                 ApiService.GetMovieTrailer(imdbId);
 
             if (trailer.Item2 != null)
             {
+                // Inform we have loaded trailer with error
                 OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
                 return;
             }
+
+            // No error has been encounter, we can create our VideoInfo
             VideoInfo video = null;
 
             try
             {
+                // Retrieve Youtube Infos
                 video = await GetVideoInfoForStreaming(Constants.YoutubePath + trailer.Item1.Youtube.Select(x => x.Source).FirstOrDefault(), YoutubeStreamingQuality.High);
 
                 if (video != null && video.RequiresDecryption)
                 {
+                    // Decrypt encoded Youtube video link 
                     await Task.Run(() => DownloadUrlResolver.DecryptDownloadUrl(video));
                 }
             }
@@ -538,6 +569,7 @@ namespace Yak.ViewModel
             {
                 if (ex is WebException || ex is VideoNotAvailableException || ex is YoutubeParseException)
                 {
+                    // An error as occured. Inform we have loaded trailer with error
                     OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
                     return;
                 }
@@ -545,10 +577,12 @@ namespace Yak.ViewModel
 
             if (video == null)
             {
+                // There is no VideoInfo. Inform we have loaded trailer with error
                 OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
                 return;
             }
 
+            // Inform we have loaded trailer successfully
             OnLoadedTrailer(new TrailerLoadedEventArgs(video.DownloadUrl, false));
         }
 
@@ -562,8 +596,10 @@ namespace Yak.ViewModel
         /// <param name="qualitySetting">The youtube quality settings</param>
         private static async Task<VideoInfo> GetVideoInfoForStreaming(string youtubeLink, YoutubeStreamingQuality qualitySetting)
         {
+            // Get video infos of the requested video
             IEnumerable<VideoInfo> videoInfos = await Task.Run(() => DownloadUrlResolver.GetDownloadUrls(youtubeLink, false));
 
+            // We only want video matching criterias : only mp4 and no adaptive
             IEnumerable<VideoInfo> filtered = videoInfos
                 .Where(info => info.VideoType == VideoType.Mp4 && !info.Is3D && info.AdaptiveType == AdaptiveType.None);
 
@@ -583,10 +619,12 @@ namespace Yak.ViewModel
 
             if (quality == YoutubeStreamingQuality.High)
             {
+                // Choose high quality Youtube video
                 return videos.OrderByDescending(x => x.Resolution)
                     .FirstOrDefault();
             }
 
+            // Pick the video with the requested quality settings
             IEnumerable<int> preferredResolutions = StreamingQualityMap[quality];
 
             IEnumerable<VideoInfo> preferredVideos = videos
@@ -597,6 +635,7 @@ namespace Yak.ViewModel
 
             if (video == null)
             {
+                // We search for an other video quality if none has been found
                 return GetVideoByStreamingQuality(videos, (YoutubeStreamingQuality)(((int)quality) - 1));
             }
 
@@ -631,6 +670,7 @@ namespace Yak.ViewModel
 
             if (isConnexionInError)
             {
+                // Inform we have a connection error
                 Messenger.Default.Send<bool>(true, Constants.ConnectionErrorPropertyName);
             }
 
@@ -671,6 +711,8 @@ namespace Yak.ViewModel
                 {
                     TorrentStatus status = handle.QueryStatus();
                     double progress = status.Progress * 100.0;
+
+                    // We have to flush cache regularly (otherwise memory cache get full very quickly)
                     handle.FlushCache();
 
                     if (handle.NeedSaveResumeData())
@@ -686,6 +728,7 @@ namespace Yak.ViewModel
                     {
                         try
                         {
+                            // Get video file
                             foreach (
                                 string filePath in
                                     Directory.GetFiles(Constants.MovieDownloads + handle.TorrentFile.Name,
@@ -703,12 +746,16 @@ namespace Yak.ViewModel
                             Console.WriteLine(e.Message);
                         }
                     }
+
+                    // Wait for a second before update torrent status
                     await Task.Delay(1000, CancellationDownloadingToken.Token).ContinueWith(_ =>
                     {
                         if (CancellationDownloadingToken.IsCancellationRequested && session != null)
                         {
+                            // Cancel downloading movie has been requested
                             Messenger.Default.Send<StopDownloadingMovieMessage>(new StopDownloadingMovieMessage());
                             IsDownloadingMovie = false;
+                            // Clsoe session and remove downloaded files
                             session.RemoveTorrent(handle, true);
                         }
                     }).ConfigureAwait(false);
