@@ -46,11 +46,6 @@ namespace Yak.UserControls
             var vm = DataContext as MainViewModel;
             if (vm != null)
             {
-                if (vm.IsDownloadingMovie)
-                {
-                    vm.StopDownloadingMovie();
-                }
-
                 // Unsubscribe events
                 vm.ConnectionError -= OnConnectionInError;
                 vm.DownloadingMovie -= OnDownloadingMovie;
@@ -60,6 +55,11 @@ namespace Yak.UserControls
                 vm.BufferedMovie -= OnBufferedMovie;
                 vm.LoadingMovieProgress -= OnLoadingMovieProgress;
                 vm.LoadedTrailer -= OnLoadedTrailer;
+
+                if (vm.IsDownloadingMovie)
+                {
+                    vm.StopDownloadingMovie();
+                }
 
                 foreach (object tab in vm.MoviesViewModelTabs)
                 {

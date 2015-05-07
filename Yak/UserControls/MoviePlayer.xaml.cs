@@ -142,6 +142,8 @@ namespace Yak.UserControls
 
                 vm.BackToNormalScreenChanged += OnBackToNormalScreen;
 
+                Window.GetWindow(this).Closing += (s1, e1) => Dispose();
+
                 var currentAssembly = Assembly.GetEntryAssembly();
                 var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
                 if (currentDirectory == null)
@@ -222,7 +224,7 @@ namespace Yak.UserControls
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
-                if (Player != null && Player.MediaPlayer != null)
+                if (Player != null && Player.MediaPlayer != null && MoviePlayerIsPlaying)
                 {
                     Player.MediaPlayer.Stop();
                     MoviePlayerIsPlaying = false;
@@ -448,7 +450,6 @@ namespace Yak.UserControls
                     Player.MediaPlayer.Time = Convert.ToInt64(TimeSpan.FromSeconds(moviePlayerViewModel.CurrentMovieProgressValue).TotalMilliseconds);
                     Player.MediaPlayer.Play();
                     Volume = moviePlayerViewModel.MediaVolume;
-
                     IsInFullScreen = false;
                 }
             }
@@ -470,13 +471,6 @@ namespace Yak.UserControls
             {
                 Loaded -= OnLoaded;
                 Unloaded -= OnUnloaded;
-                var vm = DataContext as MoviePlayerViewModel;
-                if (vm != null)
-                {
-                    vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
-                    vm.ToggleFullScreenChanged -= OnToggleFullScreen;
-                    vm.BackToNormalScreenChanged -= OnBackToNormalScreen;
-                }
 
                 MoviePlayerTimer.Tick -= MoviePlayerTimer_Tick;
                 MoviePlayerTimer.Stop();
@@ -487,6 +481,17 @@ namespace Yak.UserControls
                     Player.MediaPlayer.Dispose();
                     MoviePlayerIsPlaying = false;
                 }
+
+                var vm = DataContext as MoviePlayerViewModel;
+                if (vm != null)
+                {
+                    vm.DeleteMovieFilesAction(true);
+                    vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
+                    vm.ToggleFullScreenChanged -= OnToggleFullScreen;
+                    vm.BackToNormalScreenChanged -= OnBackToNormalScreen;
+                }
+
+                DataContext = null;
                 _disposed = true;
 
                 if (disposing)

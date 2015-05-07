@@ -69,6 +69,13 @@ namespace Yak.ViewModel
 
         #endregion
 
+        #region Property -> DeleteMovieFilesAction
+        /// <summary>
+        /// Delete movie files
+        /// </summary>
+        public Action<bool> DeleteMovieFilesAction;
+        #endregion
+
         #region Commands
 
         #region Command -> ToggleFullScreenCommand
@@ -112,7 +119,13 @@ namespace Yak.ViewModel
         /// </summary>
         public MoviePlayerViewModel(MovieFullDetails movie, Uri movieUri)
         {
-            Messenger.Default.Register<StopDownloadingMovieMessage>(this, e => OnStoppedDownloadingMovie(new EventArgs()));
+            Messenger.Default.Register<StopDownloadingMovieMessage>(
+                this, 
+                message => 
+                    {
+                        DeleteMovieFilesAction = message.DeleteMovieFilesAction;
+                        OnStoppedDownloadingMovie(new EventArgs());
+                    });
 
             Movie = movie;
             MovieUri = movieUri;

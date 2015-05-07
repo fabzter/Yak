@@ -290,7 +290,13 @@ namespace Yak.ViewModel
             });
 
             // Inform subscribers that a movie has stopped downloading
-            Messenger.Default.Register<StopDownloadingMovieMessage>(this, e => OnStoppedDownloadingMovie(new EventArgs()));
+            Messenger.Default.Register<StopDownloadingMovieMessage>(
+                this, 
+                message => 
+                    {
+                        OnStoppedDownloadingMovie(new EventArgs());
+                    }
+                );
 
             // Stop downloading a movie if any
             Messenger.Default.Register<MainWindowClosingMessage>(this, e =>
@@ -752,11 +758,17 @@ namespace Yak.ViewModel
                     {
                         if (CancellationDownloadingToken.IsCancellationRequested && session != null)
                         {
-                            // Cancel downloading movie has been requested
-                            Messenger.Default.Send<StopDownloadingMovieMessage>(new StopDownloadingMovieMessage());
                             IsDownloadingMovie = false;
-                            // Clsoe session and remove downloaded files
-                            session.RemoveTorrent(handle, true);
+                            var message = new StopDownloadingMovieMessage(
+                                deleteMovieFiles => 
+                                {
+                                    if (deleteMovieFiles)
+                                    {
+                                        // Close session and remove downloaded files
+                                        session.RemoveTorrent(handle, true);
+                                    }
+                                });
+                            Messenger.Default.Send<StopDownloadingMovieMessage>(message);
                         }
                     }).ConfigureAwait(false);
                 }

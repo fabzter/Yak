@@ -27,6 +27,8 @@ namespace Yak.UserControls
                 {
                     moviePlayerViewModel.BackToNormalScreenChanged += OnBackToNormalScreenChanged;
                 }
+
+                Window.GetWindow(this).Closing += (s1, e1) => Dispose();
             };
 
             Unloaded += (s, e) =>
@@ -85,6 +87,7 @@ namespace Yak.UserControls
             {
                 PlayerUc.Dispose();
 
+                DataContext = null;
                 _disposed = true;
 
                 if (disposing)
