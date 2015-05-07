@@ -36,7 +36,7 @@ namespace Yak.ViewModel
 
         #region Property -> MovieUri
         /// <summary>
-        /// Movie Uri to be played
+        /// Uri to file path of the movie to be played
         /// </summary>
         public Uri MovieUri { get; set; }
         #endregion
@@ -137,9 +137,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<EventArgs> StoppedDownloadingMovie;
         /// <summary>
-        /// When movie has stopped downloading
+        /// Fire event when movie has stopped downloading
         /// </summary>
-        ///<param name="e">EventArgs parameter</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnStoppedDownloadingMovie(EventArgs e)
         {
             EventHandler<EventArgs> handler = StoppedDownloadingMovie;
@@ -156,9 +156,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<EventArgs> ToggleFullScreenChanged;
         /// <summary>
-        /// When fullscreen mode has been requested
+        /// Fire event when fullscreen mode has been requested
         /// </summary>
-        ///<param name="e">EventArgs parameter</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnToggleFullScreen(EventArgs e)
         {
             EventHandler<EventArgs> handler = ToggleFullScreenChanged;
@@ -175,9 +175,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<EventArgs> BackToNormalScreenChanged;
         /// <summary>
-        /// When back to normal screen size has been requested
+        /// Fire event when back to normal screen has been requested
         /// </summary>
-        ///<param name="e">EventArgs parameter</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnBackToNormalScreen(EventArgs e)
         {
             EventHandler<EventArgs> handler = BackToNormalScreenChanged;

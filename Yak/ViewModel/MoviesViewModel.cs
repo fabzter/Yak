@@ -126,15 +126,17 @@ namespace Yak.ViewModel
         /// <param name="apiService">apiService</param>
         private MoviesViewModel(IService apiService)
         {
-            Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, e => IsConnectionInError = e);
-
             ApiService = apiService;
+
+            // Inform subscribers a connection error has occured
+            Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, e => IsConnectionInError = e);
 
             // Set the CancellationToken for having the possibility to stop loading movies
             CancellationLoadingToken = new CancellationTokenSource();
 
             MaxMoviesPerPage = Constants.MaxMoviesPerPage;
 
+            // Reload movies
             ReloadMovies = new RelayCommand(async () =>
             {
                 await LoadNextPage();
@@ -251,8 +253,8 @@ namespace Yak.ViewModel
 
                         if (!CancellationLoadingToken.IsCancellationRequested)
                         {
+                            // We have the movie only if no cancellation has been requested
                             movie.MediumCoverImageUri = movieCover.Item1;
-
                             Movies.Add(movie);
                         }
                     }
@@ -329,9 +331,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<EventArgs> MoviesLoading;
         /// <summary>
-        /// On loading movies
+        /// Fire event when movies are loading
         /// </summary>
-        ///<param name="e">EventArgs parameter</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnMoviesLoading(EventArgs e)
         {
             EventHandler<EventArgs> handler = MoviesLoading;
@@ -348,7 +350,7 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<NumberOfLoadedMoviesEventArgs> MoviesLoaded;
         /// <summary>
-        /// On finished loading movies
+        /// Fire event when movies has finished loading
         /// </summary>
         ///<param name="e">Number of loaded movies</param>
         protected virtual void OnMoviesLoaded(NumberOfLoadedMoviesEventArgs e)
