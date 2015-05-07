@@ -53,6 +53,9 @@ namespace Yak.ViewModel
         /// Tabs shown into the interface via TabControl
         /// </summary>
         private ObservableCollection<object> _moviesViewModelTabs;
+        /// <summary>
+        /// Tabs shown into the interface via TabControl
+        /// </summary>
         public ObservableCollection<object> MoviesViewModelTabs
         {
             get { return _moviesViewModelTabs; }
@@ -65,6 +68,9 @@ namespace Yak.ViewModel
         /// The selected viewmodel tab via TabControl
         /// </summary>
         private object _selectedTabViewModel;
+        /// <summary>
+        /// The selected viewmodel tab via TabControl
+        /// </summary>
         public object SelectedTabViewModel
         {
             get { return _selectedTabViewModel; }
@@ -87,6 +93,9 @@ namespace Yak.ViewModel
         #endregion
 
         #region Property -> IsDownloadingMovie
+        /// <summary>
+        /// Specify if a movie is downloading
+        /// </summary>
         private bool _isDownloadingMovie;
         /// <summary>
         /// Specify if a movie is downloading
@@ -99,6 +108,9 @@ namespace Yak.ViewModel
         #endregion
 
         #region Property -> IsConnectionInError
+        /// <summary>
+        /// Specify if a connection error has occured
+        /// </summary>
         private bool _isConnectionInError;
         /// <summary>
         /// Specify if a connection error has occured
@@ -123,7 +135,9 @@ namespace Yak.ViewModel
         /// The filter for searching movies
         /// </summary>
         private string _searchMoviesFilter;
-
+        /// <summary>
+        /// The filter for searching movies
+        /// </summary>
         public string SearchMoviesFilter
         {
             get
@@ -250,8 +264,10 @@ namespace Yak.ViewModel
         /// <param name="apiService">The service which will be used</param>
         private MainViewModel(IService apiService)
         {
+            // Fire event on connection error
             Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, arg => OnConnectionError(new ConnectionErrorEventArgs(arg)));
 
+            // Create and open movie tab of the buffered movie
             Messenger.Default.Register<MovieBufferedMessage>(this, e =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -724,9 +740,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<ConnectionErrorEventArgs> ConnectionError;
         /// <summary>
-        /// On connection error
+        /// Fire on connection error
         /// </summary>
-        ///<param name="e">ConnectionErrorEventArgs parameter</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnConnectionError(ConnectionErrorEventArgs e)
         {
             EventHandler<ConnectionErrorEventArgs> handler = ConnectionError;
@@ -751,9 +767,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<MovieLoadingProgressEventArgs> LoadingMovieProgress;
         /// <summary>
-        /// When movie is loading
+        /// Reports movie loading progress
         /// </summary>
-        ///<param name="e">MovieLoadingProgressEventArgs parameter</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnLoadingMovieProgress(MovieLoadingProgressEventArgs e)
         {
             EventHandler<MovieLoadingProgressEventArgs> handler = LoadingMovieProgress;
@@ -770,9 +786,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<EventArgs> DownloadingMovie;
         /// <summary>
-        /// When movie is downloading
+        /// Fire on movie downloading
         /// </summary>
-        ///<param name="e">EventArgs parameter</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnDownloadingMovie(EventArgs e)
         {
             EventHandler<EventArgs> handler = DownloadingMovie;
@@ -789,9 +805,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<EventArgs> LoadingMovie;
         /// <summary>
-        /// When movie is selected
+        /// Fire on movie loading
         /// </summary>
-        ///<param name="e">e</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnLoadingMovie(EventArgs e)
         {
             EventHandler<EventArgs> handler = LoadingMovie;
@@ -808,9 +824,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<EventArgs> LoadedMovie;
         /// <summary>
-        /// When movie is selected
+        /// Fire on movie loaded
         /// </summary>
-        ///<param name="e">e</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnLoadedMovie(EventArgs e)
         {
             EventHandler<EventArgs> handler = LoadedMovie;
@@ -827,9 +843,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<EventArgs> StoppedDownloadingMovie;
         /// <summary>
-        /// When movie is stopped downloading
+        /// Fire on movie stopped downloading
         /// </summary>
-        ///<param name="e">EventArgs parameter</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnStoppedDownloadingMovie(EventArgs e)
         {
             EventHandler<EventArgs> handler = StoppedDownloadingMovie;
@@ -846,9 +862,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<MovieBufferedEventArgs> BufferedMovie;
         /// <summary>
-        /// When a movie is finished buffering
+        /// Fire on movie finished buffering
         /// </summary>
-        ///<param name="e">MovieBufferedEventArgs parameter</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnBufferedMovie(MovieBufferedEventArgs e)
         {
             EventHandler<MovieBufferedEventArgs> handler = BufferedMovie;
@@ -865,9 +881,9 @@ namespace Yak.ViewModel
         /// </summary>
         public event EventHandler<TrailerLoadedEventArgs> LoadedTrailer;
         /// <summary>
-        /// When a the trailer of a movie is finished loading
+        /// Fire when movie trailer has finished loading
         /// </summary>
-        ///<param name="e">MovieBufferedEventArgs parameter</param>
+        ///<param name="e">Event data</param>
         protected virtual void OnLoadedTrailer(TrailerLoadedEventArgs e)
         {
             EventHandler<TrailerLoadedEventArgs> handler = LoadedTrailer;
