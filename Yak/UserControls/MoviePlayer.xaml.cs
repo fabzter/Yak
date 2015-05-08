@@ -485,7 +485,10 @@ namespace Yak.UserControls
                 var vm = DataContext as MoviePlayerViewModel;
                 if (vm != null)
                 {
-                    vm.DeleteMovieFilesAction(true);
+                    if (vm.DeleteMovieFilesAction != null)
+                    {
+                        vm.DeleteMovieFilesAction(true);
+                    }
                     vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
                     vm.ToggleFullScreenChanged -= OnToggleFullScreen;
                     vm.BackToNormalScreenChanged -= OnBackToNormalScreen;

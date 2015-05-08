@@ -88,6 +88,7 @@ namespace Yak.UserControls
                 PlayerUc.Dispose();
 
                 DataContext = null;
+
                 _disposed = true;
 
                 if (disposing)
