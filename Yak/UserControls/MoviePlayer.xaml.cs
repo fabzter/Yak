@@ -580,6 +580,9 @@ namespace Yak.UserControls
                 MoviePlayerTimer.Tick -= MoviePlayerTimer_Tick;
                 MoviePlayerTimer.Stop();
 
+                _activityTimer.Tick -= OnInactivity;
+                _activityTimer.Stop();
+
                 if (Player != null && Player.MediaPlayer != null)
                 {
                     Player.MediaPlayer.Stop();
@@ -590,9 +593,7 @@ namespace Yak.UserControls
                 var vm = DataContext as MoviePlayerViewModel;
                 if (vm != null)
                 {
-                    if (vm.DeleteMovieFilesAction != null)
                     {
-                        vm.DeleteMovieFilesAction(true);
                     }
                     vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
                     vm.ToggleFullScreenChanged -= OnToggleFullScreen;

@@ -160,7 +160,13 @@ namespace Yak.ViewModel
 
         #endregion
 
-        #region Method -> StreamingQualityMap
+        /// <summary>
+        /// Delete movie files when movie downloading has been cancelled
+        /// </summary>
+        private Action<bool> DeleteMovieFilesWhenCancelledDownloading;
+        #endregion
+
+        #region Property -> StreamingQualityMap
         /// <summary>
         /// Map for defining youtube video quality
         /// </summary>
@@ -294,6 +300,7 @@ namespace Yak.ViewModel
                 this, 
                 message => 
                     {
+                        DeleteMovieFilesWhenCancelledDownloading(true);
                         OnStoppedDownloadingMovie(new EventArgs());
                     }
                 );
@@ -337,7 +344,7 @@ namespace Yak.ViewModel
                 }
             });
 
-            // Inform everyone that program is exiting
+            // The app is about to close
             MainWindowClosingCommand = new RelayCommand(() =>
             {
                 Messenger.Default.Send<MainWindowClosingMessage>(new MainWindowClosingMessage());
@@ -755,15 +762,27 @@ namespace Yak.ViewModel
 
                             // Send a StopDownloadingMovieMessage to every subscribers and ask if we have to delete movie file
                             var message = new StopDownloadingMovieMessage(
+
                                 // Feedback
                                 deleteMovieFiles =>
                                 {
-                                    string torrentFile = handle.TorrentFile.Name;
-                                    session.RemoveTorrent(handle, false);
-                                    if (deleteMovieFiles && Directory.Exists(status.SavePath + torrentFile))
+                                    if (handle.TorrentFile != null)
                                     {
-                                        // Delete movie file
-                                        Directory.Delete(status.SavePath + torrentFile, true);
+                                        string torrentFile = handle.TorrentFile.Name;
+                                        session.RemoveTorrent(handle, false);
+
+                                        if (deleteMovieFiles && !String.IsNullOrEmpty(torrentFile) && Directory.Exists(status.SavePath + torrentFile))
+                                        {
+                                            try
+                                            {
+                                                // Delete movie file
+                                                Directory.Delete(status.SavePath + torrentFile, true);
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                // TODO
+                                            }
+                                        }
                                     }
                                 });
                             Messenger.Default.Send<StopDownloadingMovieMessage>(message);

@@ -69,11 +69,9 @@ namespace Yak.ViewModel
 
         #endregion
 
-        #region Property -> DeleteMovieFilesAction
         /// <summary>
-        /// Delete movie files
+        /// Delete movie files when movie downloading has been cancelled
         /// </summary>
-        public Action<bool> DeleteMovieFilesAction;
         #endregion
 
         #region Commands
@@ -123,7 +121,6 @@ namespace Yak.ViewModel
                 this, 
                 message => 
                     {
-                        DeleteMovieFilesAction = message.DeleteMovieFilesAction;
                         OnStoppedDownloadingMovie(new EventArgs());
                     });
 
