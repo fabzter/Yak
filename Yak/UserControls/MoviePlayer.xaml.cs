@@ -196,7 +196,7 @@ namespace Yak.UserControls
 
         #region Method -> OnVolumeChanged
         /// <summary>
-        /// When media's volume changed
+        /// When media's volume changed, update volume for all MediaPlayer instances (normal screen and fullscreen)
         /// </summary>
         /// <param name="e">e</param>
         /// <param name="obj">obj</param>
@@ -420,7 +420,7 @@ namespace Yak.UserControls
 
         #region Method -> OnToggleFullScreen
         /// <summary>
-        /// When fullscreen value has changed
+        /// When got fullscreen, pause current movie player instance, open a new one in fullscreen then play movie inside
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">EventArgs</param>
@@ -445,7 +445,7 @@ namespace Yak.UserControls
 
         #region Method -> OnBackToNormalScreen
         /// <summary>
-        /// When back to normal screen size has been requested
+        /// When back to normal screen size has been requested, update volume and play movie
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">EventArgs</param>

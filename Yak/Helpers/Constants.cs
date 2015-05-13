@@ -113,7 +113,7 @@ namespace Yak.Helpers
         }
 
         /// <summary>
-        /// Get the current directory of the application
+        /// Get the current directory of the Vlc libraries
         /// </summary>
         /// <returns></returns>
         public static DirectoryInfo GetVlcLibDirectory()
