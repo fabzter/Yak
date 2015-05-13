@@ -732,40 +732,38 @@ namespace Yak.ViewModel
                     // We consider 2% of progress is enough to start playing
                     if (progress >= Constants.MinimumBufferingBeforeMoviePlaying && !alreadyBuffered)
                     {
-                        try
+                        // Get movie file
+                        foreach (
+                            string filePath in 
+                                Directory.GetFiles(status.SavePath + handle.TorrentFile.Name, "*" + Constants.VideoFileExtension)
+                            )
                         {
-                            // Get video file
-                            foreach (
-                                string filePath in
-                                    Directory.GetFiles(Constants.MovieDownloads + handle.TorrentFile.Name,
-                                        "*" + Constants.VideoFileExtension)
-                                )
-                            {
-                                // Inform subscribers we have finished buffering the movie
-                                Messenger.Default.Send<MovieBufferedMessage>(new MovieBufferedMessage(Movie, new Uri(filePath)));
-                                alreadyBuffered = true;
-                            }
-
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
+                            // Inform subscribers we have finished buffering the movie
+                            Messenger.Default.Send<MovieBufferedMessage>(new MovieBufferedMessage(Movie,
+                                new Uri(filePath)));
+                            alreadyBuffered = true;
                         }
                     }
 
                     // Wait for a second before update torrent status
                     await Task.Delay(1000, CancellationDownloadingToken.Token).ContinueWith(_ =>
                     {
+                        // Check if movie downloading has been cancelled
                         if (CancellationDownloadingToken.IsCancellationRequested && session != null)
                         {
                             IsDownloadingMovie = false;
+
+                            // Send a StopDownloadingMovieMessage to every subscribers and ask if we have to delete movie file
                             var message = new StopDownloadingMovieMessage(
-                                deleteMovieFiles => 
+                                // Feedback
+                                deleteMovieFiles =>
                                 {
-                                    if (deleteMovieFiles)
+                                    string torrentFile = handle.TorrentFile.Name;
+                                    session.RemoveTorrent(handle, false);
+                                    if (deleteMovieFiles && Directory.Exists(status.SavePath + torrentFile))
                                     {
-                                        // Close session and remove torrent
-                                        session.RemoveTorrent(handle, false);
+                                        // Delete movie file
+                                        Directory.Delete(status.SavePath + torrentFile, true);
                                     }
                                 });
                             Messenger.Default.Send<StopDownloadingMovieMessage>(message);
