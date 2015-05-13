@@ -160,6 +160,7 @@ namespace Yak.ViewModel
 
         #endregion
 
+        #region Property -> DeleteMovieFileWhenCancelledDownload
         /// <summary>
         /// Delete movie files when movie downloading has been cancelled
         /// </summary>
@@ -300,6 +301,7 @@ namespace Yak.ViewModel
                 this, 
                 message => 
                     {
+                        DeleteMovieFilesWhenCancelledDownloading = message.DeleteMovieFileWhenCancelledDownload;
                         DeleteMovieFilesWhenCancelledDownloading(true);
                         OnStoppedDownloadingMovie(new EventArgs());
                     }
