@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Reflection;
 
 namespace Yak.Helpers
 {
@@ -108,6 +110,22 @@ namespace Yak.Helpers
             DirectorImage = 3,
             ActorImage = 4,
             TorrentFile = 5
+        }
+
+        /// <summary>
+        /// Get the current directory of the application
+        /// </summary>
+        /// <returns></returns>
+        public static DirectoryInfo GetVlcLibDirectory()
+        {
+            var currentAssembly = Assembly.GetEntryAssembly();
+            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+            if (currentDirectory == null)
+            {
+                throw new Exception();
+            }
+
+            return new DirectoryInfo(Path.Combine(currentDirectory, @"lib\"));
         }
     }
 }

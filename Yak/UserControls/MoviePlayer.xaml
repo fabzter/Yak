@@ -31,7 +31,7 @@
         <wpf:VlcControl x:Name="Player" 
                       Grid.Row="0"/>
         
-        <StatusBar Grid.Row="1">
+        <StatusBar Grid.Row="1" x:Name="PlayerStatusBar">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
@@ -71,15 +71,16 @@
                            Background="#FF2F2F2F">
                 <TextBlock Name="MoviePlayerTextProgressStatus">00:00:00</TextBlock>
             </StatusBarItem>
-            <StatusBarItem Grid.Column="2"
-                           HorizontalContentAlignment="Stretch" 
-                           Background="#FF2F2F2F">
+            <StatusBarItem  Grid.Column="2"
+                            Background="#FF2F2F2F"
+                            HorizontalContentAlignment="Stretch">
                 <Slider x:Name="MoviePlayerSliderProgress"
                         Style="{DynamicResource FlatSlider}"
                         Thumb.DragStarted="MovieSliderProgress_DragStarted"  
                         Thumb.DragCompleted="MovieSliderProgress_DragCompleted" 
                         ValueChanged="MovieSliderProgress_ValueChanged"
-                        Width="{Binding ElementName=Player, Path=ActualWidth, Mode=OneWay}"/>
+                        HorizontalAlignment="Stretch"
+                        Width="Auto"/>
             </StatusBarItem>
             <StatusBarItem Grid.Column="3" 
                            Background="#FF2F2F2F">

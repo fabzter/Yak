@@ -41,11 +41,11 @@ namespace Yak.ViewModel
         public Uri MovieUri { get; set; }
         #endregion
 
-        #region Property -> CurrentMovieProgressValue
+        #region Property -> CurrentMovieProgress
         /// <summary>
         /// The current progress playing value
         /// </summary>
-        public double CurrentMovieProgressValue { get; set; }
+        public double CurrentMovieProgress { get; set; }
         #endregion
 
         #region Property -> MediaVolume
@@ -129,6 +129,7 @@ namespace Yak.ViewModel
 
             Movie = movie;
             MovieUri = movieUri;
+            MediaVolume = 100;
 
             ToggleFullScreenCommand = new RelayCommand(() =>
             {

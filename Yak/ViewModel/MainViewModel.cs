@@ -365,7 +365,7 @@ namespace Yak.ViewModel
                 },
                 new MoviesViewModel
                 { 
-                    Tab = new TabDescription(TabDescription.TabType.HallOfFame),
+                    Tab = new TabDescription(TabDescription.TabType.Greatest),
                 },
                 new MoviesViewModel
                 { 
@@ -764,8 +764,8 @@ namespace Yak.ViewModel
                                 {
                                     if (deleteMovieFiles)
                                     {
-                                        // Close session and remove downloaded files
-                                        session.RemoveTorrent(handle, true);
+                                        // Close session and remove torrent
+                                        session.RemoveTorrent(handle, false);
                                     }
                                 });
                             Messenger.Default.Send<StopDownloadingMovieMessage>(message);

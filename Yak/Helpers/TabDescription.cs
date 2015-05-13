@@ -22,9 +22,9 @@ namespace Yak.Helpers
                 TabName = "Popular";
                 ApiSort = "like_count";
             }
-            else if (tabType == TabType.HallOfFame)
+            else if (tabType == TabType.Greatest)
             {
-                TabName = "Hall of fame";
+                TabName = "Greatest";
                 ApiSort = "rating";
             }
             else if (tabType == TabType.Recent)
@@ -55,7 +55,7 @@ namespace Yak.Helpers
         public enum TabType
         {
             Popular = 0,
-            HallOfFame = 1,
+            Greatest = 1,
             Recent = 2,
             Playing = 3,
             Search = 4
