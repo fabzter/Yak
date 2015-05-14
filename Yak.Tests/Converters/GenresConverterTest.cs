@@ -7,6 +7,7 @@ using Yak.Converters;
 namespace Yak.Tests.Converters
 {
     [TestFixture]
+    [Timeout(200)]
     public class GenresConverterTest
     {
         [Test]

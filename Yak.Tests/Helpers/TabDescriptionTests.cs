@@ -5,6 +5,7 @@ using Yak.Helpers;
 namespace Yak.Tests.Helpers
 {
     [TestFixture]
+    [Timeout(100)]
     public class TabDescriptionTests
     {
         [Test]

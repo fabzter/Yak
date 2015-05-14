@@ -6,6 +6,7 @@ using Yak.Converters;
 namespace Yak.Tests.Converters
 {
     [TestFixture]
+    [Timeout(100)]
     public class BoolToInverseVisibilityConverterTest
     {
         [Test]
