@@ -39,5 +39,5 @@ Well, there's some points.
 Just open the .sln with VS 2015, right-click on the solution, click "Enable NuGet Package Restore" and run F5. 
 
 ## What if I don't have VS 2015/.NET 4.6 yet?
-This project is using some of the new features of C# 6, such as null-propagation. So, keep it in mind this project won't compile on earlier versions without making some code change.
+This project is using some of the new features of C# 6, such as null-propagation. So, keep in mind this project won't compile on earlier versions without making some code change.
 
