@@ -1,4 +1,4 @@
-﻿<controls:MetroWindow x:Class="Yak.UserControls.FullScreenMoviePlayer"
+﻿<controls:MetroWindow x:Class="Yak.UserControls.FullScreenMediaPlayer"
                       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -19,7 +19,7 @@
     </Window.Resources>
 
     <Grid>
-        <usercontrols:MoviePlayer x:Name="PlayerUc" DataContext="{Binding }"></usercontrols:MoviePlayer>
+        <usercontrols:MediaPlayer x:Name="PlayerUc" DataContext="{Binding }"></usercontrols:MediaPlayer>
     </Grid>
 
 </controls:MetroWindow>

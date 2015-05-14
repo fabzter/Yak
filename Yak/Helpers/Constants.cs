@@ -127,5 +127,21 @@ namespace Yak.Helpers
 
             return new DirectoryInfo(Path.Combine(currentDirectory, @"lib\"));
         }
+
+        public enum YoutubeStreamingQuality
+        {
+            Low = 0,
+            Medium = 1,
+            High = 2
+        }
+
+        /// <summary>
+        /// Used to manage media types (movie, trailer)
+        /// </summary>
+        public enum MediaType
+        {
+            Movie = 0,
+            Trailer = 1
+        }
     }
 }

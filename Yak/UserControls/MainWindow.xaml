@@ -39,8 +39,9 @@
             <converters:GenresConverter x:Key="GenresConverter" />
             <converters:StringRatingToIntRatingConverter x:Key="StringRatingToIntRatingConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-            <DataTemplate DataType="{x:Type viewModels:MoviePlayerViewModel}" >
-                <usercontrols:MoviePlayer x:Name="TrailerPlayer"></usercontrols:MoviePlayer>
+            <converters:BoolToInverseVisibilityConverter x:Key="BoolToInverseVisibilityConverter" />
+            <DataTemplate DataType="{x:Type viewModels:MediaPlayerViewModel}" >
+                <usercontrols:MediaPlayer x:Name="TrailerPlayer"></usercontrols:MediaPlayer>
             </DataTemplate>
         </ResourceDictionary>
     </Window.Resources>
@@ -102,7 +103,30 @@
                                Source="{Binding Path=Movie.BackgroundImage, Converter={StaticResource UriToCachedImageConverter}}" 
                                Stretch="UniformToFill" 
                                Opacity="0.3"/>
-                        <Grid 
+                        <StackPanel
+                                Panel.ZIndex="3"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Orientation="Vertical">
+                            <controls:ProgressRing 
+                                Name="ProgressRing" 
+                                Visibility="{Binding IsMovieTrailerLoading, Converter={StaticResource BoolToInverseVisibilityConverter}}"/>
+                            <TextBlock x:Name="LoadingMovieTrailer" 
+                               Text="Loading trailer..." 
+                               Visibility="{Binding IsMovieTrailerLoading, Converter={StaticResource BoolToInverseVisibilityConverter}}" 
+                               FontFamily="pack://application:,,,/Resources/Fonts/#Helvetica LT Std Light" 
+                               FontSize="36"
+                               Foreground="White"></TextBlock>
+                            <Button 
+                                x:Name="StopLoadingTrailerButton"
+                                Width="100"
+                                Height="30"
+                                Margin="0, 10, 0, 0"
+                                Content="Cancel"
+                                Command="{Binding StopLoadingTrailerCommand}"
+                                Visibility="{Binding IsMovieTrailerLoading, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
+                        </StackPanel>
+                        <Grid x:Name="MovieTrailerContainer"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center">
                             <ContentControl Content="{Binding Trailer}"
@@ -478,8 +502,8 @@
                 <DataTemplate x:Shared="False" DataType="{x:Type viewModels:MoviesViewModel}">
                     <usercontrols:Movies></usercontrols:Movies>
                 </DataTemplate>
-                <DataTemplate x:Shared="False" DataType="{x:Type viewModels:MoviePlayerViewModel}">
-                    <usercontrols:MoviePlayer></usercontrols:MoviePlayer>
+                <DataTemplate x:Shared="False" DataType="{x:Type viewModels:MediaPlayerViewModel}">
+                    <usercontrols:MediaPlayer></usercontrols:MediaPlayer>
                 </DataTemplate>
             </controls:MetroAnimatedSingleRowTabControl.Resources>
             

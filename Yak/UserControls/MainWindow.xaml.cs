@@ -55,6 +55,7 @@ namespace Yak.UserControls
                 vm.BufferedMovie -= OnBufferedMovie;
                 vm.LoadingMovieProgress -= OnLoadingMovieProgress;
                 vm.LoadedTrailer -= OnLoadedTrailer;
+                vm.LoadingTrailer -= OnLoadingTrailer;
 
                 if (vm.IsDownloadingMovie)
                 {
@@ -94,9 +95,36 @@ namespace Yak.UserControls
                 vm.BufferedMovie += OnBufferedMovie;
                 vm.LoadingMovieProgress += OnLoadingMovieProgress;
                 vm.LoadedTrailer += OnLoadedTrailer;
+                vm.LoadingTrailer += OnLoadingTrailer;
             }
         }
+        #endregion
 
+        #region Method -> OnLoadingTrailer
+        /// <summary>
+        /// Hide movie content page when trailer is loading
+        /// </summary>
+        /// <param name="sender">Sender object</param>
+        /// <param name="e">TrailerLoadedEventArgs</param>
+        void OnLoadingTrailer(object sender, EventArgs e)
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+            {
+                #region Fade in content opacity
+                DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+                opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
+                PowerEase opacityEasingFunction = new PowerEase();
+                opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
+                EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(0));
+                EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(1.0),
+                    opacityEasingFunction);
+                opacityAnimation.KeyFrames.Add(startOpacityEasing);
+                opacityAnimation.KeyFrames.Add(endOpacityEasing);
+
+                Content.BeginAnimation(OpacityProperty, opacityAnimation);
+                #endregion
+            });
+        }
         #endregion
 
         #region Method -> OnLoadedTrailer
@@ -107,37 +135,41 @@ namespace Yak.UserControls
         /// <param name="e">TrailerLoadedEventArgs</param>
         private void OnLoadedTrailer(object sender, TrailerLoadedEventArgs e)
         {
-            if (!e.InError)
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
-                DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                if (!e.InErrorOrCancelled)
+                {
+                    var vm = DataContext as MainViewModel;
+                    if (vm != null)
+                    {
+                        vm.Trailer = new MediaPlayerViewModel(Helpers.Constants.MediaType.Trailer, new Uri(e.TrailerUrl));
+                        vm.IsMovieTrailerLoading = false;
+                    }
+                }
+                else
                 {
                     #region Fade in content opacity
                     DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
                     opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
                     PowerEase opacityEasingFunction = new PowerEase();
                     opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                    EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(0));
-                    EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(1.0),
+                    EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(0));
+                    EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(1.0),
                         opacityEasingFunction);
                     opacityAnimation.KeyFrames.Add(startOpacityEasing);
                     opacityAnimation.KeyFrames.Add(endOpacityEasing);
 
                     Content.BeginAnimation(OpacityProperty, opacityAnimation);
                     #endregion
-                });
-
-                var vm = DataContext as MainViewModel;
-                if (vm != null)
-                {
-                    vm.Trailer = new MoviePlayerViewModel(new Uri(e.TrailerUrl));
                 }
-            }
+            });
         }
+
         #endregion
 
         #region Method -> OnLoadingMovieProgress
         /// <summary>
-        /// Report progress when a movie is loading and set to visible the progressbar, the cancel button and the LoadingText label
+        /// Report progress when a movie is loading
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">MovieLoadingProgressEventArgs</param>
@@ -145,7 +177,7 @@ namespace Yak.UserControls
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
-                if (ProgressBar.Visibility == Visibility.Collapsed)
+                if (ProgressBar.Visibility == Visibility.Collapsed && e.Progress <= Helpers.Constants.MinimumBufferingBeforeMoviePlaying)
                 {
                     ProgressBar.Visibility = Visibility.Visible;
                 }
@@ -165,18 +197,34 @@ namespace Yak.UserControls
                 // The percentage here is related to the buffering progress
                 double percentage = e.Progress/Helpers.Constants.MinimumBufferingBeforeMoviePlaying*100.0;
 
-                if (percentage >= 100)
+                if (percentage >= 100.0)
                 {
-                    percentage = 100;
-                }
-
-                if (e.DownloadRate >= 1000)
-                {
-                    LoadingText.Text = "Buffering : " + Math.Round(percentage, 0) + "%" + " ( " + e.DownloadRate / 1000 + " MB/s)";
+                    var vm = DataContext as MainViewModel;
+                    if (vm != null)
+                    {
+                        MediaPlayerViewModel searchTabToRemove = null;
+                        foreach (object tab in vm.MoviesViewModelTabs)
+                        {
+                            var moviesViewModel = tab as MediaPlayerViewModel;
+                            if (moviesViewModel != null)
+                            {
+                                LoadingText.Text = "Currently playing : " + moviesViewModel.Tab.TabName;
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    LoadingText.Text = "Buffering : " + Math.Round(percentage, 0) + "%" + " ( " + e.DownloadRate + " kB/s)";
+                    if (e.DownloadRate >= 1000)
+                    {
+                        LoadingText.Text = "Buffering : " + Math.Round(percentage, 0) + "%" + " ( " +
+                                           e.DownloadRate/1000 + " MB/s)";
+                    }
+                    else
+                    {
+                        LoadingText.Text = "Buffering : " + Math.Round(percentage, 0) + "%" + " ( " + e.DownloadRate +
+                                           " kB/s)";
+                    }
                 }
             });
         }
@@ -273,7 +321,6 @@ namespace Yak.UserControls
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
                 MoviePage.IsOpen = false;
-
                 ProgressBar.Visibility = Visibility.Collapsed;
                 StopLoadingMovieButton.Visibility = Visibility.Collapsed;
                 LoadingText.Visibility = Visibility.Collapsed;

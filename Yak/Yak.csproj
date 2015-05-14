@@ -201,10 +201,8 @@
     </Compile>
     <Compile Include="Helpers\TabContent.cs" />
     <Compile Include="Helpers\TabDescription.cs" />
-    <Compile Include="Helpers\YoutubeStreamingQuality.cs" />
-    <Compile Include="Messaging\MainWindowClosingMessage.cs" />
     <Compile Include="Messaging\MovieBufferedMessage.cs" />
-    <Compile Include="Messaging\StopDownloadingMovieMessage.cs" />
+    <Compile Include="Messaging\StopPlayingMediaMessage.cs" />
     <Compile Include="Model\Cast\Actor.cs" />
     <Compile Include="Model\Movie\MovieImages.cs" />
     <Compile Include="Model\Movie\MovieShortDetails.cs" />
@@ -230,20 +228,20 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\FullScreenMoviePlayer.xaml.cs">
-      <DependentUpon>FullScreenMoviePlayer.xaml</DependentUpon>
+    <Compile Include="UserControls\FullScreenMediaPlayer.xaml.cs">
+      <DependentUpon>FullScreenMediaPlayer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\MoviePlayer.xaml.cs">
-      <DependentUpon>MoviePlayer.xaml</DependentUpon>
+    <Compile Include="UserControls\MediaPlayer.xaml.cs">
+      <DependentUpon>MediaPlayer.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\MainViewModel.cs" />
-    <Compile Include="ViewModel\MoviePlayerViewModel.cs" />
+    <Compile Include="ViewModel\MediaPlayerViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\MoviesViewModel.cs" />
     <Compile Include="UserControls\Movies.xaml.cs">
       <DependentUpon>Movies.xaml</DependentUpon>
     </Compile>
-    <Page Include="UserControls\FullScreenMoviePlayer.xaml">
+    <Page Include="UserControls\FullScreenMediaPlayer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -271,7 +269,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UserControls\MoviePlayer.xaml">
+    <Page Include="UserControls\MediaPlayer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

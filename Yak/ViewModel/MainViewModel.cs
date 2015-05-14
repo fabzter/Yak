@@ -18,6 +18,7 @@ using TMDbLib.Objects.Movies;
 using YoutubeExtractor;
 using System.Collections.ObjectModel;
 using System.Windows;
+using GalaSoft.MvvmLight.Threading;
 using Yak.Messaging;
 
 namespace Yak.ViewModel
@@ -53,8 +54,8 @@ namespace Yak.ViewModel
         /// <summary>
         /// The trailer
         /// </summary>
-        private MoviePlayerViewModel _trailer;
-        public MoviePlayerViewModel Trailer
+        private MediaPlayerViewModel _trailer;
+        public MediaPlayerViewModel Trailer
         {
             get { return _trailer; }
             set { Set(() => Trailer, ref _trailer, value, true); }
@@ -105,6 +106,13 @@ namespace Yak.ViewModel
         private CancellationTokenSource CancellationDownloadingToken { get; set; }
         #endregion
 
+        #region Property -> CancellationLoadingTrailerToken
+        /// <summary>
+        /// Token to cancel trailer loading
+        /// </summary>
+        private CancellationTokenSource CancellationLoadingTrailerToken { get; set; }
+        #endregion
+
         #region Property -> IsDownloadingMovie
         /// <summary>
         /// Specify if a movie is downloading
@@ -117,6 +125,21 @@ namespace Yak.ViewModel
         {
             get { return _isDownloadingMovie; }
             set { Set(() => IsDownloadingMovie, ref _isDownloadingMovie, value, true); }
+        }
+        #endregion
+
+        #region Property -> IsMovieTrailerLoading
+        /// <summary>
+        /// Specify if a trailer is loading
+        /// </summary>
+        private bool _isMovieTrailerLoading;
+        /// <summary>
+        /// Specify if a trailer is loading
+        /// </summary>
+        public bool IsMovieTrailerLoading
+        {
+            get { return _isMovieTrailerLoading; }
+            set { Set(() => IsMovieTrailerLoading, ref _isMovieTrailerLoading, value, true); }
         }
         #endregion
 
@@ -173,7 +196,7 @@ namespace Yak.ViewModel
 
         #endregion
 
-        #region Property -> DeleteMovieFileWhenCancelledDownload
+        #region Property -> DeleteMovieFile
         /// <summary>
         /// Delete movie files when movie downloading has been cancelled
         /// </summary>
@@ -184,12 +207,12 @@ namespace Yak.ViewModel
         /// <summary>
         /// Map for defining youtube video quality
         /// </summary>
-        private static readonly IReadOnlyDictionary<YoutubeStreamingQuality, IEnumerable<int>> StreamingQualityMap =
-    new Dictionary<YoutubeStreamingQuality, IEnumerable<int>>
+        private static readonly IReadOnlyDictionary<Constants.YoutubeStreamingQuality, IEnumerable<int>> StreamingQualityMap =
+    new Dictionary<Constants.YoutubeStreamingQuality, IEnumerable<int>>
             {
-                { YoutubeStreamingQuality.High, new HashSet<int> { 1080, 720 } },
-                { YoutubeStreamingQuality.Medium, new HashSet<int> { 480 } },
-                { YoutubeStreamingQuality.Low, new HashSet<int> { 360, 240 } }
+                { Constants.YoutubeStreamingQuality.High, new HashSet<int> { 1080, 720 } },
+                { Constants.YoutubeStreamingQuality.Medium, new HashSet<int> { 480 } },
+                { Constants.YoutubeStreamingQuality.Low, new HashSet<int> { 360, 240 } }
             };
         #endregion
 
@@ -203,7 +226,18 @@ namespace Yak.ViewModel
         /// </summary>
         public RelayCommand StopDownloadingMovieCommand
         {
-            get; 
+            get;
+            private set;
+        }
+        #endregion
+
+        #region Command -> StopLoadingTrailerCommand
+        /// <summary>
+        /// StopLoadingTrailerCommand
+        /// </summary>
+        public RelayCommand StopLoadingTrailerCommand
+        {
+            get;
             private set;
         }
         #endregion
@@ -286,7 +320,6 @@ namespace Yak.ViewModel
         {
             ApiService = apiService;
 
-            #region Messaging
             // Inform subscribers a connection error has occured
             Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, arg => OnConnectionError(new ConnectionErrorEventArgs(arg)));
 
@@ -296,7 +329,7 @@ namespace Yak.ViewModel
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     // Create a tab with the movie name as the title
-                    MoviesViewModelTabs.Add(new MoviePlayerViewModel(e.MovieUri)
+                    MoviesViewModelTabs.Add(new MediaPlayerViewModel(Constants.MediaType.Movie, e.MovieUri)
                     {
                         Tab = new TabDescription(TabDescription.TabType.Playing, e.Movie.Title)
                     });
@@ -310,25 +343,31 @@ namespace Yak.ViewModel
             });
 
             // Inform subscribers that a movie has stopped downloading
-            Messenger.Default.Register<StopDownloadingMovieMessage>(
-                this, 
-                message => 
+            Messenger.Default.Register<StopPlayingMediaMessage>(
+                this,
+                message =>
+                {
+                    if (message.MediaType == Constants.MediaType.Movie)
                     {
-                        DeleteMovieFilesWhenCancelledDownloading = message.DeleteMovieFileWhenCancelledDownload;
-                        DeleteMovieFilesWhenCancelledDownloading(true);
+                        StopDownloadingMovie();
+
+                        DeleteMovieFilesWhenCancelledDownloading = message.DeleteMovieFile;
+                        if (DeleteMovieFilesWhenCancelledDownloading != null)
+                        {
+                            DeleteMovieFilesWhenCancelledDownloading(true);
+                        }
+
                         OnStoppedDownloadingMovie(new EventArgs());
                     }
-                );
-
-            // Stop downloading a movie if any
-            Messenger.Default.Register<MainWindowClosingMessage>(this, e =>
-            {
-                if (IsDownloadingMovie)
-                {
-                    StopDownloadingMovie();
+                    else if (message.MediaType == Constants.MediaType.Trailer && CancellationLoadingTrailerToken != null)
+                    {
+                        CancellationLoadingTrailerToken.Cancel();
+                        Trailer = null;
+                        IsMovieTrailerLoading = false;
+                        OnLoadedTrailer(new TrailerLoadedEventArgs(null, true));
+                    }
                 }
-            });
-            #endregion
+                );
 
             // Set the CancellationToken for having the possibility to stop a loading movie infos
             CancellationLoadingToken = new CancellationTokenSource();
@@ -343,8 +382,17 @@ namespace Yak.ViewModel
                 await SearchMovies(SearchMoviesFilter);
             });
 
-            // Stop downloading a movie if any
-            StopDownloadingMovieCommand = new RelayCommand(StopDownloadingMovie);
+            // Stop downloading a movie
+            StopDownloadingMovieCommand = new RelayCommand(() =>
+            {
+                Messenger.Default.Send<StopPlayingMediaMessage>(new StopPlayingMediaMessage(Constants.MediaType.Movie, DeleteMovieFilesWhenCancelledDownloading));
+            });
+
+            // Stop loading a trailer
+            StopLoadingTrailerCommand = new RelayCommand(() =>
+            {
+                Messenger.Default.Send<StopPlayingMediaMessage>(new StopPlayingMediaMessage(Constants.MediaType.Trailer, null));
+            });
 
             // Download the current movie
             DownloadMovieCommand = new RelayCommand(async () =>
@@ -359,7 +407,10 @@ namespace Yak.ViewModel
             // The app is about to close
             MainWindowClosingCommand = new RelayCommand(() =>
             {
-                Messenger.Default.Send(new MainWindowClosingMessage());
+                if (IsDownloadingMovie)
+                {
+                    StopDownloadingMovie();
+                }
             });
 
             // Load requested movie
@@ -371,6 +422,7 @@ namespace Yak.ViewModel
             // Load requested movie trailer
             GetTrailerCommand = new RelayCommand(async () =>
             {
+                CancellationLoadingTrailerToken = new CancellationTokenSource();
                 await GetTrailer(Movie.ImdbCode);
             });
             #endregion
@@ -417,7 +469,7 @@ namespace Yak.ViewModel
                     moviesViewModel.SearchMoviesFilter = criteria;
 
                     await moviesViewModel.SearchMovies(criteria);
-                    
+
                     if (SelectedTabViewModel != moviesViewModel)
                     {
                         SelectedTabViewModel = moviesViewModel;
@@ -565,50 +617,63 @@ namespace Yak.ViewModel
         /// <param name="imdbId">The IMDb Id of the movie</param>
         private async Task GetTrailer(string imdbId)
         {
-            // Retrieve trailer from API
-            Tuple<Trailers, Exception> trailer =
-                ApiService.GetMovieTrailer(imdbId);
-
-            if (trailer.Item2 != null)
+            await Task.Run(async () =>
             {
-                // Inform we have loaded trailer with error
-                OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
-                return;
-            }
+                // Inform subscribers we are loading movie trailer
+                IsMovieTrailerLoading = true;
+                OnLoadingTrailer(new EventArgs());
 
-            // No error has been encounter, we can create our VideoInfo
-            VideoInfo video = null;
-
-            try
-            {
-                // Retrieve Youtube Infos
-                video = await GetVideoInfoForStreaming(Constants.YoutubePath + trailer.Item1.Youtube.Select(x => x.Source).FirstOrDefault(), YoutubeStreamingQuality.High);
-
-                if (video != null && video.RequiresDecryption)
+                // Retrieve trailer from API
+                Tuple<Trailers, Exception> trailer = ApiService.GetMovieTrailer(imdbId);
+                if (trailer.Item2 != null)
                 {
-                    // Decrypt encoded Youtube video link 
-                    await Task.Run(() => DownloadUrlResolver.DecryptDownloadUrl(video));
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex is WebException || ex is VideoNotAvailableException || ex is YoutubeParseException)
-                {
-                    // An error as occured. Inform we have loaded trailer with error
+                    // Inform we have loaded trailer with error
                     OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
+                    IsMovieTrailerLoading = false;
                     return;
                 }
-            }
 
-            if (video == null)
-            {
-                // There is no VideoInfo. Inform we have loaded trailer with error
-                OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
-                return;
-            }
+                // No error has been encounter, we can create our VideoInfo
+                VideoInfo video = null;
 
-            // Inform we have loaded trailer successfully
-            OnLoadedTrailer(new TrailerLoadedEventArgs(video.DownloadUrl, false));
+                try
+                {
+                    // Retrieve Youtube Infos
+                    video = await GetVideoInfoForStreaming(Constants.YoutubePath + trailer.Item1.Youtube.Select(x => x.Source).FirstOrDefault(), Constants.YoutubeStreamingQuality.High);
+
+                    if (video != null && video.RequiresDecryption)
+                    {
+                        // Decrypt encoded Youtube video link 
+                        await Task.Run(() => DownloadUrlResolver.DecryptDownloadUrl(video));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (ex is WebException || ex is VideoNotAvailableException || ex is YoutubeParseException)
+                    {
+                        // An error as occured. Inform we have loaded trailer with error
+                        OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
+                        IsMovieTrailerLoading = false;
+                        return;
+                    }
+                }
+
+                if (video == null)
+                {
+                    // There is no VideoInfo. Inform we have loaded trailer with error
+                    OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
+                    IsMovieTrailerLoading = false;
+                    return;
+                }
+
+                if (!CancellationLoadingTrailerToken.IsCancellationRequested)
+                {
+                    // Inform we have loaded trailer successfully
+                    OnLoadedTrailer(new TrailerLoadedEventArgs(video.DownloadUrl, false));
+                    IsMovieTrailerLoading = true;
+                }
+
+            }, CancellationLoadingTrailerToken.Token).ConfigureAwait(false);
         }
 
         #endregion
@@ -619,7 +684,7 @@ namespace Yak.ViewModel
         /// </summary>
         /// <param name="youtubeLink">The youtube link of a movie</param>
         /// <param name="qualitySetting">The youtube quality settings</param>
-        private static async Task<VideoInfo> GetVideoInfoForStreaming(string youtubeLink, YoutubeStreamingQuality qualitySetting)
+        private static async Task<VideoInfo> GetVideoInfoForStreaming(string youtubeLink, Constants.YoutubeStreamingQuality qualitySetting)
         {
             // Get video infos of the requested video
             IEnumerable<VideoInfo> videoInfos = await Task.Run(() => DownloadUrlResolver.GetDownloadUrls(youtubeLink, false));
@@ -638,11 +703,11 @@ namespace Yak.ViewModel
         /// </summary>
         /// <param name="videos">List of VideoInfo</param>
         /// <param name="quality">The youtube quality settings</param>
-        private static VideoInfo GetVideoByStreamingQuality(IEnumerable<VideoInfo> videos, YoutubeStreamingQuality quality)
+        private static VideoInfo GetVideoByStreamingQuality(IEnumerable<VideoInfo> videos, Constants.YoutubeStreamingQuality quality)
         {
             videos = videos.ToList(); // Prevent multiple enumeration
 
-            if (quality == YoutubeStreamingQuality.High)
+            if (quality == Constants.YoutubeStreamingQuality.High)
             {
                 // Choose high quality Youtube video
                 return videos.OrderByDescending(x => x.Resolution)
@@ -661,7 +726,7 @@ namespace Yak.ViewModel
             if (video == null)
             {
                 // We search for an other video quality if none has been found
-                return GetVideoByStreamingQuality(videos, (YoutubeStreamingQuality)(((int)quality) - 1));
+                return GetVideoByStreamingQuality(videos, (Constants.YoutubeStreamingQuality)(((int)quality) - 1));
             }
 
             return video;
@@ -726,6 +791,7 @@ namespace Yak.ViewModel
                 };
 
                 TorrentHandle handle = session.AddTorrent(addParams);
+
                 // We have to download sequentially, so that we're able to play the movie without waiting
                 handle.SequentialDownload = true;
                 bool alreadyBuffered = false;
@@ -750,7 +816,7 @@ namespace Yak.ViewModel
                     {
                         // Get movie file
                         foreach (
-                            string filePath in 
+                            string filePath in
                                 Directory.GetFiles(status.SavePath + handle.TorrentFile.Name, "*" + Constants.VideoFileExtension)
                             )
                         {
@@ -769,44 +835,45 @@ namespace Yak.ViewModel
                         {
                             IsDownloadingMovie = false;
 
-                            // Send a StopDownloadingMovieMessage to every subscribers and ask if we have to delete movie file
-                            var message = new StopDownloadingMovieMessage(
+                            // Remove the movie tab
+                            MediaPlayerViewModel tabToRemove = null;
+                            foreach (object tab in MoviesViewModelTabs)
+                            {
+                                var mediaViewModel = tab as MediaPlayerViewModel;
+                                if (mediaViewModel != null)
+                                {
+                                    tabToRemove = mediaViewModel;
+                                }
+                            }
+                            if (tabToRemove != null)
+                            {
+                                DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                                {
+                                    MoviesViewModelTabs.Remove(tabToRemove);
+                                    SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
+                                });
+                            }
 
-                                // Feedback
+                            // Send a StopDownloadingMovieMessage to every subscribers and ask if we have to delete movie file
+                            var message = new StopPlayingMediaMessage(
+
+                                Constants.MediaType.Movie,
                                 deleteMovieFiles =>
                                 {
-                                    if (handle.TorrentFile != null)
+                                    try
                                     {
-                                        string movieName = handle.TorrentFile.Name;
-                                        session.RemoveTorrent(handle, true);
-
-                                        if (deleteMovieFiles && !String.IsNullOrEmpty(movieName) && Directory.Exists(status.SavePath + movieName))
-                                        {
-                                            // Get movie file
-                                            foreach (
-                                                string filePath in
-                                                    Directory.GetFiles(status.SavePath + movieName,
-                                                        "*" + Constants.VideoFileExtension)
-                                                )
-                                            {
-                                                try
-                                                {
-                                                    // Delete movie file
-                                                    File.Delete(filePath);
-                                                }
-                                                catch (Exception e)
-                                                {
-                                                    // TODO
-                                                }
-                                            }
-                                        }
+                                        session.RemoveTorrent(handle, deleteMovieFiles);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        //TODO
                                     }
                                 });
                             Messenger.Default.Send(message);
                         }
                     }).ConfigureAwait(false);
                 }
-            }            
+            }
         }
         #endregion
 
@@ -818,9 +885,8 @@ namespace Yak.ViewModel
         {
             CancellationDownloadingToken?.Cancel(true);
         }
+        #endregion
 
-        #endregion  
-      
         #endregion
 
         #region Events
@@ -948,6 +1014,22 @@ namespace Yak.ViewModel
         }
         #endregion
 
+        #region Event -> OnLoadingTrailer
+        /// <summary>
+        /// LoadedTrailer event
+        /// </summary>
+        public event EventHandler<EventArgs> LoadingTrailer;
+        /// <summary>
+        /// Fire when movie trailer has finished loading
+        /// </summary>
+        ///<param name="e">Event data</param>
+        protected virtual void OnLoadingTrailer(EventArgs e)
+        {
+            EventHandler<EventArgs> handler = LoadingTrailer;
+            handler?.Invoke(this, e);
+        }
+        #endregion
+
         #region Event -> OnLoadedTrailer
         /// <summary>
         /// LoadedTrailer event
@@ -971,8 +1053,7 @@ namespace Yak.ViewModel
             Messenger.Default.Unregister<PropertyChangedMessage<string>>(this);
             Messenger.Default.Unregister<bool>(this);
             Messenger.Default.Unregister<MovieBufferedMessage>(this);
-            Messenger.Default.Unregister<StopDownloadingMovieMessage>(this);
-            Messenger.Default.Unregister<MainWindowClosingMessage>(this);
+            Messenger.Default.Unregister<StopPlayingMediaMessage>(this);
             base.Cleanup();
         }
     }

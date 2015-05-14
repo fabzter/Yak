@@ -3,15 +3,14 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using Yak.Helpers;
 using Yak.Messaging;
-using Yak.Model.Movie;
 using GalaSoft.MvvmLight.Command;
 
 namespace Yak.ViewModel
 {
     /// <summary>
-    /// MoviePlayerViewModel
+    /// MediaPlayerViewModel
     /// </summary>
-    public class MoviePlayerViewModel : ViewModelBase
+    public class MediaPlayerViewModel : ViewModelBase
     {
         #region Property -> Tab
         /// <summary>
@@ -27,18 +26,18 @@ namespace Yak.ViewModel
         public string SearchMoviesFilter { get; set; }
         #endregion
 
-        #region Property -> MovieUri
+        #region Property -> MediaUri
         /// <summary>
-        /// Uri to file path of the movie to be played
+        /// Uri to file path of the media to be played
         /// </summary>
-        public Uri MovieUri { get; set; }
+        public Uri MediaUri { get; private set; }
         #endregion
 
-        #region Property -> CurrentMovieProgress
+        #region Property -> MediaPosition
         /// <summary>
-        /// The current progress playing value
+        /// Current position related to media's time progress
         /// </summary>
-        public double CurrentMovieProgress { get; set; }
+        public double MediaPosition { get; set; }
         #endregion
 
         #region Property -> MediaVolume
@@ -50,7 +49,7 @@ namespace Yak.ViewModel
 
         #region Property -> IsInFullScreenMode
         /// <summary>
-        /// Indicates if we are in fullscreen mode
+        /// Indicates if player is in fullscreen mode
         /// </summary>
         private bool _isInFullScreenMode;
 
@@ -62,11 +61,19 @@ namespace Yak.ViewModel
 
         #endregion
 
-        #region Property -> DeleteMovieFileWhenCancelledDownload
+        #region Property -> MediaType
         /// <summary>
-        /// Delete movie files when movie downloading has been cancelled
+        /// Indicates the media's type
         /// </summary>
-        public Action<bool> DeleteMovieFilesWhenCancelledDownload;
+        public Constants.MediaType MediaType { get; set; }
+
+        #endregion
+
+        #region Property -> DeleteMovieFile
+        /// <summary>
+        /// Delete movie files when movie has stopped playing
+        /// </summary>
+        public Action<bool> DeleteMovieFile;
         #endregion
 
         #region Commands
@@ -93,23 +100,34 @@ namespace Yak.ViewModel
         }
         #endregion
 
+        #region Command -> StopPlayingMediaCommand
+        /// <summary>
+        /// StopPlayingMediaCommand
+        /// </summary>
+        public  RelayCommand StopPlayingMediaCommand
+        {
+            get;
+            private set;
+        }
         #endregion
 
-        #region Constructor -> MoviePlayerViewModel
+        #endregion
+
+        #region Constructor -> MediaPlayerViewModel
         /// <summary>
-        /// Initializes a new instance of the MoviePlayerViewModel class.
+        /// Initializes a new instance of the MediaPlayerViewModel class.
         /// </summary>
-        public MoviePlayerViewModel(Uri movieUri)
+        public MediaPlayerViewModel(Constants.MediaType mediaType, Uri mediaUri)
         {
-            Messenger.Default.Register<StopDownloadingMovieMessage>(
+            Messenger.Default.Register<StopPlayingMediaMessage>(
                 this, 
                 message => 
                     {
-                        DeleteMovieFilesWhenCancelledDownload = message.DeleteMovieFileWhenCancelledDownload;
+                        DeleteMovieFile = message.DeleteMovieFile;
                         OnStoppedDownloadingMovie(new EventArgs());
                     });
-
-            MovieUri = movieUri;
+            MediaType = mediaType;
+            MediaUri = mediaUri;
             MediaVolume = 100;
 
             ToggleFullScreenCommand = new RelayCommand(() =>
@@ -120,6 +138,18 @@ namespace Yak.ViewModel
             BackToNormalScreenComand = new RelayCommand(() =>
             {
                 OnBackToNormalScreen(new EventArgs());
+            });
+
+            StopPlayingMediaCommand = new RelayCommand(() =>
+            {
+                if (MediaType == Constants.MediaType.Trailer)
+                {
+                    Messenger.Default.Send<StopPlayingMediaMessage>(new StopPlayingMediaMessage(Constants.MediaType.Trailer, null));
+                }
+                else if (MediaType == Constants.MediaType.Movie)
+                {
+                    Messenger.Default.Send<StopPlayingMediaMessage>(new StopPlayingMediaMessage(Constants.MediaType.Movie, null));
+                }
             });
         }
         #endregion
@@ -184,9 +214,10 @@ namespace Yak.ViewModel
         #endregion
 
         #endregion
+
         public override void Cleanup()
         {
-            Messenger.Default.Unregister<StopDownloadingMovieMessage>(this);
+            Messenger.Default.Unregister<StopPlayingMediaMessage>(this);
             base.Cleanup();
         }
     }

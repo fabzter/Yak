@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,15 +8,14 @@ using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Threading;
-using NuGet;
 using Yak.ViewModel;
 
 namespace Yak.UserControls
 {
     /// <summary>
-    /// Interaction logic for MoviePlayer.xaml
+    /// Interaction logic for MediaPlayer.xaml
     /// </summary>
-    public partial class MoviePlayer : UserControl, IDisposable
+    public partial class MediaPlayer : UserControl, IDisposable
     {
         #region Properties
 
@@ -28,7 +25,7 @@ namespace Yak.UserControls
         /// <summary>
         /// Identifies the <see cref="MoviePlayerIsPlaying"/> dependency property. 
         /// </summary>
-        internal static readonly DependencyProperty MoviePlayerIsPlayingProperty = DependencyProperty.Register("MoviePlayerIsPlaying", typeof(bool), typeof(MoviePlayer), new PropertyMetadata(false, null));
+        internal static readonly DependencyProperty MoviePlayerIsPlayingProperty = DependencyProperty.Register("MoviePlayerIsPlaying", typeof(bool), typeof(MediaPlayer), new PropertyMetadata(false, null));
         #endregion
 
         #region Property -> MoviePlayerIsPlaying
@@ -53,7 +50,7 @@ namespace Yak.UserControls
         /// <summary>
         /// Identifies the <see cref="MoviePlayerIsPlaying"/> dependency property. 
         /// </summary>
-        internal static readonly DependencyProperty VolumeProperty = DependencyProperty.Register("Volume", typeof(int), typeof(MoviePlayer), new PropertyMetadata(100, new PropertyChangedCallback(OnVolumeChanged)));
+        internal static readonly DependencyProperty VolumeProperty = DependencyProperty.Register("Volume", typeof(int), typeof(MediaPlayer), new PropertyMetadata(100, new PropertyChangedCallback(OnVolumeChanged)));
         #endregion
 
         #region Property -> Volume
@@ -104,20 +101,20 @@ namespace Yak.UserControls
         private DispatcherTimer MoviePlayerTimer;
         #endregion
 
-        #region Property -> fullScreenMoviePlayer
+        #region Property -> fullScreenMediaPlayer
         /// <summary>
-        /// The movie player used in FullScreen mode
+        /// The media player used in FullScreen mode
         /// </summary>
-        private FullScreenMoviePlayer fullScreenMoviePlayer;
+        private FullScreenMediaPlayer fullScreenMediaPlayer;
         #endregion
 
         #endregion
 
         #region Constructor
         /// <summary>
-        /// Initializes a new instance of the MoviePlayer class.
+        /// Initializes a new instance of the MediaPlayer class.
         /// </summary>
-        public MoviePlayer()
+        public MediaPlayer()
         {
             InitializeComponent();
 
@@ -135,7 +132,7 @@ namespace Yak.UserControls
         /// <param name="e">EventArgs</param>
         private void OnLoaded(object sender, EventArgs e)
         {
-            var vm = DataContext as MoviePlayerViewModel;
+            var vm = DataContext as MediaPlayerViewModel;
             if (vm != null)
             {
                 // start the timer used to report time on MoviePlayerSliderProgress
@@ -162,10 +159,10 @@ namespace Yak.UserControls
                 // Set the Vlc lib directory used by MediaPlayer
                 Player.MediaPlayer.VlcLibDirectory = Helpers.Constants.GetVlcLibDirectory();
 
-                if (vm.MovieUri != null)
+                if (vm.MediaUri != null)
                 {
-                    Player.MediaPlayer.SetMedia(vm.MovieUri);
-                    PlayMovie(vm.CurrentMovieProgress);
+                    Player.MediaPlayer.SetMedia(vm.MediaUri);
+                    PlayMovie(vm.MediaPosition);
                 }
             }
         }
@@ -179,7 +176,7 @@ namespace Yak.UserControls
         /// <param name="e">EventArgs</param>
         private void OnUnloaded(object sender, EventArgs e)
         {
-            var vm = DataContext as MoviePlayerViewModel;
+            var vm = DataContext as MediaPlayerViewModel;
             if (vm != null)
             {
                 if (vm.IsInFullScreenMode)
@@ -202,12 +199,12 @@ namespace Yak.UserControls
         /// <param name="obj">obj</param>
         private static void OnVolumeChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            MoviePlayer moviePlayer = obj as MoviePlayer;
+            MediaPlayer moviePlayer = obj as MediaPlayer;
             if (moviePlayer != null)
             {
                 int newVolume = (int)e.NewValue;
                 moviePlayer.ChangeMediaVolume(newVolume);
-                MoviePlayerViewModel vm = moviePlayer.DataContext as MoviePlayerViewModel;
+                MediaPlayerViewModel vm = moviePlayer.DataContext as MediaPlayerViewModel;
                 if (vm != null)
                 {
                     vm.MediaVolume = newVolume;
@@ -394,10 +391,10 @@ namespace Yak.UserControls
         /// <param name="e">RoutedPropertyChangedEventArgs</param>
         private void MovieSliderProgress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            var vm = DataContext as MoviePlayerViewModel;
+            var vm = DataContext as MediaPlayerViewModel;
             if (vm != null)
             {
-                vm.CurrentMovieProgress = MoviePlayerSliderProgress.Value;
+                vm.MediaPosition = MoviePlayerSliderProgress.Value;
                 MoviePlayerTextProgressStatus.Text = TimeSpan.FromSeconds(MoviePlayerSliderProgress.Value).ToString(@"hh\:mm\:ss", CultureInfo.CurrentCulture) + " / " + TimeSpan.FromMilliseconds(Player.MediaPlayer.Length).ToString(@"hh\:mm\:ss", CultureInfo.CurrentCulture);
             }
         }
@@ -420,23 +417,23 @@ namespace Yak.UserControls
 
         #region Method -> OnToggleFullScreen
         /// <summary>
-        /// When got fullscreen, pause current movie player instance, open a new one in fullscreen then play movie inside
+        /// When got fullscreen, pause current media player instance, open a new one in fullscreen then play media inside
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">EventArgs</param>
         private void OnToggleFullScreen(object sender, EventArgs e)
         {
-            var moviePlayerViewModel = DataContext as MoviePlayerViewModel;
-            if (moviePlayerViewModel != null && !IsInFullScreen)
+            var mediaPlayerViewModel = DataContext as MediaPlayerViewModel;
+            if (mediaPlayerViewModel != null && !IsInFullScreen)
             {
-                if (fullScreenMoviePlayer == null)
+                if (fullScreenMediaPlayer == null)
                 {
-                    fullScreenMoviePlayer = new FullScreenMoviePlayer();
-                    fullScreenMoviePlayer.Closed += (o, args) => fullScreenMoviePlayer = null;
-                    fullScreenMoviePlayer.DataContext = DataContext;
+                    fullScreenMediaPlayer = new FullScreenMediaPlayer();
+                    fullScreenMediaPlayer.Closed += (o, args) => fullScreenMediaPlayer = null;
+                    fullScreenMediaPlayer.DataContext = DataContext;
                     Player.MediaPlayer.Pause();
-                    fullScreenMoviePlayer.Launch();
-                    fullScreenMoviePlayer.PlayerUc.Volume = moviePlayerViewModel.MediaVolume;
+                    fullScreenMediaPlayer.Launch();
+                    fullScreenMediaPlayer.PlayerUc.Volume = mediaPlayerViewModel.MediaVolume;
                     IsInFullScreen = true;
                 }
             }
@@ -445,19 +442,19 @@ namespace Yak.UserControls
 
         #region Method -> OnBackToNormalScreen
         /// <summary>
-        /// When back to normal screen size has been requested, update volume and play movie
+        /// When back to normal screen size has been requested, update volume and play media
         /// </summary>
         /// <param name="sender">Sender object</param>
         /// <param name="e">EventArgs</param>
         private void OnBackToNormalScreen(object sender, EventArgs e)
         {
-            var moviePlayerViewModel = DataContext as MoviePlayerViewModel;
-            if (moviePlayerViewModel != null)
+            var mediaPlayerViewModel = DataContext as MediaPlayerViewModel;
+            if (mediaPlayerViewModel != null)
             {
                 if (Player != null && IsInFullScreen)
                 {
-                    Volume = moviePlayerViewModel.MediaVolume;
-                    PlayMovie(moviePlayerViewModel.CurrentMovieProgress);
+                    Volume = mediaPlayerViewModel.MediaVolume;
+                    PlayMovie(mediaPlayerViewModel.MediaPosition);
                     IsInFullScreen = false;
                 }
             }
@@ -590,19 +587,18 @@ namespace Yak.UserControls
                     MoviePlayerIsPlaying = false;
                 }
 
-                var vm = DataContext as MoviePlayerViewModel;
+                var vm = DataContext as MediaPlayerViewModel;
                 if (vm != null)
                 {
-                    if (vm.DeleteMovieFilesWhenCancelledDownload != null)
+                    if (vm.DeleteMovieFile != null)
                     {
-                        vm.DeleteMovieFilesWhenCancelledDownload(true);
+                        vm.DeleteMovieFile(true);
                     }
                     vm.StoppedDownloadingMovie -= OnStoppedDownloadingMovie;
                     vm.ToggleFullScreenChanged -= OnToggleFullScreen;
                     vm.BackToNormalScreenChanged -= OnBackToNormalScreen;
                 }
 
-                DataContext = null;
                 _disposed = true;
 
                 if (disposing)

@@ -1,31 +1,30 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Controls;
 using Yak.ViewModel;
 
 namespace Yak.UserControls
 {
     /// <summary>
-    /// Interaction logic for FullScreenMoviePlayer.xaml
+    /// Interaction logic for FullScreenMediaPlayer.xaml
     /// </summary>
-    public partial class FullScreenMoviePlayer : IDisposable
+    public partial class FullScreenMediaPlayer : IDisposable
     {
         private bool _disposed;
 
         #region Constructor
         /// <summary>
-        /// Initializes a new instance of the FullScreenMoviePlayer class.
+        /// Initializes a new instance of the FullScreenMediaPlayer class.
         /// </summary>
-        public FullScreenMoviePlayer()
+        public FullScreenMediaPlayer()
         {
             InitializeComponent();
 
             Loaded += (s, e) =>
             {
-                var moviePlayerViewModel = DataContext as MoviePlayerViewModel;
-                if (moviePlayerViewModel != null)
+                var mediaPlayerViewModel = DataContext as MediaPlayerViewModel;
+                if (mediaPlayerViewModel != null)
                 {
-                    moviePlayerViewModel.BackToNormalScreenChanged += OnBackToNormalScreenChanged;
+                    mediaPlayerViewModel.BackToNormalScreenChanged += OnBackToNormalScreenChanged;
                 }
 
                 Window.GetWindow(this).Closing += (s1, e1) => Dispose();
@@ -33,10 +32,10 @@ namespace Yak.UserControls
 
             Unloaded += (s, e) =>
             {
-                var moviePlayerViewModel = DataContext as MoviePlayerViewModel;
-                if (moviePlayerViewModel != null)
+                var mediaPlayerViewModel = DataContext as MediaPlayerViewModel;
+                if (mediaPlayerViewModel != null)
                 {
-                    moviePlayerViewModel.BackToNormalScreenChanged -= OnBackToNormalScreenChanged;
+                    mediaPlayerViewModel.BackToNormalScreenChanged -= OnBackToNormalScreenChanged;
                 }
             };
 
@@ -59,7 +58,7 @@ namespace Yak.UserControls
 
         #region Method -> Launch
         /// <summary>
-        /// Open the FullScreen movie player
+        /// Open the FullScreen media player
         /// </summary>
         public void Launch()
         {
@@ -99,6 +98,5 @@ namespace Yak.UserControls
             }
         }
         #endregion
-
     }
 }

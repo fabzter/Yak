@@ -3,18 +3,18 @@
 namespace Yak.Events
 {
     /// <summary>
-    /// MovieBufferedEventArgs
+    /// TrailerLoadedEventArgs
     /// </summary>
     public class TrailerLoadedEventArgs : EventArgs
     {
         private readonly string _trailerUrl;
-        private readonly bool _inError;
+        private readonly bool _inErrorOrCancelled;
 
         #region Constructor
-        public TrailerLoadedEventArgs(string trailerUrl, bool inError)
+        public TrailerLoadedEventArgs(string trailerUrl, bool inErrorOrCancelled)
         {
             _trailerUrl = trailerUrl;
-            _inError = inError;
+            _inErrorOrCancelled = inErrorOrCancelled;
         }
         #endregion
 
@@ -30,12 +30,12 @@ namespace Yak.Events
         }
         #endregion
 
-        #region Property -> InError
-        public bool InError
+        #region Property -> InErrorOrCancelled
+        public bool InErrorOrCancelled
         {
             get
             {
-                return _inError;
+                return _inErrorOrCancelled;
             }
         }
         #endregion
