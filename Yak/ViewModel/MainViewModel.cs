@@ -344,10 +344,7 @@ namespace Yak.ViewModel
             });
 
             // Stop downloading a movie if any
-            StopDownloadingMovieCommand = new RelayCommand(() =>
-            {
-                StopDownloadingMovie();
-            });
+            StopDownloadingMovieCommand = new RelayCommand(StopDownloadingMovie);
 
             // Download the current movie
             DownloadMovieCommand = new RelayCommand(async () =>
@@ -362,7 +359,7 @@ namespace Yak.ViewModel
             // The app is about to close
             MainWindowClosingCommand = new RelayCommand(() =>
             {
-                Messenger.Default.Send<MainWindowClosingMessage>(new MainWindowClosingMessage());
+                Messenger.Default.Send(new MainWindowClosingMessage());
             });
 
             // Load requested movie
@@ -476,7 +473,7 @@ namespace Yak.ViewModel
                 }
 
                 // Remove the search tab
-                if (searchTabToRemove.Tab != null && !String.IsNullOrEmpty(searchTabToRemove.Tab.TabName) && searchTabToRemove.Tab.TabName.Equals("Search"))
+                if (!String.IsNullOrEmpty(searchTabToRemove.Tab?.TabName) && searchTabToRemove.Tab.TabName.Equals("Search"))
                 {
                     MoviesViewModelTabs.Remove(searchTabToRemove);
                 }
@@ -686,20 +683,17 @@ namespace Yak.ViewModel
                 isExceptionThrown = true;
 
                 var webException = e as WebException;
-                if (webException != null)
+                if (webException?.Status == WebExceptionStatus.NameResolutionFailure)
                 {
-                    if (webException.Status == WebExceptionStatus.NameResolutionFailure)
-                    {
-                        // There's a connection error.
-                        isConnexionInError = true;
-                    }
+                    // There's a connection error.
+                    isConnexionInError = true;
                 }
             }
 
             if (isConnexionInError)
             {
                 // Inform we have a connection error
-                Messenger.Default.Send<bool>(true, Constants.ConnectionErrorPropertyName);
+                Messenger.Default.Send(true, Constants.ConnectionErrorPropertyName);
             }
 
             return isExceptionThrown;
@@ -761,7 +755,7 @@ namespace Yak.ViewModel
                             )
                         {
                             // Inform subscribers we have finished buffering the movie
-                            Messenger.Default.Send<MovieBufferedMessage>(new MovieBufferedMessage(Movie,
+                            Messenger.Default.Send(new MovieBufferedMessage(Movie,
                                 new Uri(filePath)));
                             alreadyBuffered = true;
                         }
@@ -808,7 +802,7 @@ namespace Yak.ViewModel
                                         }
                                     }
                                 });
-                            Messenger.Default.Send<StopDownloadingMovieMessage>(message);
+                            Messenger.Default.Send(message);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -822,11 +816,9 @@ namespace Yak.ViewModel
         /// </summary>
         public void StopDownloadingMovie()
         {
-            if (CancellationDownloadingToken != null)
-            {
-                CancellationDownloadingToken.Cancel(true);
-            }
+            CancellationDownloadingToken?.Cancel(true);
         }
+
         #endregion  
       
         #endregion
@@ -845,18 +837,18 @@ namespace Yak.ViewModel
         protected virtual void OnConnectionError(ConnectionErrorEventArgs e)
         {
             EventHandler<ConnectionErrorEventArgs> handler = ConnectionError;
-            if (handler != null)
+            if (handler == null)
+                return;
+
+            if (e != null && e.IsInError)
             {
-                if (e != null && e.IsInError)
-                {
-                    IsConnectionInError = true;
-                }
-                else
-                {
-                    IsConnectionInError = false;
-                }
-                handler(this, e);
+                IsConnectionInError = true;
             }
+            else
+            {
+                IsConnectionInError = false;
+            }
+            handler(this, e);
         }
         #endregion
 
@@ -872,10 +864,7 @@ namespace Yak.ViewModel
         protected virtual void OnLoadingMovieProgress(MovieLoadingProgressEventArgs e)
         {
             EventHandler<MovieLoadingProgressEventArgs> handler = LoadingMovieProgress;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            handler?.Invoke(this, e);
         }
         #endregion
 
@@ -891,10 +880,7 @@ namespace Yak.ViewModel
         protected virtual void OnDownloadingMovie(EventArgs e)
         {
             EventHandler<EventArgs> handler = DownloadingMovie;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            handler?.Invoke(this, e);
         }
         #endregion
 
@@ -910,10 +896,7 @@ namespace Yak.ViewModel
         protected virtual void OnLoadingMovie(EventArgs e)
         {
             EventHandler<EventArgs> handler = LoadingMovie;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            handler?.Invoke(this, e);
         }
         #endregion
 
@@ -929,10 +912,7 @@ namespace Yak.ViewModel
         protected virtual void OnLoadedMovie(EventArgs e)
         {
             EventHandler<EventArgs> handler = LoadedMovie;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            handler?.Invoke(this, e);
         }
         #endregion
 
@@ -948,10 +928,7 @@ namespace Yak.ViewModel
         protected virtual void OnStoppedDownloadingMovie(EventArgs e)
         {
             EventHandler<EventArgs> handler = StoppedDownloadingMovie;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            handler?.Invoke(this, e);
         }
         #endregion
 
@@ -967,10 +944,7 @@ namespace Yak.ViewModel
         protected virtual void OnBufferedMovie(MovieBufferedEventArgs e)
         {
             EventHandler<MovieBufferedEventArgs> handler = BufferedMovie;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            handler?.Invoke(this, e);
         }
         #endregion
 
@@ -986,10 +960,7 @@ namespace Yak.ViewModel
         protected virtual void OnLoadedTrailer(TrailerLoadedEventArgs e)
         {
             EventHandler<TrailerLoadedEventArgs> handler = LoadedTrailer;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            handler?.Invoke(this, e);
         }
         #endregion
 
