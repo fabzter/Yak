@@ -22,7 +22,7 @@
         <CommandBinding Command="MediaCommands.Pause" CanExecute="MoviePlayerPause_CanExecute" Executed="MoviePlayerPause_Executed" />
     </UserControl.CommandBindings>
 
-    <Grid MouseWheel="MouseWheelMoviePlayer" Background="Black">
+    <Grid x:Name="Container" MouseWheel="MouseWheelMoviePlayer" Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />

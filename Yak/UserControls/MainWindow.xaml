@@ -39,6 +39,9 @@
             <converters:GenresConverter x:Key="GenresConverter" />
             <converters:StringRatingToIntRatingConverter x:Key="StringRatingToIntRatingConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <DataTemplate DataType="{x:Type viewModels:MoviePlayerViewModel}" >
+                <usercontrols:MoviePlayer x:Name="TrailerPlayer"></usercontrols:MoviePlayer>
+            </DataTemplate>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -94,16 +97,20 @@
                             Visibility="Collapsed" 
                             VerticalAlignment="Bottom"/>
                     </StackPanel>
-                    <MediaElement x:Name="TrailerPlayer" 
-                                  LoadedBehavior="Manual" 
-                                  Stretch="Uniform" 
-                                  HorizontalAlignment="Center" 
-                                  VerticalAlignment="Center"/>
                     <Grid x:Name="MovieContainer">
                         <Image x:Name="BackgroundImage" 
                                Source="{Binding Path=Movie.BackgroundImage, Converter={StaticResource UriToCachedImageConverter}}" 
                                Stretch="UniformToFill" 
                                Opacity="0.3"/>
+                        <Grid 
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center">
+                            <ContentControl Content="{Binding Trailer}"
+                                            Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=controls:MetroWindow}, Path=ActualWidth, Converter={StaticResource RatioConverter}, ConverterParameter=0.8}"
+                                            Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=controls:MetroWindow}, Path=ActualHeight, Converter={StaticResource RatioConverter}, ConverterParameter=0.8}">
+                                
+                            </ContentControl>
+                        </Grid>
                         <Grid x:Name="Content" 
                               Panel.ZIndex="2">
                             <Grid.RowDefinitions>
@@ -180,7 +187,8 @@
                                     </StackPanel>
                                 </Grid>
                             </Border>
-                            <StackPanel Grid.Row="3" 
+                            <StackPanel
+                                        Grid.Row="3" 
                                         Grid.RowSpan="21" 
                                         Grid.Column="10" 
                                         Grid.ColumnSpan="13" 

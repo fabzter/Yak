@@ -48,6 +48,19 @@ namespace Yak.ViewModel
         }
         #endregion
 
+        #region Property -> Trailer
+
+        /// <summary>
+        /// The trailer
+        /// </summary>
+        private MoviePlayerViewModel _trailer;
+        public MoviePlayerViewModel Trailer
+        {
+            get { return _trailer; }
+            set { Set(() => Trailer, ref _trailer, value, true); }
+        }
+        #endregion
+
         #region Property -> MoviesViewModelTabs
         /// <summary>
         /// Tabs shown into the interface via TabControl
@@ -283,7 +296,7 @@ namespace Yak.ViewModel
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     // Create a tab with the movie name as the title
-                    MoviesViewModelTabs.Add(new MoviePlayerViewModel(e.Movie, e.MovieUri)
+                    MoviesViewModelTabs.Add(new MoviePlayerViewModel(e.MovieUri)
                     {
                         Tab = new TabDescription(TabDescription.TabType.Playing, e.Movie.Title)
                     });
@@ -770,19 +783,27 @@ namespace Yak.ViewModel
                                 {
                                     if (handle.TorrentFile != null)
                                     {
-                                        string torrentFile = handle.TorrentFile.Name;
-                                        session.RemoveTorrent(handle, false);
+                                        string movieName = handle.TorrentFile.Name;
+                                        session.RemoveTorrent(handle, true);
 
-                                        if (deleteMovieFiles && !String.IsNullOrEmpty(torrentFile) && Directory.Exists(status.SavePath + torrentFile))
+                                        if (deleteMovieFiles && !String.IsNullOrEmpty(movieName) && Directory.Exists(status.SavePath + movieName))
                                         {
-                                            try
+                                            // Get movie file
+                                            foreach (
+                                                string filePath in
+                                                    Directory.GetFiles(status.SavePath + movieName,
+                                                        "*" + Constants.VideoFileExtension)
+                                                )
                                             {
-                                                // Delete movie file
-                                                Directory.Delete(status.SavePath + torrentFile, true);
-                                            }
-                                            catch (Exception e)
-                                            {
-                                                // TODO
+                                                try
+                                                {
+                                                    // Delete movie file
+                                                    File.Delete(filePath);
+                                                }
+                                                catch (Exception e)
+                                                {
+                                                    // TODO
+                                                }
                                             }
                                         }
                                     }

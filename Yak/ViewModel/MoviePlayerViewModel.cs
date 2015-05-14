@@ -27,13 +27,6 @@ namespace Yak.ViewModel
         public string SearchMoviesFilter { get; set; }
         #endregion
 
-        #region Property -> Movie
-        /// <summary>
-        /// The movie to be played
-        /// </summary>
-        public MovieFullDetails Movie { get; set; }
-        #endregion
-
         #region Property -> MovieUri
         /// <summary>
         /// Uri to file path of the movie to be played
@@ -106,18 +99,7 @@ namespace Yak.ViewModel
         /// <summary>
         /// Initializes a new instance of the MoviePlayerViewModel class.
         /// </summary>
-        public MoviePlayerViewModel()   
-            : this(null, null)
-        {
-
-        }
-        #endregion
-
-        #region Constructor -> MoviePlayerViewModel
-        /// <summary>
-        /// Initializes a new instance of the MoviePlayerViewModel class.
-        /// </summary>
-        public MoviePlayerViewModel(MovieFullDetails movie, Uri movieUri)
+        public MoviePlayerViewModel(Uri movieUri)
         {
             Messenger.Default.Register<StopDownloadingMovieMessage>(
                 this, 
@@ -127,7 +109,6 @@ namespace Yak.ViewModel
                         OnStoppedDownloadingMovie(new EventArgs());
                     });
 
-            Movie = movie;
             MovieUri = movieUri;
             MediaVolume = 100;
 

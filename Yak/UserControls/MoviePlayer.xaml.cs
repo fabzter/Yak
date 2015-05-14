@@ -145,7 +145,7 @@ namespace Yak.UserControls
 
                 // start the activity timer used to manage visibility of the PlayerStatusBar
                 InputManager.Current.PreProcessInput += OnActivity;
-                _activityTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+                _activityTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
                 _activityTimer.Tick += OnInactivity;
 
                 vm.StoppedDownloadingMovie += OnStoppedDownloadingMovie;
@@ -398,7 +398,7 @@ namespace Yak.UserControls
             if (vm != null)
             {
                 vm.CurrentMovieProgress = MoviePlayerSliderProgress.Value;
-                MoviePlayerTextProgressStatus.Text = TimeSpan.FromSeconds(MoviePlayerSliderProgress.Value).ToString(@"hh\:mm\:ss", CultureInfo.CurrentCulture) + " / " + TimeSpan.FromSeconds(vm.Movie.Runtime * 60).ToString(@"hh\:mm\:ss", CultureInfo.CurrentCulture);
+                MoviePlayerTextProgressStatus.Text = TimeSpan.FromSeconds(MoviePlayerSliderProgress.Value).ToString(@"hh\:mm\:ss", CultureInfo.CurrentCulture) + " / " + TimeSpan.FromMilliseconds(Player.MediaPlayer.Length).ToString(@"hh\:mm\:ss", CultureInfo.CurrentCulture);
             }
         }
         #endregion
@@ -473,7 +473,7 @@ namespace Yak.UserControls
         void OnInactivity(object sender, EventArgs e)
         {
             // remember mouse position
-            _inactiveMousePosition = Mouse.GetPosition(MoviePlayerSliderProgress);
+            _inactiveMousePosition = Mouse.GetPosition(Container);
 
             if (PlayerStatusBar.Opacity.Equals(1.0))
             {
@@ -526,7 +526,7 @@ namespace Yak.UserControls
                         mouseEventArgs.MiddleButton == MouseButtonState.Released &&
                         mouseEventArgs.XButton1 == MouseButtonState.Released &&
                         mouseEventArgs.XButton2 == MouseButtonState.Released &&
-                        _inactiveMousePosition == mouseEventArgs.GetPosition(MoviePlayerSliderProgress))
+                        _inactiveMousePosition == mouseEventArgs.GetPosition(Container))
                         return;
                 }
 

@@ -122,12 +122,15 @@ namespace Yak.UserControls
                     opacityAnimation.KeyFrames.Add(startOpacityEasing);
                     opacityAnimation.KeyFrames.Add(endOpacityEasing);
 
-                    MovieContainer.BeginAnimation(OpacityProperty, opacityAnimation);
+                    Content.BeginAnimation(OpacityProperty, opacityAnimation);
                     #endregion
                 });
 
-                TrailerPlayer.Source = new Uri(e.TrailerUrl);
-                TrailerPlayer.Play();
+                var vm = DataContext as MainViewModel;
+                if (vm != null)
+                {
+                    vm.Trailer = new MoviePlayerViewModel(new Uri(e.TrailerUrl));
+                }
             }
         }
         #endregion
