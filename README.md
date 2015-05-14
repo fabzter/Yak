@@ -13,7 +13,7 @@ Depending on which country you live in, it may be not.
 Well, you may be thinking about Popcorn Time, don't you? If so, yes. The concept is not new, and this project is clearly inspired from it. Also, my primary goal was to make an alternative, using .NET framework.
 
 ## What does it use?
-I use .NET Framework 4.5 and C# for the backend. WPF/XAML for the interface. Libtorrent-rasterbar for torrent downloading.
+I use .NET Framework 4.6 and C# for the backend. WPF/XAML for the interface. Libtorrent-rasterbar for torrent downloading.
 
 ## Supported platforms
 At this time, only Windows 7+ is supported (Windows 7, 8, 8.1, 10 | 32/64 Bits). I plan to make it cross-platform using Mono.
@@ -22,7 +22,7 @@ At this time, only Windows 7+ is supported (Windows 7, 8, 8.1, 10 | 32/64 Bits).
 Of course yes! It's open-source so feel free to submit pull-request, I promise I'll consider them.
 
 ## Visual Studio .sln
-The solution is built using Visual Studio 2013.
+The solution is built using Visual Studio 2015.
 
 ## Yak VS Popcorn Time?
 Well, there's some points.
@@ -36,4 +36,8 @@ Well, there's some points.
 * API. It's simple: Yak uses the YTS and The Movie Database APIs, same ones that Popcorn Time uses.
 
 ## How do I compile the solution?
-* Just open the .sln with VS 2013+, right-click on the solution, click "Enable NuGet Package Restore" and run F5. 
+Just open the .sln with VS 2015, right-click on the solution, click "Enable NuGet Package Restore" and run F5. 
+
+## What if I don't have VS 2015/.NET 4.6 yet?
+This project is using some of the new features of C# 6, such as null-propagation. So, keep it in mind this project won't compile on earlier versions without making some code change.
+
