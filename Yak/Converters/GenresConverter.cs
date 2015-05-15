@@ -12,6 +12,7 @@ namespace Yak.Converters
     public class GenresConverter : IValueConverter
     {
         #region IValueConverter Members
+
         /// <summary>
         /// Used to add "/" character at the end of each genre
         /// </summary>
@@ -23,29 +24,28 @@ namespace Yak.Converters
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
-            string res = String.Empty;
+            var result = string.Empty;
 
-            if (value != null)
+            var genres = value as List<string>;
+            if (genres == null)
             {
-                List<string> genres = value as List<string>;
-                if (genres != null)
-                {
-                    int index = 0;
-                    foreach (string genre in genres)
-                    {
-                        index++;
+                return result;
+            }
 
-                        res += genre;
-                        // Add the slash at the end of each genre.
-                        if (index != genres.Count())
-                        {
-                            res += ", ";
-                        }
-                    }
+            var index = 0;
+            foreach (var genre in genres)
+            {
+                index++;
+
+                result += genre;
+                // Add the slash at the end of each genre.
+                if (index != genres.Count())
+                {
+                    result += ", ";
                 }
             }
 
-            return res;
+            return result;
         }
 
         /// <summary>

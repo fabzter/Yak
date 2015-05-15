@@ -24,7 +24,7 @@ namespace Yak.Converters
         /// <returns>Double value affected by the ratio</returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            double size = 0.0;
+            var size = 0.0;
             if (value != null)
             {
                 size = System.Convert.ToDouble(value, CultureInfo.InvariantCulture) * System.Convert.ToDouble(parameter, CultureInfo.InvariantCulture);

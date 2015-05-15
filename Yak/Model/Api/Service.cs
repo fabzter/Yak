@@ -43,7 +43,7 @@ namespace Yak.Model.Api
             request.AddParameter("limit", maxMoviesPerPage);
             request.AddParameter("page", pageNumberToLoad);
 
-            if (String.IsNullOrEmpty(searchParameter))
+            if (string.IsNullOrEmpty(searchParameter))
             {
                 request.AddParameter("sort_by", tabDescription.ApiSort);
             }
@@ -52,11 +52,11 @@ namespace Yak.Model.Api
                 request.AddParameter("query_term", searchParameter);
             }
 
-            List<Exception> ex = new List<Exception>();
-            WrapperMovieShortDetails results = new WrapperMovieShortDetails();
+            var ex = new List<Exception>();
+            var results = new WrapperMovieShortDetails();
             try
             {
-                IRestResponse response = await client.ExecuteTaskAsync(request, cancellationToken.Token);
+                var response = await client.ExecuteTaskAsync(request, cancellationToken.Token);
                 if (response != null)
                 {
                     results =
@@ -76,7 +76,7 @@ namespace Yak.Model.Api
                 ex.Add(e);
             }
 
-            if (results != null && results.Data != null && results.Data.Movies != null)
+            if (results?.Data?.Movies != null)
             {
                 return new Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>>(results.Data.Movies, ex);
             }
@@ -101,11 +101,11 @@ namespace Yak.Model.Api
             request.AddParameter("with_images", true);
             request.AddParameter("with_cast", true);
 
-            List<Exception> ex = new List<Exception>();
-            WrapperMovieFullDetails responseWrapper = new WrapperMovieFullDetails();
+            var ex = new List<Exception>();
+            var responseWrapper = new WrapperMovieFullDetails();
             try
             {
-                IRestResponse response = await restClient.ExecuteTaskAsync(request, cancellationToken.Token);
+                var response = await restClient.ExecuteTaskAsync(request, cancellationToken.Token);
                 if (response != null)
                 {
                     responseWrapper =
@@ -122,7 +122,7 @@ namespace Yak.Model.Api
                 ex.Add(e);
             }
 
-            if (responseWrapper != null && responseWrapper.Movie != null)
+            if (responseWrapper?.Movie != null)
             {
                 return new Tuple<MovieFullDetails, IEnumerable<Exception>>(responseWrapper.Movie, ex);
             }
@@ -141,8 +141,8 @@ namespace Yak.Model.Api
             string imageUrl,
             CancellationTokenSource cancellationToken)
         {
-            List<Exception> ex = new List<Exception>();
-            Tuple<string, Exception> coverImage = new Tuple<string, Exception>(String.Empty, null);
+            var ex = new List<Exception>();
+            var coverImage = new Tuple<string, Exception>(string.Empty, null);
 
             try
             {
@@ -179,7 +179,7 @@ namespace Yak.Model.Api
                 ex.Add(e);
             }
 
-            if (coverImage != null && coverImage.Item1 != null)
+            if (coverImage?.Item1 != null)
             {
                 return new Tuple<string, IEnumerable<Exception>>(coverImage.Item1, ex);
             }
@@ -198,8 +198,8 @@ namespace Yak.Model.Api
             string imageUrl,
             CancellationTokenSource cancellationToken)
         {
-            List<Exception> ex = new List<Exception>();
-            Tuple<string, Exception> posterImage = new Tuple<string, Exception>(String.Empty, null);
+            var ex = new List<Exception>();
+            var posterImage = new Tuple<string, Exception>(string.Empty, null);
 
             try
             {
@@ -236,7 +236,7 @@ namespace Yak.Model.Api
                 ex.Add(e);
             }
 
-            if (posterImage != null && posterImage.Item1 != null)
+            if (posterImage?.Item1 != null)
             {
                 return new Tuple<string, IEnumerable<Exception>>(posterImage.Item1, ex);
             }
@@ -255,8 +255,8 @@ namespace Yak.Model.Api
             string imageUrl,
             CancellationTokenSource cancellationToken)
         {
-            List<Exception> ex = new List<Exception>();
-            Tuple<string, Exception> directorImage = new Tuple<string, Exception>(String.Empty, null);
+            var ex = new List<Exception>();
+            var directorImage = new Tuple<string, Exception>(string.Empty, null);
 
             try
             {
@@ -293,7 +293,7 @@ namespace Yak.Model.Api
                 ex.Add(e);
             }
 
-            if (directorImage != null && directorImage.Item1 != null)
+            if (directorImage?.Item1 != null)
             {
                 return new Tuple<string, IEnumerable<Exception>>(directorImage.Item1, ex);
             }
@@ -312,8 +312,8 @@ namespace Yak.Model.Api
             string imageUrl,
             CancellationTokenSource cancellationToken)
         {
-            List<Exception> ex = new List<Exception>();
-            Tuple<string, Exception> actorImage = new Tuple<string, Exception>(String.Empty, null);
+            var ex = new List<Exception>();
+            var actorImage = new Tuple<string, Exception>(string.Empty, null);
 
             try
             {
@@ -350,7 +350,7 @@ namespace Yak.Model.Api
                 ex.Add(e);
             }
 
-            if (actorImage != null && actorImage.Item1 != null)
+            if (actorImage?.Item1 != null)
             {
                 return new Tuple<string, IEnumerable<Exception>>(actorImage.Item1, ex);
             }
@@ -367,23 +367,23 @@ namespace Yak.Model.Api
         public async Task<Tuple<string, IEnumerable<Exception>>> DownloadMovieBackgroundImageAsync(string imdbCode,
             CancellationTokenSource cancellationToken)
         {
-            List<Exception> ex = new List<Exception>();
-            string backgroundImage = String.Empty;
+            var ex = new List<Exception>();
+            var backgroundImage = string.Empty;
 
-            TMDbClient tmDbclient = new TMDbClient(Constants.TmDbClientId);
+            var tmDbclient = new TMDbClient(Constants.TmDbClientId);
 
             try
             {
                 tmDbclient.GetConfig();
-                TMDbLib.Objects.Movies.Movie movie = tmDbclient.GetMovie(imdbCode, MovieMethods.Images);
+                var movie = tmDbclient.GetMovie(imdbCode, MovieMethods.Images);
                 if (movie.ImdbId != null)
                 {
-                    Uri imageUri = tmDbclient.GetImageUrl(Constants.BackgroundImageSizeTmDb,
+                    var imageUri = tmDbclient.GetImageUrl(Constants.BackgroundImageSizeTmDb,
                         movie.Images.Backdrops.Aggregate((i1, i2) => i1.VoteAverage > i2.VoteAverage ? i1 : i2).FilePath);
 
                     try
                     {
-                        Tuple<string, Exception> res =
+                        var res =
                             await
                                 DownloadFileAsync(imdbCode, imageUri, Constants.FileType.BackgroundImage,
                                     cancellationToken.Token);
@@ -436,14 +436,15 @@ namespace Yak.Model.Api
         public Tuple<Trailers, Exception> GetMovieTrailer(string imdbCode)
         {
             Exception ex = null;
-            Trailers trailers = new Trailers();
+            var trailers = new Trailers();
 
-            TMDbClient tmDbclient = new TMDbClient(Constants.TmDbClientId);
-            tmDbclient.GetConfig();
+            var tmDbclient = new TMDbClient(Constants.TmDbClientId);
 
             try
             {
-                TMDbLib.Objects.Movies.Movie movie = tmDbclient.GetMovie(imdbCode);
+                tmDbclient.GetConfig();
+
+                var movie = tmDbclient.GetMovie(imdbCode);
                 if (movie.ImdbId != null)
                 {
                     trailers = tmDbclient.GetMovieTrailers(movie.Id);
@@ -475,8 +476,8 @@ namespace Yak.Model.Api
         {
             if (fileUri != null)
             {
-                string pathDirectory = String.Empty;
-                string extension = String.Empty;
+                var pathDirectory = string.Empty;
+                var extension = string.Empty;
                 switch (fileType)
                 {
                     case Constants.FileType.BackgroundImage:
@@ -506,7 +507,7 @@ namespace Yak.Model.Api
                     default:
                         return new Tuple<string, Exception>(fileName, new Exception());
                 }
-                string downloadToDirectory = pathDirectory + fileName + extension;
+                var downloadToDirectory = pathDirectory + fileName + extension;
 
 
                 if (!Directory.Exists(pathDirectory))
@@ -533,7 +534,7 @@ namespace Yak.Model.Api
 
                             try
                             {
-                                FileInfo fi = new FileInfo(downloadToDirectory);
+                                var fi = new FileInfo(downloadToDirectory);
                                 if (fi.Length == 0)
                                 {
                                     return new Tuple<string, Exception>(fileName, new Exception());
@@ -558,7 +559,7 @@ namespace Yak.Model.Api
                     {
                         try
                         {
-                            FileInfo fi = new FileInfo(downloadToDirectory);
+                            var fi = new FileInfo(downloadToDirectory);
                             if (fi.Length == 0)
                             {
                                 try
@@ -569,7 +570,7 @@ namespace Yak.Model.Api
                                         await
                                             webClient.DownloadFileTaskAsync(fileUri, downloadToDirectory);
 
-                                        FileInfo newfi = new FileInfo(downloadToDirectory);
+                                        var newfi = new FileInfo(downloadToDirectory);
                                         if (newfi.Length == 0)
                                         {
                                             return new Tuple<string, Exception>(fileName, new Exception());

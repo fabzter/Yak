@@ -16,11 +16,7 @@ namespace Yak.Comparers
         /// <returns>True if both movies are the same, false otherwise</returns>
         public bool Equals(MovieShortDetails movie1, MovieShortDetails movie2)
         {
-            if (movie1.Id == movie2.Id && movie1.DateUploadedUnix == movie2.DateUploadedUnix)
-            {
-                return true;
-            }
-            return false;
+            return movie1.Id == movie2.Id && movie1.DateUploadedUnix == movie2.DateUploadedUnix;
         }
 
         /// <summary>
@@ -30,7 +26,7 @@ namespace Yak.Comparers
         /// <returns>Unique hashcode</returns>
         public int GetHashCode(MovieShortDetails movie)
         {
-            int hCode = movie.Id ^ movie.DateUploadedUnix;
+            var hCode = movie.Id ^ movie.DateUploadedUnix;
             return hCode.GetHashCode();
         }
     }

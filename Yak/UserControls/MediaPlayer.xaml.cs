@@ -91,21 +91,21 @@ namespace Yak.UserControls
         /// <summary>
         /// Indicate if user is manipulating the timeline player
         /// </summary>
-        private bool UserIsDraggingMoviePlayerSlider;
+        private bool UserIsDraggingMoviePlayerSlider { get; set; }
         #endregion
 
         #region Property -> MoviePlayerTimer
         /// <summary>
         /// Timer used for report time on the timeline
         /// </summary>
-        private DispatcherTimer MoviePlayerTimer;
+        private DispatcherTimer MoviePlayerTimer { get; set; }
         #endregion
 
-        #region Property -> fullScreenMediaPlayer
+        #region Property -> FullScreenMediaPlayer
         /// <summary>
         /// The media player used in FullScreen mode
         /// </summary>
-        private FullScreenMediaPlayer fullScreenMediaPlayer;
+        private FullScreenMediaPlayer FullScreenMediaPlayer { get; set; }
         #endregion
 
         #endregion
@@ -154,7 +154,10 @@ namespace Yak.UserControls
 
                 vm.BackToNormalScreenChanged += OnBackToNormalScreen;
 
-                Window.GetWindow(this).Closing += (s1, e1) => Dispose();
+                if (Window.GetWindow(this) != null)
+                {
+                    Window.GetWindow(this).Closing += (s1, e1) => Dispose();
+                }
 
                 // Set the Vlc lib directory used by MediaPlayer
                 Player.MediaPlayer.VlcLibDirectory = Helpers.Constants.GetVlcLibDirectory();
@@ -183,9 +186,9 @@ namespace Yak.UserControls
                 {
                     Dispose();
                 }
-                else if (MoviePlayerIsPlaying && Player != null && Player.MediaPlayer != null)
+                else if (MoviePlayerIsPlaying)
                 {
-                    Player.MediaPlayer.Pause();
+                    Player?.MediaPlayer?.Pause();
                 }
             }
         }
@@ -199,12 +202,12 @@ namespace Yak.UserControls
         /// <param name="obj">obj</param>
         private static void OnVolumeChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            MediaPlayer moviePlayer = obj as MediaPlayer;
+            var moviePlayer = obj as MediaPlayer;
             if (moviePlayer != null)
             {
-                int newVolume = (int)e.NewValue;
+                var newVolume = (int)e.NewValue;
                 moviePlayer.ChangeMediaVolume(newVolume);
-                MediaPlayerViewModel vm = moviePlayer.DataContext as MediaPlayerViewModel;
+                var vm = moviePlayer.DataContext as MediaPlayerViewModel;
                 if (vm != null)
                 {
                     vm.MediaVolume = newVolume;
@@ -234,9 +237,9 @@ namespace Yak.UserControls
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
-                if (Player != null && Player.MediaPlayer != null && MoviePlayerIsPlaying)
+                if (MoviePlayerIsPlaying)
                 {
-                    Player.MediaPlayer.Stop();
+                    Player?.MediaPlayer?.Stop();
                     MoviePlayerIsPlaying = false;
                 }
             });
@@ -266,7 +269,7 @@ namespace Yak.UserControls
         /// <param name="e">EventArgs</param>
         private void MoviePlayerTimer_Tick(object sender, EventArgs e)
         {
-            if ((Player != null && Player.MediaPlayer != null) && (!UserIsDraggingMoviePlayerSlider))
+            if ((Player?.MediaPlayer != null) && (!UserIsDraggingMoviePlayerSlider))
             {
                 MoviePlayerSliderProgress.Minimum = 0;
                 MoviePlayerSliderProgress.Maximum = TimeSpan.FromMilliseconds(Player.MediaPlayer.Length).TotalSeconds;
@@ -285,7 +288,7 @@ namespace Yak.UserControls
         {
             if (MoviePlayerStatusBarItemPlay != null && MoviePlayerStatusBarItemPause != null)
             {
-                e.CanExecute = (Player != null) && (Player.MediaPlayer != null);
+                e.CanExecute = Player?.MediaPlayer != null;
                 if (MoviePlayerIsPlaying)
                 {
                     MoviePlayerStatusBarItemPlay.Visibility = Visibility.Collapsed;
@@ -350,7 +353,7 @@ namespace Yak.UserControls
         /// <param name="e">CanExecuteRoutedEventArgs</param>
         private void MoviePlayerPause_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Player.MediaPlayer.Pause();
+            Player?.MediaPlayer?.Pause();
             MoviePlayerIsPlaying = false;
 
             MoviePlayerStatusBarItemPlay.Visibility = Visibility.Visible;
@@ -426,14 +429,14 @@ namespace Yak.UserControls
             var mediaPlayerViewModel = DataContext as MediaPlayerViewModel;
             if (mediaPlayerViewModel != null && !IsInFullScreen)
             {
-                if (fullScreenMediaPlayer == null)
+                if (FullScreenMediaPlayer == null)
                 {
-                    fullScreenMediaPlayer = new FullScreenMediaPlayer();
-                    fullScreenMediaPlayer.Closed += (o, args) => fullScreenMediaPlayer = null;
-                    fullScreenMediaPlayer.DataContext = DataContext;
+                    FullScreenMediaPlayer = new FullScreenMediaPlayer();
+                    FullScreenMediaPlayer.Closed += (o, args) => FullScreenMediaPlayer = null;
+                    FullScreenMediaPlayer.DataContext = DataContext;
                     Player.MediaPlayer.Pause();
-                    fullScreenMediaPlayer.Launch();
-                    fullScreenMediaPlayer.PlayerUc.Volume = mediaPlayerViewModel.MediaVolume;
+                    FullScreenMediaPlayer.Launch();
+                    FullScreenMediaPlayer.PlayerUc.Volume = mediaPlayerViewModel.MediaVolume;
                     IsInFullScreen = true;
                 }
             }
@@ -477,12 +480,12 @@ namespace Yak.UserControls
                 // set UI on inactivity
                 #region Fade in PlayerStatusBar opacity
 
-                DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+                var opacityAnimation = new DoubleAnimationUsingKeyFrames();
                 opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-                PowerEase opacityEasingFunction = new PowerEase();
+                var opacityEasingFunction = new PowerEase();
                 opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(0));
-                EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(1.0),
+                var startOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(0));
+                var endOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(1.0),
                     opacityEasingFunction);
                 opacityAnimation.KeyFrames.Add(startOpacityEasing);
                 opacityAnimation.KeyFrames.Add(endOpacityEasing);
@@ -509,13 +512,13 @@ namespace Yak.UserControls
         /// <param name="e">EventArgs</param>
         void OnActivity(object sender, PreProcessInputEventArgs e)
         {
-            InputEventArgs inputEventArgs = e.StagingItem.Input;
+            var inputEventArgs = e.StagingItem.Input;
 
             if (inputEventArgs is MouseEventArgs || inputEventArgs is KeyboardEventArgs)
             {
                 if (e.StagingItem.Input is MouseEventArgs)
                 {
-                    MouseEventArgs mouseEventArgs = (MouseEventArgs)e.StagingItem.Input;
+                    var mouseEventArgs = (MouseEventArgs)e.StagingItem.Input;
 
                     // no button is pressed and the position is still the same as the application became inactive
                     if (mouseEventArgs.LeftButton == MouseButtonState.Released &&
@@ -532,12 +535,12 @@ namespace Yak.UserControls
                     // set UI on activity
                     #region Fade out PlayerStatusBar opacity
 
-                    DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+                    var opacityAnimation = new DoubleAnimationUsingKeyFrames();
                     opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-                    PowerEase opacityEasingFunction = new PowerEase();
+                    var opacityEasingFunction = new PowerEase();
                     opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                    EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(0));
-                    EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(1.0),
+                    var startOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(0));
+                    var endOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(1.0),
                         opacityEasingFunction);
                     opacityAnimation.KeyFrames.Add(startOpacityEasing);
                     opacityAnimation.KeyFrames.Add(endOpacityEasing);

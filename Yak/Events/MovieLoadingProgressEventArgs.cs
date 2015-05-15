@@ -7,37 +7,22 @@ namespace Yak.Events
     /// </summary>
     public class MovieLoadingProgressEventArgs : EventArgs
     {
-        private readonly double _progress;
-        private readonly int _downloadRate;
-
         #region Constructor
         public MovieLoadingProgressEventArgs(double progress, int downloadRate)
         {
-            _progress = progress;
-            _downloadRate = downloadRate;
+            Progress = progress;
+            DownloadRate = downloadRate;
         }
         #endregion
 
         #region Properties
 
         #region Property -> Progress
-        public double Progress
-        {
-            get
-            {
-                return _progress;
-            }
-        }
+        public double Progress { get; private set; }
         #endregion
 
         #region Property -> DownloadRate
-        public int DownloadRate
-        {
-            get
-            {
-                return _downloadRate;
-            }
-        }
+        public int DownloadRate { get; private set; }
         #endregion
 
         #endregion

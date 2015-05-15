@@ -10,6 +10,7 @@ namespace Yak.Converters
     public class StringRatingToIntRatingConverter : IValueConverter
     {
         #region IValueConverter Members
+
         /// <summary>
         /// Convert rating string ("0" to "10") to a double (0.0 to 5.0)
         /// </summary>
@@ -21,25 +22,27 @@ namespace Yak.Converters
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
-            double result = 0.0;
-            string rating = value as string;
+            var result = 0.0;
+            var rating = value as string;
 
-            if (rating != null)
+            if (rating == null)
             {
-                try
-                {
-                    result = System.Convert.ToDouble(rating, CultureInfo.InvariantCulture);
-                }
-                catch (Exception)
-                {
-                    return result;
-                }
+                return result;
+            }
 
-                if (!double.Equals(result, 0.0))
-                {
-                    result = result / 2.0;
-                    result = Math.Round(result);
-                }
+            try
+            {
+                result = System.Convert.ToDouble(rating, CultureInfo.InvariantCulture);
+            }
+            catch (Exception)
+            {
+                return result;
+            }
+
+            if (!double.Equals(result, 0.0))
+            {
+                result = result/2.0;
+                result = Math.Round(result);
             }
 
             return result;

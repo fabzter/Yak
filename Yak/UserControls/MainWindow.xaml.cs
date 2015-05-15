@@ -62,13 +62,10 @@ namespace Yak.UserControls
                     vm.StopDownloadingMovie();
                 }
 
-                foreach (object tab in vm.MoviesViewModelTabs)
+                foreach (var tab in vm.MoviesViewModelTabs)
                 {
                     var moviesViewModelTab = tab as MoviesViewModel;
-                    if (moviesViewModelTab != null)
-                    {
-                        moviesViewModelTab.Cleanup();
-                    }
+                    moviesViewModelTab?.Cleanup();
                 }
             }            
 
@@ -111,12 +108,12 @@ namespace Yak.UserControls
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
                 #region Fade in content opacity
-                DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+                var opacityAnimation = new DoubleAnimationUsingKeyFrames();
                 opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-                PowerEase opacityEasingFunction = new PowerEase();
+                var opacityEasingFunction = new PowerEase();
                 opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(0));
-                EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(1.0),
+                var startOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(0));
+                var endOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(1.0),
                     opacityEasingFunction);
                 opacityAnimation.KeyFrames.Add(startOpacityEasing);
                 opacityAnimation.KeyFrames.Add(endOpacityEasing);
@@ -149,12 +146,12 @@ namespace Yak.UserControls
                 else
                 {
                     #region Fade in content opacity
-                    DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+                    var opacityAnimation = new DoubleAnimationUsingKeyFrames();
                     opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-                    PowerEase opacityEasingFunction = new PowerEase();
+                    var opacityEasingFunction = new PowerEase();
                     opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                    EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(0));
-                    EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(1.0),
+                    var startOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(0));
+                    var endOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(1.0),
                         opacityEasingFunction);
                     opacityAnimation.KeyFrames.Add(startOpacityEasing);
                     opacityAnimation.KeyFrames.Add(endOpacityEasing);
@@ -195,15 +192,14 @@ namespace Yak.UserControls
                 ProgressBar.Value = e.Progress;
 
                 // The percentage here is related to the buffering progress
-                double percentage = e.Progress/Helpers.Constants.MinimumBufferingBeforeMoviePlaying*100.0;
+                var percentage = e.Progress/Helpers.Constants.MinimumBufferingBeforeMoviePlaying*100.0;
 
                 if (percentage >= 100.0)
                 {
                     var vm = DataContext as MainViewModel;
                     if (vm != null)
                     {
-                        MediaPlayerViewModel searchTabToRemove = null;
-                        foreach (object tab in vm.MoviesViewModelTabs)
+                        foreach (var tab in vm.MoviesViewModelTabs)
                         {
                             var moviesViewModel = tab as MediaPlayerViewModel;
                             if (moviesViewModel != null)
@@ -241,12 +237,12 @@ namespace Yak.UserControls
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
                 #region Fade in opacity
-                DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+                var opacityAnimation = new DoubleAnimationUsingKeyFrames();
                 opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-                PowerEase opacityEasingFunction = new PowerEase();
+                var opacityEasingFunction = new PowerEase();
                 opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(0));
-                EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(1.0),
+                var startOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(0));
+                var endOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(1.0),
                     opacityEasingFunction);
                 opacityAnimation.KeyFrames.Add(startOpacityEasing);
                 opacityAnimation.KeyFrames.Add(endOpacityEasing);
@@ -292,12 +288,12 @@ namespace Yak.UserControls
 
                 #region Fade in opacity
 
-                DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+                var opacityAnimation = new DoubleAnimationUsingKeyFrames();
                 opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-                PowerEase opacityEasingFunction = new PowerEase();
+                var opacityEasingFunction = new PowerEase();
                 opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(0));
-                EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(1.0),
+                var startOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(0));
+                var endOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(1.0),
                     opacityEasingFunction);
                 opacityAnimation.KeyFrames.Add(startOpacityEasing);
                 opacityAnimation.KeyFrames.Add(endOpacityEasing);
@@ -315,8 +311,8 @@ namespace Yak.UserControls
         /// Play the movie when buffered
         /// </summary>
         /// <param name="sender">Sender object</param>
-        /// <param name="e">MovieBufferedEventArgs</param>
-        private void OnBufferedMovie(object sender, MovieBufferedEventArgs e)
+        /// <param name="e">Event args</param>
+        private void OnBufferedMovie(object sender, EventArgs e)
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
             {
@@ -335,13 +331,13 @@ namespace Yak.UserControls
         /// Open the popup when a connection error has occured
         /// </summary>
         /// <param name="sender">Sender object</param>
-        /// <param name="e">MovieBufferedEventArgs</param>
+        /// <param name="e">Event args</param>
         private async void OnConnectionInError(object sender, EventArgs e)
         {
             // Set and open a MetroDialog to inform that a connection error occured
-            MetroDialogSettings settings = new MetroDialogSettings();
+            var settings = new MetroDialogSettings();
             settings.ColorScheme = MetroDialogColorScheme.Theme;
-            MessageDialogResult result = await
+            var result = await
                 this.ShowMessageAsync("Internet connection error.",
                     "You seem to have an internet connection error. Please retry.",
                     MessageDialogStyle.Affirmative, settings);
@@ -378,12 +374,12 @@ namespace Yak.UserControls
 
                 #region Fade out opacity
 
-                DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+                var opacityAnimation = new DoubleAnimationUsingKeyFrames();
                 opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-                PowerEase opacityEasingFunction = new PowerEase();
+                var opacityEasingFunction = new PowerEase();
                 opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(0));
-                EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(1.0),
+                var startOpacityEasing = new EasingDoubleKeyFrame(0.0, KeyTime.FromPercent(0));
+                var endOpacityEasing = new EasingDoubleKeyFrame(1.0, KeyTime.FromPercent(1.0),
                     opacityEasingFunction);
                 opacityAnimation.KeyFrames.Add(startOpacityEasing);
                 opacityAnimation.KeyFrames.Add(endOpacityEasing);

@@ -27,7 +27,7 @@ namespace Yak.Converters
 
             if (!string.IsNullOrEmpty(value.ToString()))
             {
-                BitmapImage bi = new BitmapImage();
+                var bi = new BitmapImage();
                 bi.BeginInit();
                 bi.UriSource = new Uri(value.ToString());
                 bi.CacheOption = BitmapCacheOption.OnLoad;

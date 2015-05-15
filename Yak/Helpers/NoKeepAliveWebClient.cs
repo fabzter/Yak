@@ -19,7 +19,7 @@ namespace Yak.Helpers
         {
             var request = base.GetWebRequest(address);
 
-            HttpWebRequest req = request as HttpWebRequest;
+            var req = request as HttpWebRequest;
             if (req != null)
             {
                 req.KeepAlive = false;

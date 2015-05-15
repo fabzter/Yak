@@ -71,7 +71,7 @@ namespace Yak.Model.Movie
         [JsonProperty("execution_time")]
         public string ExecutionTime { get; set; }
 
-        private string _mediumCoverImageUri = String.Empty;
+        private string _mediumCoverImageUri = string.Empty;
         public string MediumCoverImageUri
         {
             get { return _mediumCoverImageUri; }

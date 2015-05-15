@@ -23,8 +23,8 @@ namespace Yak.Converters
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
-            string runtime = String.Empty;
-            double result = 0.0;
+            var runtime = string.Empty;
+            var result = 0.0;
 
             try
             {
@@ -37,8 +37,8 @@ namespace Yak.Converters
 
             if (result >= 60.0)
             {
-                double hours = result / 60.0;
-                double minutes = result % 60.0;
+                var hours = result / 60.0;
+                var minutes = result % 60.0;
 
                 if (minutes < 10.0)
                 {

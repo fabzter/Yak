@@ -31,22 +31,27 @@ namespace Yak.ViewModel
         #region Properties
 
         #region Property -> ApiService
+
         /// <summary>
         /// The service used to consume APIs
         /// </summary>
-        private IService ApiService { get; set; }
+        private IService ApiService { get; }
+
         #endregion
 
         #region Property -> Movie
+
         /// <summary>
         /// The movie to play, retrieved from YTS API
         /// </summary>
         private MovieFullDetails _movie = new MovieFullDetails();
+
         public MovieFullDetails Movie
         {
             get { return _movie; }
             set { Set(() => Movie, ref _movie, value, true); }
         }
+
         #endregion
 
         #region Property -> Trailer
@@ -55,18 +60,22 @@ namespace Yak.ViewModel
         /// The trailer
         /// </summary>
         private MediaPlayerViewModel _trailer;
+
         public MediaPlayerViewModel Trailer
         {
             get { return _trailer; }
             set { Set(() => Trailer, ref _trailer, value, true); }
         }
+
         #endregion
 
         #region Property -> MoviesViewModelTabs
+
         /// <summary>
         /// Tabs shown into the interface via TabControl
         /// </summary>
         private ObservableCollection<object> _moviesViewModelTabs;
+
         /// <summary>
         /// Tabs shown into the interface via TabControl
         /// </summary>
@@ -75,13 +84,16 @@ namespace Yak.ViewModel
             get { return _moviesViewModelTabs; }
             set { Set(() => MoviesViewModelTabs, ref _moviesViewModelTabs, value, true); }
         }
+
         #endregion
 
         #region Property -> SelectedTabViewModel
+
         /// <summary>
         /// The selected viewmodel tab via TabControl
         /// </summary>
         private object _selectedTabViewModel;
+
         /// <summary>
         /// The selected viewmodel tab via TabControl
         /// </summary>
@@ -90,34 +102,43 @@ namespace Yak.ViewModel
             get { return _selectedTabViewModel; }
             set { Set(() => SelectedTabViewModel, ref _selectedTabViewModel, value, true); }
         }
+
         #endregion
 
         #region Property -> CancellationLoadingToken
+
         /// <summary>
         /// Token to cancel movie loading
         /// </summary>
         private CancellationTokenSource CancellationLoadingToken { get; set; }
+
         #endregion
 
         #region Property -> CancellationDownloadingToken
+
         /// <summary>
         /// Token to cancel movie downloading
         /// </summary>
         private CancellationTokenSource CancellationDownloadingToken { get; set; }
+
         #endregion
 
         #region Property -> CancellationLoadingTrailerToken
+
         /// <summary>
         /// Token to cancel trailer loading
         /// </summary>
         private CancellationTokenSource CancellationLoadingTrailerToken { get; set; }
+
         #endregion
 
         #region Property -> IsDownloadingMovie
+
         /// <summary>
         /// Specify if a movie is downloading
         /// </summary>
         private bool _isDownloadingMovie;
+
         /// <summary>
         /// Specify if a movie is downloading
         /// </summary>
@@ -126,13 +147,16 @@ namespace Yak.ViewModel
             get { return _isDownloadingMovie; }
             set { Set(() => IsDownloadingMovie, ref _isDownloadingMovie, value, true); }
         }
+
         #endregion
 
         #region Property -> IsMovieTrailerLoading
+
         /// <summary>
         /// Specify if a trailer is loading
         /// </summary>
         private bool _isMovieTrailerLoading;
+
         /// <summary>
         /// Specify if a trailer is loading
         /// </summary>
@@ -141,13 +165,16 @@ namespace Yak.ViewModel
             get { return _isMovieTrailerLoading; }
             set { Set(() => IsMovieTrailerLoading, ref _isMovieTrailerLoading, value, true); }
         }
+
         #endregion
 
         #region Property -> IsConnectionInError
+
         /// <summary>
         /// Specify if a connection error has occured
         /// </summary>
         private bool _isConnectionInError;
+
         /// <summary>
         /// Specify if a connection error has occured
         /// </summary>
@@ -160,34 +187,36 @@ namespace Yak.ViewModel
         #endregion
 
         #region Property -> SearchMessageToken
+
         /// <summary>
         /// Token for message subscription when searching movies
         /// </summary>
         private readonly Guid _searchMessageToken = Guid.NewGuid();
+
         #endregion
 
         #region Property -> SearchMoviesFilter
+
         /// <summary>
         /// The filter for searching movies
         /// </summary>
         private string _searchMoviesFilter;
+
         /// <summary>
         /// The filter for searching movies
         /// </summary>
         public string SearchMoviesFilter
         {
-            get
-            {
-                return _searchMoviesFilter;
-
-            }
+            get { return _searchMoviesFilter; }
             set
             {
                 if (_searchMoviesFilter != value)
                 {
-                    string oldValue = _searchMoviesFilter;
+                    var oldValue = _searchMoviesFilter;
                     _searchMoviesFilter = value;
-                    Messenger.Default.Send(new PropertyChangedMessage<string>(oldValue, _searchMoviesFilter, "SearchMoviesFilter"), _searchMessageToken);
+                    Messenger.Default.Send(
+                        new PropertyChangedMessage<string>(oldValue, _searchMoviesFilter, "SearchMoviesFilter"),
+                        _searchMessageToken);
 
                     RemoveSearchTabIfEmptySearch();
                 }
@@ -197,23 +226,28 @@ namespace Yak.ViewModel
         #endregion
 
         #region Property -> DeleteMovieFile
+
         /// <summary>
         /// Delete movie files when movie downloading has been cancelled
         /// </summary>
-        private Action<bool> DeleteMovieFilesWhenCancelledDownloading;
+        private Action<bool> DeleteMovieFilesWhenCancelledDownloading { get; set; }
+
         #endregion
 
         #region Property -> StreamingQualityMap
+
         /// <summary>
         /// Map for defining youtube video quality
         /// </summary>
-        private static readonly IReadOnlyDictionary<Constants.YoutubeStreamingQuality, IEnumerable<int>> StreamingQualityMap =
-    new Dictionary<Constants.YoutubeStreamingQuality, IEnumerable<int>>
-            {
-                { Constants.YoutubeStreamingQuality.High, new HashSet<int> { 1080, 720 } },
-                { Constants.YoutubeStreamingQuality.Medium, new HashSet<int> { 480 } },
-                { Constants.YoutubeStreamingQuality.Low, new HashSet<int> { 360, 240 } }
-            };
+        private static readonly IReadOnlyDictionary<Constants.YoutubeStreamingQuality, IEnumerable<int>>
+            StreamingQualityMap =
+                new Dictionary<Constants.YoutubeStreamingQuality, IEnumerable<int>>
+                {
+                    {Constants.YoutubeStreamingQuality.High, new HashSet<int> {1080, 720}},
+                    {Constants.YoutubeStreamingQuality.Medium, new HashSet<int> {480}},
+                    {Constants.YoutubeStreamingQuality.Low, new HashSet<int> {360, 240}}
+                };
+
         #endregion
 
         #endregion
@@ -221,80 +255,66 @@ namespace Yak.ViewModel
         #region Commands
 
         #region Command -> StopDownloadingMovieCommand
+
         /// <summary>
         /// StopDownloadingMovieCommand
         /// </summary>
-        public RelayCommand StopDownloadingMovieCommand
-        {
-            get;
-            private set;
-        }
+        public RelayCommand StopDownloadingMovieCommand { get; private set; }
+
         #endregion
 
         #region Command -> StopLoadingTrailerCommand
+
         /// <summary>
         /// StopLoadingTrailerCommand
         /// </summary>
-        public RelayCommand StopLoadingTrailerCommand
-        {
-            get;
-            private set;
-        }
+        public RelayCommand StopLoadingTrailerCommand { get; private set; }
+
         #endregion
 
         #region Command -> DownloadMovieCommand
+
         /// <summary>
         /// DownloadMovieCommand
         /// </summary>
-        public RelayCommand DownloadMovieCommand
-        {
-            get;
-            private set;
-        }
+        public RelayCommand DownloadMovieCommand { get; private set; }
+
         #endregion
 
         #region Command -> LoadMovieCommand
+
         /// <summary>
         /// LoadMovieCommand
         /// </summary>
-        public RelayCommand<MovieShortDetails> LoadMovieCommand
-        {
-            get;
-            private set;
-        }
+        public RelayCommand<MovieShortDetails> LoadMovieCommand { get; private set; }
+
         #endregion
 
         #region Command -> GetTrailerCommand
+
         /// <summary>
         /// GetTrailerCommand
         /// </summary>
-        public RelayCommand GetTrailerCommand
-        {
-            get;
-            private set;
-        }
+        public RelayCommand GetTrailerCommand { get; private set; }
+
         #endregion
 
         #region Command -> MainWindowClosingCommand
+
         /// <summary>
         /// MainWindowClosingCommand
         /// </summary>
-        public RelayCommand MainWindowClosingCommand
-        {
-            get;
-            private set;
-        }
+        public RelayCommand MainWindowClosingCommand { get; private set; }
+
         #endregion
 
         #region Command -> SearchMovieCommand
+
         /// <summary>
         /// SearchMovieCommand
         /// </summary>
-        public RelayCommand SearchMovieCommand
-        {
-            get;
-            private set;
-        }
+        public RelayCommand SearchMovieCommand { get; private set; }
+
         #endregion
 
         #endregion
@@ -302,6 +322,7 @@ namespace Yak.ViewModel
         #region Constructors
 
         #region Constructor -> MainViewModel
+
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
@@ -309,9 +330,11 @@ namespace Yak.ViewModel
             : this(new Service())
         {
         }
+
         #endregion
 
         #region Constructor -> MainViewModel
+
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
@@ -321,7 +344,8 @@ namespace Yak.ViewModel
             ApiService = apiService;
 
             // Inform subscribers a connection error has occured
-            Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName, arg => OnConnectionError(new ConnectionErrorEventArgs(arg)));
+            Messenger.Default.Register<bool>(this, Constants.ConnectionErrorPropertyName,
+                arg => OnConnectionError(new ConnectionErrorEventArgs(arg)));
 
             // Create and open movie tab of the buffered movie
             Messenger.Default.Register<MovieBufferedMessage>(this, e =>
@@ -338,7 +362,7 @@ namespace Yak.ViewModel
                     SelectedTabViewModel = MoviesViewModelTabs.Last();
 
                     // Inform subscribers that a movie has been buffered
-                    OnBufferedMovie(new MovieBufferedEventArgs(e.MovieUri));
+                    OnBufferedMovie(new EventArgs());
                 });
             });
 
@@ -376,6 +400,7 @@ namespace Yak.ViewModel
             CancellationDownloadingToken = new CancellationTokenSource();
 
             #region Commands
+
             // Search movies with the current SearchMoviesFilter as criteria
             SearchMovieCommand = new RelayCommand(async () =>
             {
@@ -385,13 +410,14 @@ namespace Yak.ViewModel
             // Stop downloading a movie
             StopDownloadingMovieCommand = new RelayCommand(() =>
             {
-                Messenger.Default.Send<StopPlayingMediaMessage>(new StopPlayingMediaMessage(Constants.MediaType.Movie, DeleteMovieFilesWhenCancelledDownloading));
+                Messenger.Default.Send(new StopPlayingMediaMessage(Constants.MediaType.Movie,
+                    DeleteMovieFilesWhenCancelledDownloading));
             });
 
             // Stop loading a trailer
             StopLoadingTrailerCommand = new RelayCommand(() =>
             {
-                Messenger.Default.Send<StopPlayingMediaMessage>(new StopPlayingMediaMessage(Constants.MediaType.Trailer, null));
+                Messenger.Default.Send(new StopPlayingMediaMessage(Constants.MediaType.Trailer, null));
             });
 
             // Download the current movie
@@ -425,21 +451,22 @@ namespace Yak.ViewModel
                 CancellationLoadingTrailerToken = new CancellationTokenSource();
                 await GetTrailer(Movie.ImdbCode);
             });
+
             #endregion
 
             // Creates the different tabs in the tab control
             MoviesViewModelTabs = new ObservableCollection<object>
             {
                 new MoviesViewModel
-                { 
+                {
                     Tab = new TabDescription(TabDescription.TabType.Popular),
                 },
                 new MoviesViewModel
-                { 
+                {
                     Tab = new TabDescription(TabDescription.TabType.Greatest),
                 },
                 new MoviesViewModel
-                { 
+                {
                     Tab = new TabDescription(TabDescription.TabType.Recent),
                 }
             };
@@ -447,6 +474,7 @@ namespace Yak.ViewModel
             // Select the Popular tab at the beginning
             SelectedTabViewModel = MoviesViewModelTabs.FirstOrDefault();
         }
+
         #endregion
 
         #endregion
@@ -454,13 +482,14 @@ namespace Yak.ViewModel
         #region Methods
 
         #region Method -> SearchMovies
+
         /// <summary>
         /// Search for movie with a criteria
         /// </summary>
         /// <param name="criteria">The criteria used for search</param>
         private async Task SearchMovies(string criteria)
         {
-            foreach (object tab in MoviesViewModelTabs)
+            foreach (var tab in MoviesViewModelTabs)
             {
                 // Looking for a Search tab. If any, search movies with the criteria, and select this tab to be shown in the UI
                 var moviesViewModel = tab as MoviesViewModel;
@@ -496,19 +525,21 @@ namespace Yak.ViewModel
                 await searchMovieTab.SearchMovies(criteria);
             }
         }
+
         #endregion
 
         #region Method -> RemoveSearchTabIfEmptySearch
+
         /// <summary>
         /// Remove the Search tab if search filter is empty
         /// </summary>
         private void RemoveSearchTabIfEmptySearch()
         {
-            if (String.IsNullOrEmpty(_searchMoviesFilter))
+            if (string.IsNullOrEmpty(_searchMoviesFilter))
             {
                 // The search filter is empty. We have to find the search tab if any
-                MoviesViewModel searchTabToRemove = new MoviesViewModel();
-                foreach (object tab in MoviesViewModelTabs)
+                var searchTabToRemove = new MoviesViewModel();
+                foreach (var tab in MoviesViewModelTabs)
                 {
                     var moviesViewModel = tab as MoviesViewModel;
                     if (moviesViewModel != null && moviesViewModel.Tab.TabName.Equals("Search"))
@@ -525,15 +556,18 @@ namespace Yak.ViewModel
                 }
 
                 // Remove the search tab
-                if (!String.IsNullOrEmpty(searchTabToRemove.Tab?.TabName) && searchTabToRemove.Tab.TabName.Equals("Search"))
+                if (!string.IsNullOrEmpty(searchTabToRemove.Tab?.TabName) &&
+                    searchTabToRemove.Tab.TabName.Equals("Search"))
                 {
                     MoviesViewModelTabs.Remove(searchTabToRemove);
                 }
             }
         }
+
         #endregion
 
         #region Method -> LoadMovie
+
         /// <summary>
         /// Get the requested movie
         /// </summary>
@@ -547,9 +581,8 @@ namespace Yak.ViewModel
             OnLoadingMovie(new EventArgs());
 
             // Get the requested movie using the service
-            Tuple<MovieFullDetails, IEnumerable<Exception>> movie =
-                await ApiService.GetMovieAsync(movieId,
-                    CancellationLoadingToken).ConfigureAwait(false);
+            var movie = await ApiService.GetMovieAsync(movieId,
+                CancellationLoadingToken).ConfigureAwait(false);
 
             // Check if we met any exception in the GetMoviesInfosAsync method
             if (HandleExceptions(movie.Item2))
@@ -566,22 +599,24 @@ namespace Yak.ViewModel
             OnLoadedMovie(new EventArgs());
 
             // Download the movie poster
-            Tuple<string, IEnumerable<Exception>> moviePosterAsyncResults =
-                await ApiService.DownloadMoviePosterAsync(Movie.ImdbCode,
-                    Movie.Images.LargeCoverImage,
-                    CancellationLoadingToken).ConfigureAwait(false);
+            var moviePosterAsyncResults =
+                await
+                    ApiService.DownloadMoviePosterAsync(Movie.ImdbCode, Movie.Images.LargeCoverImage,
+                        CancellationLoadingToken)
+                        .ConfigureAwait(false);
 
             // Set the path to the poster image if no exception occured in the DownloadMoviePosterAsync method
             if (!HandleExceptions(moviePosterAsyncResults.Item2))
                 Movie.PosterImage = moviePosterAsyncResults.Item1;
 
             // For each director, we download its image
-            foreach (Director director in Movie.Directors)
+            foreach (var director in Movie.Directors)
             {
-                Tuple<string, IEnumerable<Exception>> directorsImagesAsyncResults =
-                    await ApiService.DownloadDirectorImageAsync(director.Name.Trim(),
-                        director.SmallImage,
-                        CancellationLoadingToken).ConfigureAwait(false);
+                var directorsImagesAsyncResults =
+                    await
+                        ApiService.DownloadDirectorImageAsync(director.Name.Trim(), director.SmallImage,
+                            CancellationLoadingToken)
+                            .ConfigureAwait(false);
 
                 // Set the path to the director image if no exception occured in the DownloadDirectorImageAsync method
                 if (!HandleExceptions(directorsImagesAsyncResults.Item2))
@@ -589,28 +624,32 @@ namespace Yak.ViewModel
             }
 
             // For each actor, we download its image
-            foreach (Actor actor in Movie.Actors)
+            foreach (var actor in Movie.Actors)
             {
-                Tuple<string, IEnumerable<Exception>> actorsImagesAsyncResults =
-                    await ApiService.DownloadActorImageAsync(actor.Name.Trim(),
-                        actor.SmallImage,
-                        CancellationLoadingToken).ConfigureAwait(false);
+                var actorsImagesAsyncResults =
+                    await
+                        ApiService.DownloadActorImageAsync(actor.Name.Trim(), actor.SmallImage, CancellationLoadingToken)
+                            .ConfigureAwait(false);
 
                 // Set the path to the actor image if no exception occured in the DownloadActorImageAsync method
                 if (!HandleExceptions(actorsImagesAsyncResults.Item2))
                     actor.SmallImagePath = actorsImagesAsyncResults.Item1;
             }
 
-            Tuple<string, IEnumerable<Exception>> movieBackgroundImageResults =
-                await ApiService.DownloadMovieBackgroundImageAsync(imdbCode, CancellationLoadingToken).ConfigureAwait(false);
+            var movieBackgroundImageResults =
+                await
+                    ApiService.DownloadMovieBackgroundImageAsync(imdbCode, CancellationLoadingToken)
+                        .ConfigureAwait(false);
 
             // Set the path to the poster image if no exception occured in the DownloadMoviePosterAsync method
             if (!HandleExceptions(movieBackgroundImageResults.Item2))
                 Movie.BackgroundImage = movieBackgroundImageResults.Item1;
         }
+
         #endregion
 
         #region Method -> GetTrailer
+
         /// <summary>
         /// Get trailer of a movie
         /// </summary>
@@ -624,11 +663,11 @@ namespace Yak.ViewModel
                 OnLoadingTrailer(new EventArgs());
 
                 // Retrieve trailer from API
-                Tuple<Trailers, Exception> trailer = ApiService.GetMovieTrailer(imdbId);
+                var trailer = ApiService.GetMovieTrailer(imdbId);
                 if (trailer.Item2 != null)
                 {
                     // Inform we have loaded trailer with error
-                    OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
+                    OnLoadedTrailer(new TrailerLoadedEventArgs(string.Empty, true));
                     IsMovieTrailerLoading = false;
                     return;
                 }
@@ -639,7 +678,11 @@ namespace Yak.ViewModel
                 try
                 {
                     // Retrieve Youtube Infos
-                    video = await GetVideoInfoForStreaming(Constants.YoutubePath + trailer.Item1.Youtube.Select(x => x.Source).FirstOrDefault(), Constants.YoutubeStreamingQuality.High);
+                    video =
+                        await
+                            GetVideoInfoForStreaming(
+                                Constants.YoutubePath + trailer.Item1.Youtube.Select(x => x.Source).FirstOrDefault(),
+                                Constants.YoutubeStreamingQuality.High);
 
                     if (video != null && video.RequiresDecryption)
                     {
@@ -652,7 +695,7 @@ namespace Yak.ViewModel
                     if (ex is WebException || ex is VideoNotAvailableException || ex is YoutubeParseException)
                     {
                         // An error as occured. Inform we have loaded trailer with error
-                        OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
+                        OnLoadedTrailer(new TrailerLoadedEventArgs(string.Empty, true));
                         IsMovieTrailerLoading = false;
                         return;
                     }
@@ -661,7 +704,7 @@ namespace Yak.ViewModel
                 if (video == null)
                 {
                     // There is no VideoInfo. Inform we have loaded trailer with error
-                    OnLoadedTrailer(new TrailerLoadedEventArgs(String.Empty, true));
+                    OnLoadedTrailer(new TrailerLoadedEventArgs(string.Empty, true));
                     IsMovieTrailerLoading = false;
                     return;
                 }
@@ -679,31 +722,36 @@ namespace Yak.ViewModel
         #endregion
 
         #region Method -> GetVideoInfoForStreaming
+
         /// <summary>
         /// Get VideoInfo of a youtube video
         /// </summary>
         /// <param name="youtubeLink">The youtube link of a movie</param>
         /// <param name="qualitySetting">The youtube quality settings</param>
-        private static async Task<VideoInfo> GetVideoInfoForStreaming(string youtubeLink, Constants.YoutubeStreamingQuality qualitySetting)
+        private static async Task<VideoInfo> GetVideoInfoForStreaming(string youtubeLink,
+            Constants.YoutubeStreamingQuality qualitySetting)
         {
             // Get video infos of the requested video
-            IEnumerable<VideoInfo> videoInfos = await Task.Run(() => DownloadUrlResolver.GetDownloadUrls(youtubeLink, false));
+            var videoInfos = await Task.Run(() => DownloadUrlResolver.GetDownloadUrls(youtubeLink, false));
 
             // We only want video matching criterias : only mp4 and no adaptive
-            IEnumerable<VideoInfo> filtered = videoInfos
+            var filtered = videoInfos
                 .Where(info => info.VideoType == VideoType.Mp4 && !info.Is3D && info.AdaptiveType == AdaptiveType.None);
 
             return GetVideoByStreamingQuality(filtered, qualitySetting);
         }
+
         #endregion
 
         #region Method -> GetVideoByStreamingQuality
+
         /// <summary>
         /// Get youtube video depending of choosen quality settings
         /// </summary>
         /// <param name="videos">List of VideoInfo</param>
         /// <param name="quality">The youtube quality settings</param>
-        private static VideoInfo GetVideoByStreamingQuality(IEnumerable<VideoInfo> videos, Constants.YoutubeStreamingQuality quality)
+        private static VideoInfo GetVideoByStreamingQuality(IEnumerable<VideoInfo> videos,
+            Constants.YoutubeStreamingQuality quality)
         {
             videos = videos.ToList(); // Prevent multiple enumeration
 
@@ -715,25 +763,27 @@ namespace Yak.ViewModel
             }
 
             // Pick the video with the requested quality settings
-            IEnumerable<int> preferredResolutions = StreamingQualityMap[quality];
+            var preferredResolutions = StreamingQualityMap[quality];
 
-            IEnumerable<VideoInfo> preferredVideos = videos
+            var preferredVideos = videos
                 .Where(info => preferredResolutions.Contains(info.Resolution))
                 .OrderByDescending(info => info.Resolution);
 
-            VideoInfo video = preferredVideos.FirstOrDefault();
+            var video = preferredVideos.FirstOrDefault();
 
             if (video == null)
             {
                 // We search for an other video quality if none has been found
-                return GetVideoByStreamingQuality(videos, (Constants.YoutubeStreamingQuality)(((int)quality) - 1));
+                return GetVideoByStreamingQuality(videos, (Constants.YoutubeStreamingQuality) (((int) quality) - 1));
             }
 
             return video;
         }
+
         #endregion
 
         #region Method -> HandleExceptions
+
         /// <summary>
         /// Handle list of exceptions
         /// </summary>
@@ -741,8 +791,8 @@ namespace Yak.ViewModel
         /// <returns name="isExceptionThrown">Returns true if an exception has been thrown, else false</returns>
         private static bool HandleExceptions(IEnumerable<Exception> exceptions)
         {
-            bool isExceptionThrown = false;
-            bool isConnexionInError = false;
+            var isExceptionThrown = false;
+            var isConnexionInError = false;
             foreach (var e in exceptions)
             {
                 isExceptionThrown = true;
@@ -763,16 +813,18 @@ namespace Yak.ViewModel
 
             return isExceptionThrown;
         }
+
         #endregion
 
         #region Method -> DownloadMovie
+
         /// <summary>
         /// Download a movie
         /// </summary>
         /// <param name="movie">The movie to download</param>
         private async Task DownloadMovie(MovieFullDetails movie)
         {
-            using (Session session = new Session())
+            using (var session = new Session())
             {
                 IsDownloadingMovie = true;
 
@@ -790,15 +842,15 @@ namespace Yak.ViewModel
                     Url = movie.Torrents.Aggregate((i1, i2) => (i1.SizeBytes < i2.SizeBytes ? i1 : i2)).Url
                 };
 
-                TorrentHandle handle = session.AddTorrent(addParams);
+                var handle = session.AddTorrent(addParams);
 
                 // We have to download sequentially, so that we're able to play the movie without waiting
                 handle.SequentialDownload = true;
-                bool alreadyBuffered = false;
+                var alreadyBuffered = false;
                 while (IsDownloadingMovie)
                 {
-                    TorrentStatus status = handle.QueryStatus();
-                    double progress = status.Progress * 100.0;
+                    var status = handle.QueryStatus();
+                    double progress = status.Progress*100.0;
 
                     // We have to flush cache regularly (otherwise memory cache get full very quickly)
                     handle.FlushCache();
@@ -809,7 +861,7 @@ namespace Yak.ViewModel
                     }
 
                     // Inform subscribers of our progress
-                    OnLoadingMovieProgress(new MovieLoadingProgressEventArgs(progress, status.DownloadRate / 1024));
+                    OnLoadingMovieProgress(new MovieLoadingProgressEventArgs(progress, status.DownloadRate/1024));
 
                     // We consider 2% of progress is enough to start playing
                     if (progress >= Constants.MinimumBufferingBeforeMoviePlaying && !alreadyBuffered)
@@ -817,7 +869,8 @@ namespace Yak.ViewModel
                         // Get movie file
                         foreach (
                             string filePath in
-                                Directory.GetFiles(status.SavePath + handle.TorrentFile.Name, "*" + Constants.VideoFileExtension)
+                                Directory.GetFiles(status.SavePath + handle.TorrentFile.Name,
+                                    "*" + Constants.VideoFileExtension)
                             )
                         {
                             // Inform subscribers we have finished buffering the movie
@@ -837,7 +890,7 @@ namespace Yak.ViewModel
 
                             // Remove the movie tab
                             MediaPlayerViewModel tabToRemove = null;
-                            foreach (object tab in MoviesViewModelTabs)
+                            foreach (var tab in MoviesViewModelTabs)
                             {
                                 var mediaViewModel = tab as MediaPlayerViewModel;
                                 if (mediaViewModel != null)
@@ -864,7 +917,7 @@ namespace Yak.ViewModel
                                     {
                                         session.RemoveTorrent(handle, deleteMovieFiles);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
                                         //TODO
                                     }
@@ -875,9 +928,11 @@ namespace Yak.ViewModel
                 }
             }
         }
+
         #endregion
 
         #region Method -> StopDownloadingMovie
+
         /// <summary>
         /// Stop downloading a movie
         /// </summary>
@@ -885,6 +940,7 @@ namespace Yak.ViewModel
         {
             CancellationDownloadingToken?.Cancel(true);
         }
+
         #endregion
 
         #endregion
@@ -892,17 +948,19 @@ namespace Yak.ViewModel
         #region Events
 
         #region Event -> OnConnectionError
+
         /// <summary>
         /// ConnectionError event
         /// </summary>
         public event EventHandler<ConnectionErrorEventArgs> ConnectionError;
+
         /// <summary>
         /// Fire on connection error
         /// </summary>
         ///<param name="e">Event data</param>
         protected virtual void OnConnectionError(ConnectionErrorEventArgs e)
         {
-            EventHandler<ConnectionErrorEventArgs> handler = ConnectionError;
+            var handler = ConnectionError;
             if (handler == null)
                 return;
 
@@ -916,134 +974,159 @@ namespace Yak.ViewModel
             }
             handler(this, e);
         }
+
         #endregion
 
         #region Event -> OnLoadingMovieProgress
+
         /// <summary>
         /// LoadingMovieProgress event
         /// </summary>
         public event EventHandler<MovieLoadingProgressEventArgs> LoadingMovieProgress;
+
         /// <summary>
         /// Reports movie loading progress
         /// </summary>
         ///<param name="e">Event data</param>
         protected virtual void OnLoadingMovieProgress(MovieLoadingProgressEventArgs e)
         {
-            EventHandler<MovieLoadingProgressEventArgs> handler = LoadingMovieProgress;
+            var handler = LoadingMovieProgress;
             handler?.Invoke(this, e);
         }
+
         #endregion
 
         #region Event -> OnDownloadingMovie
+
         /// <summary>
         /// DownloadingMovie event
         /// </summary>
         public event EventHandler<EventArgs> DownloadingMovie;
+
         /// <summary>
         /// Fire on movie downloading
         /// </summary>
         ///<param name="e">Event data</param>
         protected virtual void OnDownloadingMovie(EventArgs e)
         {
-            EventHandler<EventArgs> handler = DownloadingMovie;
+            var handler = DownloadingMovie;
             handler?.Invoke(this, e);
         }
+
         #endregion
 
         #region Event -> OnLoadingMovie
+
         /// <summary>
         /// LoadingMovie event
         /// </summary>
         public event EventHandler<EventArgs> LoadingMovie;
+
         /// <summary>
         /// Fire on movie loading
         /// </summary>
         ///<param name="e">Event data</param>
         protected virtual void OnLoadingMovie(EventArgs e)
         {
-            EventHandler<EventArgs> handler = LoadingMovie;
+            var handler = LoadingMovie;
             handler?.Invoke(this, e);
         }
+
         #endregion
 
         #region Event -> OnLoadedMovie
+
         /// <summary>
         /// LoadedMovie event
         /// </summary>
         public event EventHandler<EventArgs> LoadedMovie;
+
         /// <summary>
         /// Fire on movie loaded
         /// </summary>
         ///<param name="e">Event data</param>
         protected virtual void OnLoadedMovie(EventArgs e)
         {
-            EventHandler<EventArgs> handler = LoadedMovie;
+            var handler = LoadedMovie;
             handler?.Invoke(this, e);
         }
+
         #endregion
 
         #region Event -> OnStoppedDownloadingMovie
+
         /// <summary>
         /// StoppedDownloadingMovie event
         /// </summary>
         public event EventHandler<EventArgs> StoppedDownloadingMovie;
+
         /// <summary>
         /// Fire on movie stopped downloading
         /// </summary>
         ///<param name="e">Event data</param>
         protected virtual void OnStoppedDownloadingMovie(EventArgs e)
         {
-            EventHandler<EventArgs> handler = StoppedDownloadingMovie;
+            var handler = StoppedDownloadingMovie;
             handler?.Invoke(this, e);
         }
+
         #endregion
 
         #region Event -> OnBufferedMovie
+
         /// <summary>
         /// BufferedMovie event
         /// </summary>
-        public event EventHandler<MovieBufferedEventArgs> BufferedMovie;
+        public event EventHandler<EventArgs> BufferedMovie;
+
         /// <summary>
         /// Fire on movie finished buffering
         /// </summary>
         ///<param name="e">Event data</param>
-        protected virtual void OnBufferedMovie(MovieBufferedEventArgs e)
+        protected virtual void OnBufferedMovie(EventArgs e)
         {
-            EventHandler<MovieBufferedEventArgs> handler = BufferedMovie;
+            var handler = BufferedMovie;
             handler?.Invoke(this, e);
         }
+
         #endregion
 
         #region Event -> OnLoadingTrailer
+
         /// <summary>
         /// LoadedTrailer event
         /// </summary>
         public event EventHandler<EventArgs> LoadingTrailer;
+
         /// <summary>
         /// Fire when movie trailer has finished loading
         /// </summary>
         ///<param name="e">Event data</param>
         protected virtual void OnLoadingTrailer(EventArgs e)
         {
-            EventHandler<EventArgs> handler = LoadingTrailer;
+            var handler = LoadingTrailer;
             handler?.Invoke(this, e);
         }
+
         #endregion
 
         #region Event -> OnLoadedTrailer
+
         /// <summary>
         /// LoadedTrailer event
         /// </summary>
         public event EventHandler<TrailerLoadedEventArgs> LoadedTrailer;
+
         /// <summary>
         /// Fire when movie trailer has finished loading
         /// </summary>
         ///<param name="e">Event data</param>
         protected virtual void OnLoadedTrailer(TrailerLoadedEventArgs e)
         {
-            EventHandler<TrailerLoadedEventArgs> handler = LoadedTrailer;
+            var handler = LoadedTrailer;
             handler?.Invoke(this, e);
         }
+
         #endregion
 
         #endregion

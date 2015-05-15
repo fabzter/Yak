@@ -27,7 +27,10 @@ namespace Yak.UserControls
                     mediaPlayerViewModel.BackToNormalScreenChanged += OnBackToNormalScreenChanged;
                 }
 
-                Window.GetWindow(this).Closing += (s1, e1) => Dispose();
+                if (GetWindow(this) != null)
+                {
+                    GetWindow(this).Closing += (s1, e1) => Dispose();
+                } 
             };
 
             Unloaded += (s, e) =>

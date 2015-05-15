@@ -87,14 +87,14 @@ namespace Yak.Model.Movie
         [JsonProperty("date_uploaded_unix")]
         public int DateUploadedUnix { get; set; }
 
-        private string _backgroundImage = String.Empty;
+        private string _backgroundImage = string.Empty;
         public string BackgroundImage
         {
             get { return _backgroundImage; }
             set { Set(() => BackgroundImage, ref _backgroundImage, value); }
         }
 
-        private string _posterImage = String.Empty;
+        private string _posterImage = string.Empty;
         public string PosterImage
         {
             get { return _posterImage; }

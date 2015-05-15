@@ -24,54 +24,69 @@ namespace Yak.ViewModel
         #region Properties
 
         #region Property -> ApiService
+
         /// <summary>
         /// Service used to consume the API
         /// </summary>
-        private IService ApiService { get; set; }
+        private IService ApiService { get; }
+
         #endregion
 
         #region Property -> Movies
+
         /// <summary>
         /// Movies loaded from the service and shown in the interface
         /// </summary>
         private ObservableCollection<MovieShortDetails> _movies = new ObservableCollection<MovieShortDetails>();
+
         public ObservableCollection<MovieShortDetails> Movies
         {
             get { return _movies; }
             set { Set(() => Movies, ref _movies, value, true); }
         }
+
         #endregion
 
         #region Property -> Pagination
+
         /// <summary>
         /// Current page number of loaded movies
         /// </summary>
         private int Pagination { get; set; }
+
         #endregion
 
         #region Property -> CancellationLoadMoviesInfosToken
+
         /// <summary>
         /// Token to cancel movie loading
         /// </summary>
         private CancellationTokenSource CancellationLoadingToken { get; set; }
+
         #endregion
 
         #region Property -> MaxMoviesPerPage
+
         /// <summary>
         /// Maximum movies number to load per page request
         /// </summary>
         public int MaxMoviesPerPage { private get; set; }
+
         #endregion
 
         #region Property -> Tab
+
         /// <summary>
         /// Description of the tab
         /// </summary>
         public TabDescription Tab { get; set; }
+
         #endregion
 
         #region Property -> IsConnectionInError
+
         private bool _isConnectionInError;
+
         /// <summary>
         /// Specify if a connection error has occured
         /// </summary>
@@ -84,10 +99,12 @@ namespace Yak.ViewModel
         #endregion
 
         #region Property -> SearchMoviesFilter
+
         /// <summary>
         /// The filter for searching movies
         /// </summary>
         public string SearchMoviesFilter { get; set; }
+
         #endregion
 
         #endregion
@@ -95,14 +112,12 @@ namespace Yak.ViewModel
         #region Commands
 
         #region Command -> ReloadMovies
+
         /// <summary>
         /// Reload movies 
         /// </summary>
-        public RelayCommand ReloadMovies
-        {
-            get;
-            private set;
-        }
+        public RelayCommand ReloadMovies { get; private set; }
+
         #endregion
 
         #endregion
@@ -110,6 +125,7 @@ namespace Yak.ViewModel
         #region Constructors
 
         #region Constructor -> MoviesViewModel
+
         /// <summary>
         /// Initializes a new instance of the MoviesViewModel class.
         /// </summary>
@@ -117,9 +133,11 @@ namespace Yak.ViewModel
             : this(new Service())
         {
         }
+
         #endregion
 
         #region Constructor -> MoviesViewModel
+
         /// <summary>
         /// Initializes a new instance of the MoviesViewModel class.
         /// </summary>
@@ -142,6 +160,7 @@ namespace Yak.ViewModel
                 await LoadNextPage();
             });
         }
+
         #endregion
 
         #endregion
@@ -149,6 +168,7 @@ namespace Yak.ViewModel
         #region Methods
 
         #region Method -> SearchMovies
+
         /// <summary>
         /// Search movies
         /// </summary>
@@ -162,7 +182,7 @@ namespace Yak.ViewModel
             Movies.Clear();
             Pagination = 0;
 
-            if (!String.IsNullOrEmpty(searchFilter))
+            if (!string.IsNullOrEmpty(searchFilter))
             {
                 // Retrieve page with the search filter
                 await LoadNextPage(searchFilter);
@@ -173,9 +193,11 @@ namespace Yak.ViewModel
                 await LoadNextPage();
             }
         }
+
         #endregion
 
         #region Method -> LoadNextPage
+
         /// <summary>
         /// Load next page with an optional search parameter
         /// </summary>
@@ -191,17 +213,17 @@ namespace Yak.ViewModel
             // Inform the subscribers we're actually loading movies
             OnMoviesLoading(new EventArgs());
 
-            int moviesCount = 0;
+            var moviesCount = 0;
 
             // The page to load is new, never met it before, so we load the new page via the service
-            Tuple<IEnumerable<MovieShortDetails>, IEnumerable<Exception>> movies =
+            var movies =
                 await ApiService.GetMoviesAsync(Tab,
                     searchFilter,
                     MaxMoviesPerPage,
                     Pagination,
                     CancellationLoadingToken);
 
-            if (String.IsNullOrEmpty(searchFilter))
+            if (string.IsNullOrEmpty(searchFilter))
             {
                 moviesCount = movies.Item1 != null ? movies.Item1.Count() : 0;
             }
@@ -232,12 +254,12 @@ namespace Yak.ViewModel
                 foreach (var movie in movies.Item1.Except(Movies, new MovieComparer()))
                 {
                     // The API filters on titles, actor's name and director's name. Here we just want to filter on title movie.
-                    if (String.IsNullOrEmpty(searchFilter) ||
-                        (!String.IsNullOrEmpty(searchFilter) &&
+                    if (string.IsNullOrEmpty(searchFilter) ||
+                        (!string.IsNullOrEmpty(searchFilter) &&
                          movie.Title.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0))
                     {
                         // Download the cover image of the movie
-                        Tuple<string, IEnumerable<Exception>> movieCover =
+                        var movieCover =
                             await ApiService.DownloadMovieCoverAsync(movie.ImdbCode,
                                 movie.MediumCoverImage,
                                 CancellationLoadingToken);
@@ -246,7 +268,8 @@ namespace Yak.ViewModel
                         if (HandleExceptions(movieCover.Item2).Item1)
                         {
                             // Inform the subscribers we stopped loading this page and decrement pagination (we stopped loading this page's movies)
-                            OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount, HandleExceptions(movieCover.Item2).Item2));
+                            OnMoviesLoaded(new NumberOfLoadedMoviesEventArgs(moviesCount,
+                                HandleExceptions(movieCover.Item2).Item2));
                             Pagination--;
                             return;
                         }
@@ -268,6 +291,7 @@ namespace Yak.ViewModel
         #endregion
 
         #region Method -> HandleExceptions
+
         /// <summary>
         /// Handle list of exceptions
         /// </summary>
@@ -275,11 +299,11 @@ namespace Yak.ViewModel
         /// <returns>
         /// Returns a tuple which represents if exception(s) has been thrown, and if one of them is the result of an unhandled exception
         /// </returns>
-        private Tuple<bool, bool> HandleExceptions(IEnumerable<Exception> exceptions)
+        private static Tuple<bool, bool> HandleExceptions(IEnumerable<Exception> exceptions)
         {
-            bool isExceptionThrown = false;
-            bool isUnhandledException = false;
-            bool isConnexionInError = false;
+            var isExceptionThrown = false;
+            var isUnhandledException = false;
+            var isConnexionInError = false;
             foreach (var e in exceptions)
             {
                 isExceptionThrown = true;
@@ -301,24 +325,24 @@ namespace Yak.ViewModel
 
             if (isConnexionInError)
             {
-                Messenger.Default.Send<bool>(true, Constants.ConnectionErrorPropertyName);
+                Messenger.Default.Send(true, Constants.ConnectionErrorPropertyName);
             }
 
             return new Tuple<bool, bool>(isExceptionThrown, isUnhandledException);
         }
+
         #endregion
 
         #region Method -> StopLoadingMovies
+
         /// <summary>
         /// Cancel the loading of movies 
         /// </summary>
         private void StopLoadingMovies()
         {
-            if (CancellationLoadingToken != null)
-            {
-                CancellationLoadingToken.Cancel(true);
-            }
+            CancellationLoadingToken?.Cancel(true);
         }
+
         #endregion
 
         #endregion
@@ -326,41 +350,41 @@ namespace Yak.ViewModel
         #region Events
 
         #region Event -> MoviesLoading
+
         /// <summary>
         /// MoviesLoading event
         /// </summary>
         public event EventHandler<EventArgs> MoviesLoading;
+
         /// <summary>
         /// Fire event when movies are loading
         /// </summary>
         ///<param name="e">Event data</param>
         protected virtual void OnMoviesLoading(EventArgs e)
         {
-            EventHandler<EventArgs> handler = MoviesLoading;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            var handler = MoviesLoading;
+            handler?.Invoke(this, e);
         }
+
         #endregion
 
         #region Event -> MoviesLoaded
+
         /// <summary>
         /// MoviesLoaded event
         /// </summary>
         public event EventHandler<NumberOfLoadedMoviesEventArgs> MoviesLoaded;
+
         /// <summary>
         /// Fire event when movies has finished loading
         /// </summary>
         ///<param name="e">Number of loaded movies</param>
         protected virtual void OnMoviesLoaded(NumberOfLoadedMoviesEventArgs e)
         {
-            EventHandler<NumberOfLoadedMoviesEventArgs> handler = MoviesLoaded;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            var handler = MoviesLoaded;
+            handler?.Invoke(this, e);
         }
+
         #endregion
 
         #endregion

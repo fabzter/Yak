@@ -11,7 +11,7 @@ namespace Yak.Helpers
     /// Attached properties for persistent tab control
     /// </summary>
     /// <remarks>By default WPF TabControl bound to an ItemsSource destroys visual state of invisible tabs. 
-    /// Set ikriv:TabContent.IsCached="True" to preserve visual state of each tab.
+    /// Set Helpers:TabContent.IsCached="True" to preserve visual state of each tab.
     /// </remarks>
     public static class TabContent
     {
@@ -33,7 +33,7 @@ namespace Yak.Helpers
             DependencyProperty.RegisterAttached("IsCached", typeof(bool), typeof(TabContent), new UIPropertyMetadata(false, OnIsCachedChanged));
 
 
-        public static DataTemplate GetTemplate(DependencyObject obj)
+        private static DataTemplate GetTemplate(DependencyObject obj)
         {
             return (DataTemplate)obj.GetValue(TemplateProperty);
         }
@@ -50,7 +50,7 @@ namespace Yak.Helpers
             DependencyProperty.RegisterAttached("Template", typeof(DataTemplate), typeof(TabContent), new UIPropertyMetadata(null));
 
 
-        public static DataTemplateSelector GetTemplateSelector(DependencyObject obj)
+        private static DataTemplateSelector GetTemplateSelector(DependencyObject obj)
         {
             return (DataTemplateSelector)obj.GetValue(TemplateSelectorProperty);
         }
@@ -85,13 +85,13 @@ namespace Yak.Helpers
 
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static ContentControl GetInternalCachedContent(DependencyObject obj)
+        private static ContentControl GetInternalCachedContent(DependencyObject obj)
         {
             return (ContentControl)obj.GetValue(InternalCachedContentProperty);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void SetInternalCachedContent(DependencyObject obj, ContentControl value)
+        private static void SetInternalCachedContent(DependencyObject obj, ContentControl value)
         {
             obj.SetValue(InternalCachedContentProperty, value);
         }
@@ -102,13 +102,13 @@ namespace Yak.Helpers
             DependencyProperty.RegisterAttached("InternalCachedContent", typeof(ContentControl), typeof(TabContent), new UIPropertyMetadata(null));
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static object GetInternalContentManager(DependencyObject obj)
+        private static object GetInternalContentManager(DependencyObject obj)
         {
-            return (object)obj.GetValue(InternalContentManagerProperty);
+            return obj.GetValue(InternalContentManagerProperty);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void SetInternalContentManager(DependencyObject obj, object value)
+        private static void SetInternalContentManager(DependencyObject obj, object value)
         {
             obj.SetValue(InternalContentManagerProperty, value);
         }
@@ -128,7 +128,7 @@ namespace Yak.Helpers
                     ". Only objects of type TabControl can have TabContent.IsCached property.");
             }
 
-            bool newValue = (bool)args.NewValue;
+            var newValue = (bool)args.NewValue;
 
             if (!newValue)
             {
@@ -224,7 +224,7 @@ namespace Yak.Helpers
                 });
         }
 
-        public class ContentManager
+        private class ContentManager
         {
             TabControl _tabControl;
             Decorator _border;
@@ -238,7 +238,7 @@ namespace Yak.Helpers
 
             public void ReplaceContainer(Decorator newBorder)
             {
-                if (Object.ReferenceEquals(_border, newBorder)) return;
+                if (ReferenceEquals(_border, newBorder)) return;
 
                 _border.Child = null; // detach any tab content that old border may hold
                 _border = newBorder;
@@ -257,18 +257,18 @@ namespace Yak.Helpers
                 var tabItem = _tabControl.ItemContainerGenerator.ContainerFromItem(item);
                 if (tabItem == null) return null;
 
-                var cachedContent = TabContent.GetInternalCachedContent(tabItem);
+                var cachedContent = GetInternalCachedContent(tabItem);
                 if (cachedContent == null)
                 {
                     cachedContent = new ContentControl 
                     { 
                         DataContext = item,
-                        ContentTemplate = TabContent.GetTemplate(_tabControl), 
-                        ContentTemplateSelector = TabContent.GetTemplateSelector(_tabControl)
+                        ContentTemplate = GetTemplate(_tabControl), 
+                        ContentTemplateSelector = GetTemplateSelector(_tabControl)
                     };
                 
                     cachedContent.SetBinding(ContentControl.ContentProperty, new Binding());
-                    TabContent.SetInternalCachedContent(tabItem, cachedContent);
+                    SetInternalCachedContent(tabItem, cachedContent);
                 }
 
                 return cachedContent;

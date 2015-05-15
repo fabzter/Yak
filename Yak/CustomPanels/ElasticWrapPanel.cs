@@ -99,14 +99,14 @@ namespace Yak.CustomPanels
         {
             if (Columns != 0)
             {
-                double columnWidth = Math.Floor(finalSize.Width / Columns);
-                double totalHeight = 0.0;
-                double top = 0.0;
-                double rowHeight = 0.0;
-                double overflow = 0.0;
-                int column = 0;
-                int index = 0;
-                bool overflowAlreadyCount = false;
+                var columnWidth = Math.Floor(finalSize.Width / Columns);
+                var totalHeight = 0.0;
+                var top = 0.0;
+                var rowHeight = 0.0;
+                var overflow = 0.0;
+                var column = 0;
+                var index = 0;
+                var overflowAlreadyCount = false;
 
                 foreach (UIElement child in Children)
                 {
@@ -180,10 +180,7 @@ namespace Yak.CustomPanels
         protected virtual void OnNumberOfColumnsChanged(NumberOfColumnChangedEventArgs e)
         {
             EventHandler<NumberOfColumnChangedEventArgs> handler = NumberOfColumnsChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            handler?.Invoke(this, e);
         }
         #endregion
         #endregion

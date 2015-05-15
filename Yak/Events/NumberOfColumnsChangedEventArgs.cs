@@ -7,25 +7,17 @@ namespace Yak.Events
     /// </summary>
     public class NumberOfColumnChangedEventArgs : EventArgs
     {
-        private readonly int _numberOfColumns;
-
         #region Constructor
         public NumberOfColumnChangedEventArgs(int numberOfColumns)
         {
-            _numberOfColumns = numberOfColumns;
+            NumberOfColumns = numberOfColumns;
         }
         #endregion
 
         #region Properties
 
         #region Property -> NumberOfColumns
-        public int NumberOfColumns
-        {
-            get
-            {
-                return _numberOfColumns;
-            }
-        }
+        public int NumberOfColumns { get; private set; }
         #endregion
 
         #endregion

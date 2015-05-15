@@ -15,7 +15,7 @@ namespace Yak.Model.Cast
         [JsonProperty("medium_image")]
         public string MediumImage { get; set; }
 
-        private string _smallImagePath = String.Empty;
+        private string _smallImagePath = string.Empty;
         public string SmallImagePath
         {
             get { return _smallImagePath; }

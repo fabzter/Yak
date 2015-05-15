@@ -1,17 +1,15 @@
-﻿using System;
-
-namespace Yak.Helpers
+﻿namespace Yak.Helpers
 {
     /// <summary>
     /// Used to describe a movie tab
     /// </summary>
     public class TabDescription
     {
-        public string ApiSort { get; set; }
+        public string ApiSort { get; private set; }
 
-        public string TabName { get; set; }
+        public string TabName { get; private set; }
 
-        public TabType Type { get; set; }
+        public TabType Type { get; private set; }
 
         public TabDescription(TabType tabType, string movieName = null)
         {
@@ -34,7 +32,7 @@ namespace Yak.Helpers
             }
             else if (tabType == TabType.Playing)
             {
-                if (!String.IsNullOrEmpty(movieName))
+                if (!string.IsNullOrEmpty(movieName))
                 {
                     TabName = movieName;
                 }
@@ -43,12 +41,12 @@ namespace Yak.Helpers
                     TabName = "Playing";
                 }
 
-                ApiSort = String.Empty;
+                ApiSort = string.Empty;
             }
             else if (tabType == TabType.Search)
             {
                 TabName = "Search";
-                ApiSort = String.Empty;
+                ApiSort = string.Empty;
             }
         }
 

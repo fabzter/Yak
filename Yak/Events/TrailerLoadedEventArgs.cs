@@ -7,37 +7,22 @@ namespace Yak.Events
     /// </summary>
     public class TrailerLoadedEventArgs : EventArgs
     {
-        private readonly string _trailerUrl;
-        private readonly bool _inErrorOrCancelled;
-
         #region Constructor
         public TrailerLoadedEventArgs(string trailerUrl, bool inErrorOrCancelled)
         {
-            _trailerUrl = trailerUrl;
-            _inErrorOrCancelled = inErrorOrCancelled;
+            TrailerUrl = trailerUrl;
+            InErrorOrCancelled = inErrorOrCancelled;
         }
         #endregion
 
         #region Properties
 
         #region Property -> TrailerUrl
-        public string TrailerUrl
-        {
-            get
-            {
-                return _trailerUrl;
-            }
-        }
+        public string TrailerUrl { get; private set; }
         #endregion
 
         #region Property -> InErrorOrCancelled
-        public bool InErrorOrCancelled
-        {
-            get
-            {
-                return _inErrorOrCancelled;
-            }
-        }
+        public bool InErrorOrCancelled { get; private set; }
         #endregion
 
         #endregion

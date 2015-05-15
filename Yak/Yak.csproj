@@ -190,10 +190,8 @@
     <Compile Include="CustomPanels\ElasticWrapPanel.cs" />
     <Compile Include="Events\ConnexionErrorEventArgs.cs" />
     <Compile Include="Events\MovieLoadingProgressEventArgs.cs" />
-    <Compile Include="Events\MovieBufferedEventArgs.cs" />
     <Compile Include="Events\NumberOfColumnsChangedEventArgs.cs" />
     <Compile Include="Events\NumberOfLoadedMoviesEventArgs.cs" />
-    <Compile Include="Events\ToggleFullScreenEventArgs.cs" />
     <Compile Include="Events\TrailerLoadedEventArgs.cs" />
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\NoKeepAliveWebClient.cs">
@@ -1307,7 +1305,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
-  <Import Project="$(XamlSpyInstallPath)MSBuild\FirstFloor.XamlSpy.WPF.targets" Condition="'$(XamlSpyInstallPath)' != '' and '$(Configuration)' == 'DEBUG'" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -60,12 +60,12 @@ namespace Yak.UserControls
 
             #region Fade in opacity
 
-            DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+            var opacityAnimation = new DoubleAnimationUsingKeyFrames();
             opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-            PowerEase opacityEasingFunction = new PowerEase();
+            var opacityEasingFunction = new PowerEase();
             opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-            EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(1, KeyTime.FromPercent(0));
-            EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(0.2, KeyTime.FromPercent(1.0),
+            var startOpacityEasing = new EasingDoubleKeyFrame(1, KeyTime.FromPercent(0));
+            var endOpacityEasing = new EasingDoubleKeyFrame(0.2, KeyTime.FromPercent(1.0),
                 opacityEasingFunction);
             opacityAnimation.KeyFrames.Add(startOpacityEasing);
             opacityAnimation.KeyFrames.Add(endOpacityEasing);
@@ -96,12 +96,12 @@ namespace Yak.UserControls
 
                 #region Fade out opacity
 
-                DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+                var opacityAnimation = new DoubleAnimationUsingKeyFrames();
                 opacityAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
-                PowerEase opacityEasingFunction = new PowerEase();
+                var opacityEasingFunction = new PowerEase();
                 opacityEasingFunction.EasingMode = EasingMode.EaseInOut;
-                EasingDoubleKeyFrame startOpacityEasing = new EasingDoubleKeyFrame(0.2, KeyTime.FromPercent(0));
-                EasingDoubleKeyFrame endOpacityEasing = new EasingDoubleKeyFrame(1, KeyTime.FromPercent(1.0),
+                var startOpacityEasing = new EasingDoubleKeyFrame(0.2, KeyTime.FromPercent(0));
+                var endOpacityEasing = new EasingDoubleKeyFrame(1, KeyTime.FromPercent(1.0),
                     opacityEasingFunction);
                 opacityAnimation.KeyFrames.Add(startOpacityEasing);
                 opacityAnimation.KeyFrames.Add(endOpacityEasing);
@@ -131,7 +131,7 @@ namespace Yak.UserControls
         /// <param name="e">ScrollChangedEventArgs</param>
         private async void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            double totalHeight = e.VerticalOffset + e.ViewportHeight;
+            var totalHeight = e.VerticalOffset + e.ViewportHeight;
 
             if (totalHeight.Equals(e.ExtentHeight))
             {
@@ -142,7 +142,7 @@ namespace Yak.UserControls
                 if (vm != null && !ProgressRing.IsActive)
                 {
                     // We check if the searching form is empty or not
-                    if (String.IsNullOrEmpty(vm.SearchMoviesFilter))
+                    if (string.IsNullOrEmpty(vm.SearchMoviesFilter))
                     {
                         await vm.LoadNextPage();
                     }
